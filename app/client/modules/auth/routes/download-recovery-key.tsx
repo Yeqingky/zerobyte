@@ -25,7 +25,7 @@ export function DownloadRecoveryKeyPage() {
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);
+			window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
 
 			toast.success("Recovery key downloaded successfully!");
 			void navigate({ to: "/volumes", replace: true });
@@ -59,8 +59,9 @@ export function DownloadRecoveryKeyPage() {
 				<AlertTriangle className="size-5" />
 				<AlertTitle>Important: Save This File Securely</AlertTitle>
 				<AlertDescription>
-					Your Restic password is essential for recovering your backup data. If you lose access to this server without
-					this file, your backups will be unrecoverable. Store it in a password manager or encrypted storage.
+					Your Restic password is essential for recovering your backup data. If you lose access to this server
+					without this file, your backups will be unrecoverable. Store it in a password manager or encrypted
+					storage.
 				</AlertDescription>
 			</Alert>
 
@@ -76,7 +77,9 @@ export function DownloadRecoveryKeyPage() {
 						required
 						disabled={downloadResticPassword.isPending}
 					/>
-					<p className="text-xs text-muted-foreground">Enter your account password to download the recovery key</p>
+					<p className="text-xs text-muted-foreground">
+						Enter your account password to download the recovery key
+					</p>
 				</div>
 
 				<div className="flex flex-col gap-2">

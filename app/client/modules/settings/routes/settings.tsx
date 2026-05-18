@@ -85,7 +85,7 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);
+			window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
 
 			toast.success("Restic password file downloaded successfully");
 			setDownloadDialogOpen(false);
@@ -213,11 +213,22 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 							<CardContent className="p-6 space-y-4">
 								<div className="space-y-2">
 									<Label htmlFor="username">Username</Label>
-									<Input id="username" value={appContext.user?.username} disabled className="max-w-md" />
+									<Input
+										id="username"
+										value={appContext.user?.username}
+										disabled
+										className="max-w-md"
+									/>
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="email">Email</Label>
-									<Input id="email" type="email" value={appContext.user?.email} disabled className="max-w-md" />
+									<Input
+										id="email"
+										type="email"
+										value={appContext.user?.email}
+										disabled
+										className="max-w-md"
+									/>
 								</div>
 							</CardContent>
 
@@ -237,7 +248,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 											<Label htmlFor="date-format">Date format</Label>
 											<Select
 												value={dateFormat}
-												onValueChange={(value) => void handleDateFormatChange(value as DateFormatPreference)}
+												onValueChange={(value) =>
+													void handleDateFormatChange(value as DateFormatPreference)
+												}
 											>
 												<SelectTrigger id="date-format">
 													<SelectValue />
@@ -255,7 +268,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 											<Label htmlFor="time-format">Time format</Label>
 											<Select
 												value={timeFormat}
-												onValueChange={(value) => void handleTimeFormatChange(value as TimeFormatPreference)}
+												onValueChange={(value) =>
+													void handleTimeFormatChange(value as TimeFormatPreference)
+												}
 											>
 												<SelectTrigger id="time-format">
 													<SelectValue />
@@ -270,7 +285,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 											</Select>
 										</div>
 									</div>
-									<p className="text-sm text-muted-foreground">Preview: {formatDateTime(new Date())}</p>
+									<p className="text-sm text-muted-foreground">
+										Preview: {formatDateTime(new Date())}
+									</p>
 								</div>
 							</CardContent>
 
@@ -279,7 +296,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 									<KeyRound className="size-5" />
 									Change Password
 								</CardTitle>
-								<CardDescription className="mt-1.5">Update your password to keep your account secure</CardDescription>
+								<CardDescription className="mt-1.5">
+									Update your password to keep your account secure
+								</CardDescription>
 							</div>
 							<CardContent className="p-6">
 								<form onSubmit={handleChangePassword} className="space-y-4">
@@ -305,7 +324,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 											required
 											minLength={8}
 										/>
-										<p className="text-xs text-muted-foreground">Must be at least 8 characters long</p>
+										<p className="text-xs text-muted-foreground">
+											Must be at least 8 characters long
+										</p>
 									</div>
 									<div className="space-y-2">
 										<Label htmlFor="confirm-password">Confirm New Password</Label>
@@ -331,13 +352,15 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 									<Download className="size-5" />
 									Backup Recovery Key
 								</CardTitle>
-								<CardDescription className="mt-1.5">Download your recovery key for Restic backups</CardDescription>
+								<CardDescription className="mt-1.5">
+									Download your recovery key for Restic backups
+								</CardDescription>
 							</div>
 							<CardContent className="p-6 space-y-4">
 								<p className="text-sm text-muted-foreground max-w-2xl">
-									This file contains the encryption password used by Restic to secure your backups. Store it in a safe
-									place (like a password manager or encrypted storage). If you lose access to this server, you'll need
-									this file to recover your backup data.
+									This file contains the encryption password used by Restic to secure your backups.
+									Store it in a safe place (like a password manager or encrypted storage). If you lose
+									access to this server, you'll need this file to recover your backup data.
 								</p>
 
 								<Dialog open={downloadDialogOpen} onOpenChange={setDownloadDialogOpen}>
@@ -352,7 +375,8 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 											<DialogHeader>
 												<DialogTitle>Download Recovery Key</DialogTitle>
 												<DialogDescription>
-													For security reasons, please enter your account password to download the recovery key file.
+													For security reasons, please enter your account password to download
+													the recovery key file.
 												</DialogDescription>
 											</DialogHeader>
 											<div className="space-y-4 py-4">
@@ -402,7 +426,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 										<Fingerprint className="size-5" />
 										Organization Details
 									</CardTitle>
-									<CardDescription className="mt-1.5">Reference details for the active organization</CardDescription>
+									<CardDescription className="mt-1.5">
+										Reference details for the active organization
+									</CardDescription>
 								</div>
 								<CardContent className="p-6 space-y-2">
 									<Label htmlFor="organization-id">Organization ID</Label>
@@ -421,7 +447,9 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 										<Building2 className="size-5" />
 										Members
 									</CardTitle>
-									<CardDescription className="mt-1.5">Manage organization members and roles</CardDescription>
+									<CardDescription className="mt-1.5">
+										Manage organization members and roles
+									</CardDescription>
 								</div>
 								<CardContent className="p-6">
 									<OrgMembersSection initialMembers={initialMembers} />
@@ -434,10 +462,15 @@ export function SettingsPage({ appContext, initialMembers, initialSsoSettings, i
 										<SettingsIcon className="size-5" />
 										Single Sign-On
 									</CardTitle>
-									<CardDescription className="mt-1.5">Configure OIDC provider settings</CardDescription>
+									<CardDescription className="mt-1.5">
+										Configure OIDC provider settings
+									</CardDescription>
 								</div>
 								<CardContent className="p-6">
-									<SsoSettingsSection initialSettings={initialSsoSettings} initialOrigin={initialOrigin} />
+									<SsoSettingsSection
+										initialSettings={initialSsoSettings}
+										initialOrigin={initialOrigin}
+									/>
 								</CardContent>
 							</Card>
 						</TabsContent>
