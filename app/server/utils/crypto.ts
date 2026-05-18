@@ -102,10 +102,6 @@ const resolveSecret = async (value: string): Promise<string> => {
  * Prepares a secret value for storage.
  */
 const sealSecret = async (value: string): Promise<string> => {
-	if (isEncrypted(value)) {
-		return value;
-	}
-
 	return encrypt(value);
 };
 
