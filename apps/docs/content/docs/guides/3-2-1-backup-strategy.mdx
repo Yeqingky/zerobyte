@@ -1,145 +1,145 @@
 ---
-title: 3-2-1 Backup Strategy
-description: Build a practical 3-2-1 backup setup in Zerobyte with a fast local copy and an offsite encrypted mirror
+title: 3-2-1 备份策略
+description: 在 Zerobyte 中构建实用的 3-2-1 备份方案，包含快速本地副本和异地加密镜像
 ---
 
-The 3-2-1 backup strategy is a simple rule for reducing backup risk:
+3-2-1 备份策略是降低备份风险的一条简单规则：
 
-- Keep **3 copies** of your data
-- Use **2 different storage systems**
-- Keep **1 copy offsite**
+- 保留数据的 **3 份副本**
+- 使用 **2 种不同的存储系统**
+- 保留 **1 份异地副本**
 
-In Zerobyte, that usually looks like this:
+在 Zerobyte 中，通常如下所示：
 
-- Your live data on a server, NAS, or workstation
-- A primary backup repository on fast local storage
-- A mirrored repository on an offsite backend such as S3, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, SFTP, or a remote REST server
+- 服务器、NAS 或工作站上的实时数据
+- 快速本地存储上的主备份仓库
+- S3、Cloudflare R2、Google Cloud Storage、Azure Blob Storage、SFTP 或远程 REST 服务器等异地后端的镜像仓库
 
-## Why 3-2-1 is a good strategy
+## 为什么 3-2-1 是个好策略
 
-A single backup copy can still fail for the same reason as the original data. The 3-2-1 rule reduces correlated failure, so one bad delete, dead disk, provider issue, or site-level incident is less likely to wipe out every copy at once.
+单一备份副本仍可能因与原始数据相同的原因而失效。3-2-1 规则降低了关联故障的风险，因此一次误删除、磁盘损坏、服务商问题或站点级事故不太可能同时摧毁所有副本。
 
-| Failure scenario | What goes wrong without 3-2-1 | How 3-2-1 helps |
+| 故障场景 | 没有 3-2-1 会出什么问题 | 3-2-1 如何帮助 |
 | --- | --- | --- |
-| Accidental deletion or bad change | Your only backup may be too recent or incomplete | Older snapshots give you a clean restore point |
-| Disk or NAS failure | Data and backup can be lost together | A second storage system still has the data |
-| Ransomware or host compromise | Local storage may be affected too | An offsite copy gives you another recovery path |
-| Fire, theft, or power event | Everything in one building can disappear together | The offsite copy survives |
-| Provider or account problem | One backend outage blocks restore | Different backends reduce that single point of failure |
+| 意外删除或错误变更 | 唯一的备份可能太新或不完整 | 较旧的快照为您提供干净的恢复点 |
+| 磁盘或 NAS 故障 | 数据和备份可能同时丢失 | 第二个存储系统仍然保留数据 |
+| 勒索软件或主机被入侵 | 本地存储也可能受到影响 | 异地副本为您提供另一条恢复路径 |
+| 火灾、盗窃或电源事故 | 同一栋楼里的所有东西可能一起消失 | 异地副本得以幸存 |
+| 服务商或账户问题 | 一个后端故障阻止恢复 | 不同的后端减少了单点故障 |
 
-Zerobyte fits this strategy well because it already gives you the building blocks:
+Zerobyte 非常适合此策略，因为它已经为您提供了构建模块：
 
-- **Encrypted repositories** so offsite copies stay private
-- **Incremental, deduplicated snapshots** so keeping multiple copies is more storage-efficient
-- **Mirror repositories** so one backup job can copy snapshots to additional destinations
-- **Browsable restores** so you can test recovery without dropping to the CLI
+- **加密仓库**，确保异地副本保持私密
+- **增量、去重快照**，使保留多个副本更节省存储空间
+- **镜像仓库**，让一个备份任务可以将快照复制到其他目标
+- **可浏览的恢复**，让您无需使用命令行即可测试恢复
 
-## How 3-2-1 maps to Zerobyte
+## 3-2-1 在 Zerobyte 中的映射
 
-| 3-2-1 element | Zerobyte example |
+| 3-2-1 要素 | Zerobyte 示例 |
 | --- | --- |
-| **3 copies** | Live data + primary repository + mirror repository |
-| **2 different storage systems** | Local disk or NAS for the primary copy, object storage or remote server for the second copy |
-| **1 offsite copy** | A repository in another building, region, or provider |
+| **3 份副本** | 实时数据 + 主仓库 + 镜像仓库 |
+| **2 种不同的存储系统** | 主副本使用本地磁盘或 NAS，第二副本使用对象存储或远程服务器 |
+| **1 份异地副本** | 位于另一栋建筑、区域或服务商的仓库 |
 
 <Callout type="info">
-  Historically, the "2" in 3-2-1 meant two different kinds of media. In modern setups, different storage systems and failure domains matter more than literal media type. A local disk plus cloud object storage is a strong practical interpretation.
+  从历史上看，3-2-1 中的"2"指的是两种不同的介质类型。在现代环境中，不同的存储系统和故障域比字面意义上的介质类型更重要。本地磁盘加云对象存储是一种有力的实际解读。
 </Callout>
 
-## How to do it with Zerobyte
+## 如何在 Zerobyte 中实现
 
 <Steps>
   <Step>
 
-### Create the volume for your live data
+### 为实时数据创建 Volume
 
-Add the directory or remote share you want to protect as a [volume](/docs/concepts/volumes).
-
-  </Step>
-
-  <Step>
-
-### Create a primary repository for fast restores
-
-Use a backend that is quick and close to the source, such as a local disk, mounted NAS path, nearby REST server, or nearby SFTP host. This gives you a fast day-to-day restore target.
+将要保护的目录或远程共享添加为 [Volume](/docs/concepts/volumes)。
 
   </Step>
 
   <Step>
 
-### Create a second repository in a different failure domain
+### 为快速恢复创建主仓库
 
-Create another repository on an offsite backend such as S3-compatible storage, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, or a remote SFTP or REST server in another location.
-
-If you want a strong "2" in 3-2-1, avoid putting both repositories on the same host, in the same rack, or behind the same provider account.
+使用靠近源且速度快的后端，例如本地磁盘、已挂载的 NAS 路径、附近的 REST 服务器或附近的 SFTP 主机。这为您提供了快速的日常恢复目标。
 
   </Step>
 
   <Step>
 
-### Create the backup job and add the offsite copy as a mirror
+### 在不同故障域中创建第二个仓库
 
-Set the primary repository as the main backup repository, then configure the offsite repository as a mirror repository. After each successful backup, Zerobyte copies that snapshot to the mirror repository automatically.
+在异地后端上创建另一个仓库，例如 S3 兼容存储、Cloudflare R2、Google Cloud Storage、Azure Blob Storage，或位于其他位置的远程 SFTP 或 REST 服务器。
 
-  </Step>
-
-  <Step>
-
-### Add a schedule and retention policy
-
-Pick a schedule that matches how often the data changes. A solid starting point for many workloads is:
-
-- Schedule: `0 2 * * *` (daily at 2:00 AM)
-- Keep Daily: `7`
-- Keep Weekly: `4`
-- Keep Monthly: `6`
-- Keep Yearly: `1`
-
-Adjust this based on your recovery needs and storage budget.
+如果您想要实现 3-2-1 中强有力的"2"，请避免将两个仓库放在同一台主机、同一个机架或同一个服务商账户下。
 
   </Step>
 
   <Step>
 
-### Store the recovery key outside Zerobyte
+### 创建备份任务并将异地副本添加为镜像
 
-Keep the organization's recovery key in a password manager, secret vault, or other secure place outside the Zerobyte server. The offsite copy only helps if you can still decrypt it during an outage.
+将主仓库设置为主备份仓库，然后将异地仓库配置为镜像仓库。每次成功备份后，Zerobyte 会自动将该快照复制到镜像仓库。
 
   </Step>
 
   <Step>
 
-### Run a manual backup and test restore
+### 添加调度和保留策略
 
-Use **Backup now** to create the first snapshot, then test a restore to a non-production path. A backup strategy is only real once you have verified that recovery works.
+选择与数据变更频率相匹配的调度计划。对于许多工作负载来说，一个可靠的起点是：
+
+- 调度：`0 2 * * *`（每天凌晨 2:00）
+- 保留每日：`7`
+- 保留每周：`4`
+- 保留每月：`6`
+- 保留每年：`1`
+
+根据您的恢复需求和存储预算进行调整。
+
+  </Step>
+
+  <Step>
+
+### 将恢复密钥存储在 Zerobyte 之外
+
+将组织的恢复密钥保存在密码管理器、密钥保管库或 Zerobyte 服务器之外的其他安全位置。异地副本只有在发生故障时仍能解密才有帮助。
+
+  </Step>
+
+  <Step>
+
+### 运行手动备份并测试恢复
+
+使用**立即备份**创建第一个快照，然后测试恢复到非生产路径。只有在验证恢复可行之后，备份策略才真正成立。
 
   </Step>
 </Steps>
 
-## Example Zerobyte layout
+## Zerobyte 布局示例
 
-| Copy | Example |
+| 副本 | 示例 |
 | --- | --- |
-| Live data | `/srv/data` on your server |
-| Local backup copy | Local repository on `/mnt/backup-disk/zerobyte` |
-| Offsite backup copy | Cloudflare R2 bucket or remote SFTP repository |
+| 实时数据 | 服务器上的 `/srv/data` |
+| 本地备份副本 | `/mnt/backup-disk/zerobyte` 上的本地仓库 |
+| 异地备份副本 | Cloudflare R2 存储桶或远程 SFTP 仓库 |
 
-One backup job can then write to the local repository and mirror each successful snapshot to the offsite repository.
+然后一个备份任务可以写入本地仓库，并将每个成功快照镜像到异地仓库。
 
-## Common mistakes
+## 常见错误
 
-- Keeping the live data and primary repository on the same physical disk
-- Calling a second copy "offsite" when it is still in the same building
-- Storing every copy under the same provider account without any separation
-- Forgetting to protect the recovery key or imported repository password
-- Never testing restores
+- 将实时数据和主仓库放在同一块物理磁盘上
+- 称第二份副本为"异地"，实际上它仍在同一栋楼里
+- 将所有副本存储在同一服务商账户下，没有任何隔离
+- 忘记保护恢复密钥或导入的仓库密码
+- 从未测试过恢复
 
-## Related docs
+## 相关文档
 
-- [Quickstart](/docs/quickstart)
-- [Backups](/docs/concepts/backups)
-- [Repositories](/docs/concepts/repositories)
-- [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords)
+- [快速开始](/docs/quickstart)
+- [备份](/docs/concepts/backups)
+- [仓库](/docs/concepts/repositories)
+- [恢复密钥与仓库密码](/docs/guides/recovery-key-and-repository-passwords)
 
 import { Step, Steps } from "fumadocs-ui/components/steps";
 import { Callout } from "fumadocs-ui/components/callout";

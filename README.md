@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Zerobyte</h1>
-  <h3>Powerful backup automation for your remote storage<br />Encrypt, compress, and protect your data with ease</h3>
+  <h3>为你的远程存储提供强大的备份自动化<br />轻松加密、压缩和保护你的数据</h3>
   <a href="https://github.com/nicotsx/zerobyte/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/nicotsx/zerobyte" />
   </a>
@@ -9,43 +9,46 @@
     <img src="https://github.com/nicotsx/zerobyte/blob/main/screenshots/backup-details.webp?raw=true" alt="Demo" />
     <figcaption>
       <p align="center">
-        Backup management with scheduling and monitoring
+        带有计划调度和监控的备份管理
       </p>
     </figcaption>
   </figure>
 </div>
 
-#### Join the community
+> [!CAUTION]
+> **此 README 由 AI（DeepSeek V3 Flash）自动翻译完成。** 如有不准确或歧义之处，请以英文原版为准。
+
+#### 加入社区
 
 [![Discord](https://img.shields.io/discord/1466834119873925263?label=discord&logo=discord)](https://discord.gg/XjgVyXrcEH)
 
 > [!WARNING]
-> Zerobyte is still in version 0.x.x and is subject to major changes from version to version. I am developing the core features and collecting feedback. Please open issues for bugs or feature requests.
+> Zerobyte 仍处于 0.x.x 版本，各版本之间可能会有重大变化。我正在开发核心功能并收集反馈。如有 Bug 或功能请求，请提交 Issue。
 
 <p align="center">
 <a href="https://www.buymeacoffee.com/nicotsx" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 </p>
 
-## Introduction
+## 简介
 
-Zerobyte is a backup automation tool that helps you save your data across multiple storage backends. Built on top of Restic, it provides an modern web interface to schedule, manage, and monitor encrypted backups of your remote storage.
+Zerobyte 是一款备份自动化工具，帮助你将数据保存到多个存储后端。它基于 Restic 构建，提供现代化的 Web 界面，用于调度、管理和监控远程存储的加密备份。
 
-## Documentation
+## 文档
 
-The official documentation website is available at [zerobyte.app](https://zerobyte.app).
+官方文档网站：[zerobyte.app](https://zerobyte.app)
 
-It contains up-to-date setup guides, configuration reference, and usage documentation for running Zerobyte in production.
+其中包含最新的设置指南、配置参考以及在生产环境中运行 Zerobyte 的使用文档。
 
-### Features
+### 功能特性
 
-- **Automated backups** with encryption, compression, and retention policies, powered by Restic
-- **Flexible scheduling** for automated backup jobs with fine-grained retention policies
-- **End-to-end encryption** will ensure your data is always protected
-- **Multi-protocol support** for backup from NFS, SMB, WebDAV, SFTP, or local directories
+- **自动备份**：由 Restic 驱动，支持加密、压缩和保留策略
+- **灵活调度**：支持自动备份任务，具有精细的保留策略
+- **端到端加密**：确保你的数据始终受到保护
+- **多协议支持**：支持从 NFS、SMB、WebDAV、SFTP 或本地目录进行备份
 
-## Installation
+## 安装
 
-In order to run Zerobyte, you need to have Docker and Docker Compose installed on your server. Then, you can use the provided `docker-compose.yml` file to start the application.
+要运行 Zerobyte，你需要在服务器上安装 Docker 和 Docker Compose。然后使用提供的 `docker-compose.yml` 文件启动应用。
 
 ```yaml
 services:
@@ -60,22 +63,22 @@ services:
     devices:
       - /dev/fuse:/dev/fuse
     environment:
-      - TZ=Europe/Zurich # Set your timezone here
-      - BASE_URL=http://localhost:4096 # URL you will use to access Zerobyte
-      - APP_SECRET=94bad46...c66e25d5c2b # Generate your own secret with `openssl rand -hex 32`
+      - TZ=Europe/Zurich # 在此设置你的时区
+      - BASE_URL=http://localhost:4096 # 访问 Zerobyte 的 URL
+      - APP_SECRET=94bad46...c66e25d5c2b # 使用 `openssl rand -hex 32` 生成你的密钥
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/zerobyte:/var/lib/zerobyte
 ```
 
 > [!WARNING]
-> It is highly discouraged to run Zerobyte on a server that is accessible from the internet (VPS or home server with port forwarding). If you do, make sure to change the port mapping to "127.0.0.1:4096:4096" and use a secure tunnel (SSH tunnel, Cloudflare Tunnel, etc.) with authentication.
+> 强烈不建议在可从互联网访问的服务器（VPS 或开启了端口转发的家庭服务器）上运行 Zerobyte。如果确实需要，请将端口映射改为 `127.0.0.1:4096:4096`，并使用带有身份验证的安全隧道（SSH 隧道、Cloudflare Tunnel 等）。
 
 > [!WARNING]
-> Do not try to point `/var/lib/zerobyte` to a network share. You will face permission issues and strong performance degradation.
+> 请勿将 `/var/lib/zerobyte` 指向网络共享位置。否则会遇到权限问题和严重的性能下降。
 
 > [!NOTE]
-> **TrueNAS Users:** The host path `/var/lib` is ephemeral on TrueNAS and will be reset during system upgrades. Instead of using `/var/lib/zerobyte:/var/lib/zerobyte`, create a dedicated ZFS dataset (e.g., `tank/docker/zerobyte`) and mount it instead:
+> **TrueNAS 用户：** TrueNAS 上的主机路径 `/var/lib` 是临时性的，会在系统升级时重置。不要使用 `/var/lib/zerobyte:/var/lib/zerobyte`，请创建专用的 ZFS 数据集（例如 `tank/docker/zerobyte`）并挂载：
 >
 > ```yaml
 > volumes:
@@ -83,75 +86,75 @@ services:
 >   - /mnt/tank/docker/zerobyte:/var/lib/zerobyte
 > ```
 >
-> This ensures your configuration, encryption keys, and database persist across TrueNAS upgrades.
+> 这样可以确保你的配置、加密密钥和数据库在 TrueNAS 升级后仍然保留。
 
-Then, run the following command to start Zerobyte:
+然后运行以下命令启动 Zerobyte：
 
 ```bash
 docker compose up -d
 ```
 
-Once the container is running, you can access the web interface at `http://<your-server-ip>:4096`.
+容器启动后，可以通过 `http://<你的服务器IP>:4096` 访问 Web 界面。
 
-## Configuration
+## 配置
 
-Zerobyte can be customized using environment variables. Below are the available options:
+Zerobyte 可通过环境变量进行自定义。以下是可用选项：
 
-### Environment variables
+### 环境变量
 
-| Variable              | Description                                                                                                                               | Default                |
-| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- | :--------------------- |
-| `BASE_URL`            | **Required.** The base URL of your Zerobyte instance (e.g., `https://zerobyte.example.com`). See [Authentication](#authentication) below. | (none)                 |
-| `APP_SECRET`          | **Required.** A random secret key (32+ chars) used to encrypt sensitive data in the database. Generate with `openssl rand -hex 32`.       | (none)                 |
-| `APP_SECRET_FILE`     | Path to a file containing `APP_SECRET`, useful with Docker or Kubernetes secrets. Mutually exclusive with `APP_SECRET`.                   | (none)                 |
-| `PORT`                | The port the web interface and API will listen on.                                                                                        | `4096`                 |
-| `RESTIC_HOSTNAME`     | The hostname used by Restic when creating snapshots. Automatically detected if a custom hostname is set in Docker.                        | `zerobyte`             |
-| `TZ`                  | Timezone for the container (e.g., `Europe/Zurich`). **Crucial for accurate backup scheduling.**                                           | `UTC`                  |
-| `TRUST_PROXY`         | When `true`, trust an existing `X-Forwarded-For` header from your reverse proxy. Leave `false` for direct deployments.                    | `false`                |
-| `TRUSTED_ORIGINS`     | Comma-separated list of extra trusted origins for CORS (e.g., `http://localhost:3000,http://example.com`).                                | (none)                 |
-| `WEBHOOK_ALLOWED_ORIGINS` | Comma-separated list of HTTP origins allowed for backup webhooks and outbound HTTP notification destinations.                          | (none)                 |
-| `WEBHOOK_TIMEOUT`     | Timeout for backup webhook requests in seconds.                                                                                           | `60`                   |
-| `LOG_LEVEL`           | Logging verbosity. Options: `debug`, `info`, `warn`, `error`.                                                                             | `info`                 |
-| `SERVER_IDLE_TIMEOUT` | Idle timeout for the server in seconds.                                                                                                   | `60`                   |
-| `RCLONE_CONFIG_DIR`   | Path to the directory containing `rclone.conf` inside the container. Change this if running as a non-root user.                           | `/root/.config/rclone` |
-| `PROVISIONING_PATH`   | Path to a JSON file with operator-managed repositories and volumes to sync at startup.                                                    | (none)                 |
+| 变量                    | 说明                                                                                                                              | 默认值                  |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------------------------------- | :---------------------- |
+| `BASE_URL`              | **必填。** Zerobyte 实例的基础 URL（例如 `https://zerobyte.example.com`）。详见下方的[身份验证](#身份验证)。                     | （无）                  |
+| `APP_SECRET`            | **必填。** 用于加密数据库中敏感数据的随机密钥（32+ 字符）。使用 `openssl rand -hex 32` 生成。                                    | （无）                  |
+| `APP_SECRET_FILE`       | 包含 `APP_SECRET` 的文件路径，适用于 Docker 或 Kubernetes 密钥。与 `APP_SECRET` 互斥。                                           | （无）                  |
+| `PORT`                  | Web 界面和 API 的监听端口。                                                                                                       | `4096`                  |
+| `RESTIC_HOSTNAME`       | Restic 创建快照时使用的主机名。如果在 Docker 中设置了自定义主机名，会自动检测。                                                   | `zerobyte`              |
+| `TZ`                    | 容器的时区（例如 `Asia/Shanghai`）。**对于准确的备份调度至关重要。**                                                              | `UTC`                   |
+| `TRUST_PROXY`           | 设为 `true` 时，信任来自反向代理的 `X-Forwarded-For` 头部。直接部署时保持 `false`。                                              | `false`                 |
+| `TRUSTED_ORIGINS`       | 允许跨域请求的额外来源列表，逗号分隔（例如 `http://localhost:3000,http://example.com`）。                                        | （无）                  |
+| `WEBHOOK_ALLOWED_ORIGINS` | 允许的 HTTP 来源列表（逗号分隔），用于备份 webhook 和出站 HTTP 通知目标。                                                        | （无）                  |
+| `WEBHOOK_TIMEOUT`       | 备份 webhook 请求的超时时间（秒）。                                                                                               | `60`                    |
+| `LOG_LEVEL`             | 日志详细程度。可选值：`debug`、`info`、`warn`、`error`。                                                                         | `info`                  |
+| `SERVER_IDLE_TIMEOUT`   | 服务器空闲超时时间（秒）。                                                                                                        | `60`                    |
+| `RCLONE_CONFIG_DIR`     | 容器内 `rclone.conf` 所在目录。如果以非 root 用户运行，需要修改此值。                                                              | `/root/.config/rclone`  |
+| `PROVISIONING_PATH`     | 包含运维管理仓库和存储卷的 JSON 文件路径，在启动时同步。                                                                          | （无）                  |
 
-### Webhook and notification network policy
+### Webhook 与通知网络策略
 
-Backup webhooks and outbound notification destinations that can target arbitrary network hosts are restricted by `WEBHOOK_ALLOWED_ORIGINS`.
+备份 webhook 和可指向任意网络主机的出站通知目标受 `WEBHOOK_ALLOWED_ORIGINS` 限制。
 
-The allowlist matches exact origins only: scheme, host, and port must match. Paths are ignored, so `https://hooks.example.com/backups` allows any path on `https://hooks.example.com`, but it does not allow `http://hooks.example.com`, `https://hooks.example.com:8443`, or `https://other.example.com`.
+允许列表仅匹配精确的来源：协议、主机和端口必须完全匹配。路径会被忽略，因此 `https://hooks.example.com/backups` 允许 `https://hooks.example.com` 上的任何路径，但不允许 `http://hooks.example.com`、`https://hooks.example.com:8443` 或 `https://other.example.com`。
 
-This policy applies to:
+此策略适用于：
 
-- backup pre/post webhook URLs
-- Generic HTTP notification URLs
-- Gotify server URLs
-- self-hosted ntfy server URLs
-- custom Shoutrrr URLs that point at generic HTTP or SMTP network targets
+- 备份前置/后置 webhook URL
+- 通用 HTTP 通知 URL
+- Gotify 服务器 URL
+- 自托管 ntfy 服务器 URL
+- 指向通用 HTTP 或 SMTP 网络目标的自定义 Shoutrrr URL
 
-The public ntfy.sh service and fixed-provider notification services such as Slack, Discord, Pushover, and Telegram do not need `WEBHOOK_ALLOWED_ORIGINS`.
+公共 ntfy.sh 服务和固定提供商的通知服务（如 Slack、Discord、Pushover、Telegram）不需要配置 `WEBHOOK_ALLOWED_ORIGINS`。
 
-Backup webhooks do not follow redirects. Add the final destination origin to `WEBHOOK_ALLOWED_ORIGINS` and configure that final URL directly.
+备份 webhook 不跟随重定向。请直接将最终目标来源添加到 `WEBHOOK_ALLOWED_ORIGINS` 并配置该最终 URL。
 
-Webhook headers are stored as plain text and must use one `Key: Value` header per line. `WEBHOOK_TIMEOUT` controls backup pre/post webhook request timeouts; notification delivery uses the underlying provider sender behavior.
+Webhook 头部以明文存储，每行必须使用一个 `Key: Value` 格式。`WEBHOOK_TIMEOUT` 控制备份前置/后置 webhook 请求超时；通知投递使用底层提供商的发送行为。
 
-### Provisioned resources
+### 预配置资源
 
-Zerobyte can sync operator-managed repositories and volumes from a JSON file at startup. This is useful when you want credentials or connection details to live in deployment-time configuration instead of being entered through the UI.
+Zerobyte 可以在启动时从 JSON 文件同步运维管理的仓库和存储卷。当你希望凭据或连接信息存在于部署时配置而非通过 UI 输入时，这非常有用。
 
-Provisioned resources:
+预配置资源：
 
-- appear in the normal repositories and volumes screens
-- can resolve credential fields from environment variables or `/run/secrets/*` during startup sync
+- 会出现在常规的仓库和存储卷页面中
+- 可以在启动同步时从环境变量或 `/run/secrets/*` 解析凭据字段
 
-The complete provisioning documentation is available at [zerobyte.app/docs/guides/provisioning](https://zerobyte.app/docs/guides/provisioning).
+完整的预配置文档请访问 [zerobyte.app/docs/guides/provisioning](https://zerobyte.app/docs/guides/provisioning)。
 
-See `examples/provisioned-resources/README.md` for a full example.
+完整示例请参见 `examples/provisioned-resources/README.md`。
 
-### Simplified setup (no remote mounts)
+### 简化部署（无需远程挂载）
 
-If you only need to back up locally-mounted folders and don't require remote share mounting capabilities, you can remove the `SYS_ADMIN` capability and FUSE device from your `docker-compose.yml`:
+如果只需要备份本地挂载的文件夹，不需要远程共享挂载功能，可以从 `docker-compose.yml` 中移除 `SYS_ADMIN` 能力和 FUSE 设备：
 
 ```yaml
 services:
@@ -162,35 +165,35 @@ services:
     ports:
       - "4096:4096"
     environment:
-      - TZ=Europe/Zurich # Set your timezone here
-      - BASE_URL=http://localhost:4096 # Change this to your actual URL (use https:// for secure cookies)
-      - APP_SECRET=94bad46...c66e25d5c2b # Generate your own secret with `openssl rand -hex 32`
+      - TZ=Europe/Zurich # 在此设置你的时区
+      - BASE_URL=http://localhost:4096 # 修改为你的实际 URL（使用 https:// 启用安全 Cookie）
+      - APP_SECRET=94bad46...c66e25d5c2b # 使用 `openssl rand -hex 32` 生成你的密钥
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/zerobyte:/var/lib/zerobyte
       - /path/to/your/directory:/mydata
 ```
 
-**Trade-offs:**
+**权衡：**
 
-- ✅ Improved security by reducing container capabilities
-- ✅ Support for local directories as backup sources
-- ✅ Support all repository types, local and remote (S3, GCS, Azure, rclone)
-- ❌ Cannot mount NFS, SMB, WebDAV, or SFTP shares directly from Zerobyte
+- ✅ 通过减少容器能力提升安全性
+- ✅ 支持本地目录作为备份源
+- ✅ 支持所有仓库类型，包括本地和远程（S3、GCS、Azure、rclone）
+- ❌ 无法直接从 Zerobyte 挂载 NFS、SMB、WebDAV 或 SFTP 共享
 
-If you need remote mount capabilities, keep the original configuration with `cap_add: SYS_ADMIN` and `devices: /dev/fuse:/dev/fuse`.
+如果需要远程挂载能力，请保留原始配置中的 `cap_add: SYS_ADMIN` 和 `devices: /dev/fuse:/dev/fuse`。
 
-## Examples
+## 示例
 
-See [examples/README.md](examples/README.md) for runnable, copy/paste-friendly examples.
+可运行、可直接复制粘贴的示例请参见 [examples/README.md](examples/README.md)。
 
-## Adding your first volume
+## 添加第一个存储卷
 
-Zerobyte supports multiple volume backends including NFS, SMB, WebDAV, SFTP, and local directories. A volume represents the source data you want to back up and monitor.
+Zerobyte 支持多种存储卷后端，包括 NFS、SMB、WebDAV、SFTP 和本地目录。存储卷代表你想要备份和监控的源数据。
 
-To add your first volume, navigate to the "Volumes" section in the web interface and click on "Create volume". Fill in the required details such as volume name, type, and connection settings.
+要添加第一个存储卷，请导航到 Web 界面中的"存储卷"部分，点击"创建存储卷"。填写所需信息，如存储卷名称、类型和连接设置。
 
-If you want to backup a local directory on the same host where Zerobyte is running, you'll first need to mount that directory into the Zerobyte container. You can do this by adding a volume mapping in your `docker-compose.yml` file. For example, to mount `/path/to/your/directory` from the host to `/mydata` in the container, you would add the following line under the `volumes` section:
+如果你想要备份 Zerobyte 运行主机上的本地目录，首先需要将该目录挂载到 Zerobyte 容器中。可以通过在 `docker-compose.yml` 文件中添加卷映射来实现。例如，要将主机的 `/path/to/your/directory` 挂载到容器的 `/mydata`，请在 `volumes` 部分添加以下行：
 
 ```diff
 services:
@@ -206,66 +209,66 @@ services:
       - /dev/fuse:/dev/fuse
     environment:
       - TZ=Europe/Zurich
-      - BASE_URL=http://localhost:4096 # URL you will use to access Zerobyte
-      - APP_SECRET=94bad46...c66e25d5c2b # Generate your own secret with `openssl rand -hex 32`
+      - BASE_URL=http://localhost:4096 # 访问 Zerobyte 的 URL
+      - APP_SECRET=94bad46...c66e25d5c2b # 使用 `openssl rand -hex 32` 生成你的密钥
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/zerobyte:/var/lib/zerobyte
 +     - /path/to/your/directory:/mydata
 ```
 
-After updating the `docker-compose.yml` file, restart the Zerobyte container to apply the changes:
+更新 `docker-compose.yml` 文件后，重启 Zerobyte 容器以应用更改：
 
 ```bash
 docker compose down
 docker compose up -d
 ```
 
-Now, when adding a new volume in the Zerobyte web interface, you can select "Directory" as the volume type and search for your mounted path (e.g., `/mydata`) as the source path.
+现在，在 Zerobyte Web 界面中添加新存储卷时，可以选择"目录"作为存储卷类型，并搜索你的挂载路径（例如 `/mydata`）作为源路径。
 
-![Add a new volume UI](https://github.com/nicotsx/zerobyte/blob/main/screenshots/add-volume.png?raw=true)
+![添加新存储卷界面](https://github.com/nicotsx/zerobyte/blob/main/screenshots/add-volume.png?raw=true)
 
-## Creating a repository
+## 创建仓库
 
-A repository is where your backups will be securely stored encrypted. Zerobyte supports multiple storage backends for your backup repositories:
+仓库是你的备份安全加密存储的地方。Zerobyte 为备份仓库支持多种存储后端：
 
-- **Local directories**: Store backups on local disk subfolders in `/var/lib/zerobyte/repositories/` or any other (mounted) path
-- **S3-compatible storage**: Amazon S3, MinIO, Wasabi, DigitalOcean Spaces, etc.
-- **Google Cloud Storage**: Google's cloud storage service
-- **Azure Blob Storage**: Microsoft Azure storage
-- **rclone remotes**: 40+ cloud storage providers via rclone (see below)
+- **本地目录**：将备份存储在 `/var/lib/zerobyte/repositories/` 或任何其他（挂载）路径的子文件夹中
+- **S3 兼容存储**：Amazon S3、MinIO、Wasabi、DigitalOcean Spaces 等
+- **Google Cloud Storage**：谷歌云存储服务
+- **Azure Blob Storage**：微软 Azure 存储
+- **rclone 远程存储**：通过 rclone 支持 40+ 云存储提供商（见下文）
 
-Repositories are optimized for storage efficiency and data integrity, leveraging Restic's deduplication and encryption features.
+仓库针对存储效率和数据完整性进行了优化，利用了 Restic 的去重和加密功能。
 
-To create a repository, navigate to the "Repositories" section in the web interface and click on "Create repository". Fill in the required details such as repository name, type, and connection settings.
+要创建仓库，请导航到 Web 界面中的"仓库"部分，点击"创建仓库"。填写所需信息，如仓库名称、类型和连接设置。
 
-### Using rclone for cloud storage
+### 使用 rclone 进行云存储
 
-Zerobyte can use [rclone](https://rclone.org/) to support 40+ cloud storage providers including Google Drive, Dropbox, OneDrive, Box, pCloud, Mega, and many more. This gives you the flexibility to store your backups on virtually any cloud storage service.
+Zerobyte 可以使用 [rclone](https://rclone.org/) 支持 40+ 云存储提供商，包括 Google Drive、Dropbox、OneDrive、Box、pCloud、Mega 等。这让你可以灵活地将备份存储到几乎任何云存储服务上。
 
-**Setup instructions:**
+**设置步骤：**
 
-1. **Install rclone on your host system** (if not already installed):
+1. **在主机系统上安装 rclone**（如果尚未安装）：
 
    ```bash
    curl https://rclone.org/install.sh | sudo bash
    ```
 
-2. **Configure your cloud storage remote** using rclone's interactive config:
+2. **使用 rclone 的交互式配置设置云存储远程**：
 
    ```bash
    rclone config
    ```
 
-   Follow the prompts to set up your cloud storage provider. For OAuth providers (Google Drive, Dropbox, etc.), rclone will guide you through the authentication flow.
+   按照提示设置你的云存储提供商。对于 OAuth 提供商（Google Drive、Dropbox 等），rclone 会引导你完成身份验证流程。
 
-3. **Verify your remote is configured**:
+3. **验证远程配置成功**：
 
    ```bash
    rclone listremotes
    ```
 
-4. **Mount the rclone config into the Zerobyte container** by updating your `docker-compose.yml`:
+4. **将 rclone 配置挂载到 Zerobyte 容器中**，更新你的 `docker-compose.yml`：
 
    ```diff
    services:
@@ -281,14 +284,14 @@ Zerobyte can use [rclone](https://rclone.org/) to support 40+ cloud storage prov
          - /dev/fuse:/dev/fuse
        environment:
          - TZ=Europe/Zurich
-         - BASE_URL=http://localhost:4096 # URL you will use to access Zerobyte
+         - BASE_URL=http://localhost:4096 # 访问 Zerobyte 的 URL
        volumes:
          - /etc/localtime:/etc/localtime:ro
          - /var/lib/zerobyte:/var/lib/zerobyte
    +     - ~/.config/rclone:/root/.config/rclone:ro
    ```
 
-   > **Note for non-root users:** If your container runs as a different user (e.g., TrueNAS apps), mount your config to the appropriate location and set `RCLONE_CONFIG_DIR`:
+   > **非 root 用户注意：** 如果容器以其他用户身份运行（例如 TrueNAS 应用），请将配置挂载到适当位置并设置 `RCLONE_CONFIG_DIR`：
    >
    > ```yaml
    > environment:
@@ -297,101 +300,101 @@ Zerobyte can use [rclone](https://rclone.org/) to support 40+ cloud storage prov
    >   - ~/.config/rclone:/home/appuser/.config/rclone:ro
    > ```
 
-5. **Restart the Zerobyte container**:
+5. **重启 Zerobyte 容器**：
 
    ```bash
    docker compose down
    docker compose up -d
    ```
 
-6. **Create a repository** in Zerobyte:
-   - Select "rclone" as the repository type
-   - Choose your configured remote from the dropdown
-   - Specify the path within your remote (e.g., `backups/zerobyte`)
+6. **在 Zerobyte 中创建仓库**：
+   - 选择"rclone"作为仓库类型
+   - 从下拉菜单中选择你配置的远程存储
+   - 指定远程存储中的路径（例如 `backups/zerobyte`）
 
-For a complete list of supported providers, see the [rclone documentation](https://rclone.org/).
+有关支持的提供商完整列表，请参见 [rclone 文档](https://rclone.org/)。
 
-## Your first backup job
+## 第一个备份任务
 
-Once you have added a volume and created a repository, you can create your first backup job. A backup job defines the schedule and parameters for backing up a specific volume to a designated repository.
+添加存储卷并创建仓库后，就可以创建第一个备份任务了。备份任务定义了将特定存储卷备份到指定仓库的计划和参数。
 
-When creating a backup job, you can specify the following settings:
+创建备份任务时，可以指定以下设置：
 
-- **Schedule**: Define how often the backup should run (e.g., daily, weekly)
-- **Retention Policy**: Set rules for how long backups should be retained (e.g., keep daily backups for 7 days, weekly backups for 4 weeks)
-- **Paths**: Specify which files or directories to include in the backup
+- **计划调度**：定义备份运行频率（例如每天、每周）
+- **保留策略**：设置备份保留规则（例如每日备份保留 7 天，每周备份保留 4 周）
+- **路径**：指定要包含在备份中的文件或目录
 
-After configuring the backup job, save it and Zerobyte will automatically execute the backup according to the defined schedule.
-You can monitor the progress and status of your backup jobs in the "Backups" section of the web interface.
+配置备份任务后保存，Zerobyte 将按照定义的计划自动执行备份。
+你可以在 Web 界面的"备份"部分监控备份任务的进度和状态。
 
-![Backups UI](https://github.com/nicotsx/zerobyte/blob/main/screenshots/backups-list.png?raw=true)
+![备份界面](https://github.com/nicotsx/zerobyte/blob/main/screenshots/backups-list.png?raw=true)
 
-## Restoring data
+## 恢复数据
 
-Zerobyte allows you to easily restore your data from backups. To restore data, navigate to the "Backups" section and select the backup job from which you want to restore data. You can then choose a specific backup snapshot and select the files or directories you wish to restore. The data you select will be restored to their original location.
+Zerobyte 允许你轻松从备份中恢复数据。要恢复数据，请导航到"备份"部分，选择要从中恢复数据的备份任务，然后选择特定的备份快照和要恢复的文件或目录。所选数据将恢复到其原始位置。
 
-![Restore UI](https://github.com/nicotsx/zerobyte/blob/main/screenshots/restoring.png?raw=true)
+![恢复界面](https://github.com/nicotsx/zerobyte/blob/main/screenshots/restoring.png?raw=true)
 
-## Authentication
+## 身份验证
 
-Zerobyte uses [better-auth](https://github.com/better-auth/better-auth) for authentication and session management. The authentication system automatically adapts to your deployment scenario:
+Zerobyte 使用 [better-auth](https://github.com/better-auth/better-auth) 进行身份验证和会话管理。身份验证系统会自动适应你的部署场景：
 
-### Cookie security
+### Cookie 安全
 
-- **IP Address/HTTP access**: Set `BASE_URL=http://192.168.1.50:4096` (or your IP). Cookies will use `Secure: false`, allowing immediate login without SSL.
-- **Domain/HTTPS access**: Set `BASE_URL=https://zerobyte.example.com`. Cookies will automatically use `Secure: true` for protected sessions.
+- **IP 地址/HTTP 访问**：设置 `BASE_URL=http://192.168.1.50:4096`（或你的 IP）。Cookie 将使用 `Secure: false`，无需 SSL 即可立即登录。
+- **域名/HTTPS 访问**：设置 `BASE_URL=https://zerobyte.example.com`。Cookie 将自动使用 `Secure: true`，确保会话安全。
 
-### Reverse proxy setup
+### 反向代理设置
 
-If you're running Zerobyte behind a reverse proxy (Nginx, Traefik, Caddy, etc.):
+如果你在反向代理（Nginx、Traefik、Caddy 等）后面运行 Zerobyte：
 
-1. **Set `BASE_URL`** to your HTTPS domain (e.g., `https://zerobyte.example.com`)
-2. The app will automatically enable secure cookies based on the `https://` prefix
-3. Ensure your proxy passes the `X-Forwarded-Proto` header
+1. **将 `BASE_URL`** 设置为你的 HTTPS 域名（例如 `https://zerobyte.example.com`）
+2. 应用程序将根据 `https://` 前缀自动启用安全 Cookie
+3. 确保你的代理传递 `X-Forwarded-Proto` 头部
 
-### Important notes
+### 重要说明
 
-- The `BASE_URL` must start with `https://` for secure cookies to be enabled
-- Local IP addresses (e.g., `http://192.168.x.x`) are **not** treated as secure contexts by browsers, so secure cookies are disabled automatically
-- `TRUSTED_ORIGINS` only allows additional origins for auth-related requests. It does not disable secure cookies or make authenticated HTTP access work when `BASE_URL` is HTTPS.
-- If `BASE_URL` is HTTPS, browsers will only send Zerobyte's auth cookies over HTTPS. Plain HTTP access may still show the login page, but authenticated flows will fail because no session cookie is available.
+- `BASE_URL` 必须以 `https://` 开头才能启用安全 Cookie
+- 浏览器**不会**将本地 IP 地址（例如 `http://192.168.x.x`）视为安全上下文，因此安全 Cookie 会自动禁用
+- `TRUSTED_ORIGINS` 仅允许与认证相关的额外来源。它不会禁用安全 Cookie，也不会在 `BASE_URL` 为 HTTPS 时使 HTTP 认证访问生效
+- 如果 `BASE_URL` 是 HTTPS，浏览器将仅通过 HTTPS 发送 Zerobyte 的认证 Cookie。纯 HTTP 访问可能仍会显示登录页面，但由于没有会话 Cookie，认证流程将失败
 
-## Troubleshooting
+## 故障排除
 
-For troubleshooting common issues, please refer to the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) file.
+常见问题的排查请参考 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) 文件。
 
-## Third-party software
+## 第三方软件
 
-This project includes the following third-party software components:
+本项目包含以下第三方软件组件：
 
 ### Restic
 
-Zerobyte includes [Restic](https://github.com/restic/restic) for backup functionality.
+Zerobyte 包含 [Restic](https://github.com/restic/restic) 用于备份功能。
 
-- **License**: BSD 2-Clause License
-- **Copyright**: Copyright (c) 2014, Alexander Neumann <alexander@bumpern.de>
-- **Status**: Included unchanged
-- **License Text**: See [LICENSES/BSD-2-Clause-Restic.txt](LICENSES/BSD-2-Clause-Restic.txt)
+- **许可证**：BSD 2-Clause License
+- **版权**：Copyright (c) 2014, Alexander Neumann &lt;alexander@bumpern.de&gt;
+- **状态**：原样包含，未经修改
+- **许可文本**：参见 [LICENSES/BSD-2-Clause-Restic.txt](LICENSES/BSD-2-Clause-Restic.txt)
 
-For a complete list of third-party software licenses and attributions, please refer to the [NOTICES.md](NOTICES.md) file.
+完整的第三方软件许可证和归属信息，请参考 [NOTICES.md](NOTICES.md) 文件。
 
-## Contributing
+## 贡献
 
-Contributions by anyone are welcome! If you find a bug or have a feature request, please open an issue on GitHub. If you want to contribute code, feel free to fork the repository and submit a pull request. We require that all contributors sign a Contributor License Agreement (CLA) before we can accept your contributions. This is to protect both you and the project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details.
+欢迎任何人贡献！如果你发现 Bug 或有功能请求，请在 GitHub 上提交 Issue。如果你想贡献代码，欢迎 Fork 仓库并提交 Pull Request。我们要求所有贡献者在接受贡献之前签署贡献者许可协议（CLA），这是为了保护你和项目双方。更多详情请参见 [CONTRIBUTING.md](CONTRIBUTING.md) 文件。
 
-## Development (no Docker)
+## 开发（无需 Docker）
 
-After installing Vite+ globally, you can run Zerobyte locally during development without Docker:
+全局安装 Vite+ 后，你可以在开发过程中在本地运行 Zerobyte，无需 Docker：
 
 ```bash
 vp install
 bun run dev
 ```
 
-For local development, create a `.env.local` file at the repo root and override the Docker paths:
+对于本地开发，请在仓库根目录创建 `.env.local` 文件并覆盖 Docker 路径：
 
 ```bash
-# Example
+# 示例
 ZEROBYTE_DATABASE_URL=./data/zerobyte.db
 APP_SECRET=your_app_secret_here
 RESTIC_PASS_FILE=./data/restic.pass
@@ -401,7 +404,7 @@ ZEROBYTE_VOLUMES_DIR=./data/volumes
 BASE_URL=http://localhost:4096
 ```
 
-Notes:
+注意：
 
-- Remote mount backends (NFS/SMB/WebDAV/SFTP) rely on Linux mount tooling and `CAP_SYS_ADMIN`; on macOS they are expected to be unavailable.
-- To actually run backups/repository checks, install `restic` on your machine (e.g., via Homebrew). If `restic` is not installed, the app still starts but backup operations will fail with a clear error.
+- 远程挂载后端（NFS/SMB/WebDAV/SFTP）依赖 Linux 挂载工具和 `CAP_SYS_ADMIN`；在 macOS 上预计不可用
+- 要实际运行备份/仓库检查，请在你的机器上安装 `restic`（例如通过 Homebrew）。如果未安装 `restic`，应用程序仍可启动，但备份操作将失败并显示明确的错误信息

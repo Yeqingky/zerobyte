@@ -1,9 +1,9 @@
 import ogImageAssetUrl from "@/assets/og.jpg";
 
 export const siteUrl = "https://zerobyte.app";
-export const siteTitle = "Zerobyte | Backup automation for Restic";
+export const siteTitle = "Zerobyte | 基于 Restic 的备份自动化工具";
 export const siteDescription =
-	"Zerobyte is a web control plane for Restic backups with scheduling, encrypted repositories, monitoring, and restore workflows.";
+	"Zerobyte 是一个用于 Restic 备份的 Web 控制平面，提供计划调度、加密仓库、监控和恢复工作流。";
 export const ogImageUrl = new URL(ogImageAssetUrl, siteUrl).toString();
 
 function getCanonicalUrl(path: string) {
@@ -30,5 +30,5 @@ export function buildSeoHead({ title, description, path }: { title: string; desc
 export function formatDocsTitle(title: string) {
 	if (title.toLowerCase().includes("zerobyte")) return title;
 
-	return `${title} | Zerobyte Docs`;
+	return `${title} | Zerobyte 文档`;
 }

@@ -1,37 +1,37 @@
 ---
-title: CLI Reference
-description: Short reference for Zerobyte admin CLI commands
+title: CLI 参考
+description: Zerobyte 管理 CLI 命令的简短参考
 ---
 
-The Zerobyte CLI is useful for account recovery and admin maintenance tasks that are easier to run from the server than from the web UI.
+Zerobyte CLI 适用于账户恢复和管理维护任务，这些任务在服务器上运行比在 Web UI 中操作更方便。
 
-Run commands inside the Zerobyte container:
+在 Zerobyte 容器内运行命令：
 
 ```bash
 docker exec -it zerobyte bun run cli <command>
 ```
 
-Use `--help` to see all options:
+使用 `--help` 查看所有选项：
 
 ```bash
 docker exec -it zerobyte bun run cli --help
 docker exec -it zerobyte bun run cli reset-password --help
 ```
 
-Most commands prompt for missing values when run interactively.
+大多数命令在交互式运行时会提示输入缺失的值。
 
-## Commands
+## 命令
 
-| Command | Useful for |
+| 命令 | 用途 |
 |---------|------------|
-| `reset-password` | Reset a user's password when they are locked out or forgot it. Invalidates existing sessions. |
-| `disable-2fa` | Disable two-factor authentication for a user who lost access to their 2FA device. |
-| `change-username` | Rename a user account. Invalidates existing sessions. |
-| `change-email` | Change a user's email address. Removes linked SSO accounts for that user and invalidates sessions. |
-| `rekey-2fa` | Re-encrypt existing 2FA secrets using the current `APP_SECRET`, usually after migrating from an older secret setup. |
-| `assign-organization` | Move a user to another organization by organization slug. Invalidates existing sessions. |
+| `reset-password` | 当用户被锁定或忘记密码时重置其密码。使现有会话失效。 |
+| `disable-2fa` | 为丢失 2FA 设备访问权限的用户禁用双因素认证。 |
+| `change-username` | 重命名用户账户。使现有会话失效。 |
+| `change-email` | 更改用户的电子邮件地址。移除该用户关联的 SSO 账户并使会话失效。 |
+| `rekey-2fa` | 使用当前的 `APP_SECRET` 重新加密现有的 2FA 密钥，通常在从旧的密钥设置迁移后执行。 |
+| `assign-organization` | 通过组织 slug 将用户移动到另一个组织。使现有会话失效。 |
 
-## Examples
+## 示例
 
 ```bash
 docker exec -it zerobyte bun run cli reset-password --username admin
@@ -40,4 +40,4 @@ docker exec -it zerobyte bun run cli change-email --username admin --email admin
 docker exec -it zerobyte bun run cli assign-organization --username admin --organization default
 ```
 
-For non-interactive use, pass the command options directly instead of relying on prompts.
+对于非交互式使用，直接传递命令选项，而不是依赖提示。

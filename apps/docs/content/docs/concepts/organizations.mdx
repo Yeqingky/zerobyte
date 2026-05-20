@@ -1,75 +1,75 @@
 ---
-title: Organizations
-description: Understand how Zerobyte scopes resources, invitations, and roles
+title: 组织
+description: 了解 Zerobyte 如何管理资源范围、邀请和角色
 ---
 
-Zerobyte is organization-scoped. Repositories, volumes, backup schedules, notification destinations, SSO providers, and invitations all belong to an organization.
+Zerobyte 是基于组织作用域的。仓库、卷、备份计划、通知目标、SSO 提供商和邀请都属于一个组织。
 
-## What an organization controls
+## 组织的控制范围
 
-- Every request runs inside an active organization context.
-- Resource lists and mutations are filtered to that active organization.
-- Membership determines who can access organization-scoped features.
-- The organization ID shown in **Settings > Organization** is the same ID used by provisioning.
+- 每个请求都在一个活跃的组织上下文中运行。
+- 资源列表和变更操作会被过滤到该活跃组织。
+- 成员身份决定了谁可以访问组织范围的特性。
+- **设置 > 组织**中显示的组织 ID 与自动配置使用的 ID 相同。
 
-## How organizations are created
+## 组织如何创建
 
-For a normal local signup, if the new user has no existing membership, Zerobyte creates a default workspace named like `Alice's Workspace` and makes that user an `owner`.
+对于普通的本地注册，如果新用户没有现有成员身份，Zerobyte 会创建一个名为类似 `Alice 的工作区` 的默认工作区，并将该用户设为 `owner`。
 
-Invited SSO users behave differently: Zerobyte creates their membership in the invited organization during the first successful SSO callback, so they land in that organization instead of getting a separate default workspace.
+被邀请的 SSO 用户行为不同：Zerobyte 在首次成功 SSO 回调时会在被邀请的组织中创建其成员身份，因此他们会直接进入该组织，而不是获得一个单独的默认工作区。
 
-## Organization roles
+## 组织角色
 
-| Role | What it means in practice |
+| 角色 | 实际含义 |
 | --- | --- |
-| `member` | Standard organization member. Can use the organization, but cannot access organization-management actions such as member management or SSO settings. |
-| `admin` | Can access the **Organization** settings tab, manage members, manage invitations, toggle SSO auto-linking, and download the active organization's recovery key. |
-| `owner` | Has all admin capabilities and is additionally required for registering new SSO providers. Owners cannot be demoted or removed through the current organization member-management endpoints. |
+| `member` | 标准组织成员。可以使用组织，但无法访问组织管理操作，如成员管理或 SSO 设置。 |
+| `admin` | 可以访问**组织**设置标签页、管理成员、管理邀请、切换 SSO 自动关联，以及下载活跃组织的恢复密钥。 |
+| `owner` | 拥有所有管理员能力，此外是注册新 SSO 提供商的必需角色。Owner 不能通过当前的组成员管理端点被降级或移除。 |
 
 <Callout type="info">
-  Zerobyte also has an instance-wide user role named `admin` for global tasks such as registration control and user management. That global role is separate from organization roles like `member`, `admin`, and `owner`.
+  Zerobyte 还有一个实例级的用户角色 `admin`，用于全局任务，如注册控制和用户管理。该全局角色与 `member`、`admin` 和 `owner` 等组织角色是分开的。
 </Callout>
 
-## Invitations
+## 邀请
 
-Organization invitations carry four important pieces of data:
+组织邀请包含四个重要的数据项：
 
-- The invitee email address
-- The role to grant on acceptance
-- The invitation status
-- The expiration time
+- 被邀请者的电子邮件地址
+- 接受后授予的角色
+- 邀请状态
+- 过期时间
 
-In the current UI, invitation management lives inside **Settings > Organization > Single Sign-On** because SSO access is invite-oriented.
+在当前 UI 中，邀请管理位于**设置 > 组织 > 单点登录**内，因为 SSO 访问是基于邀请的。
 
-### Role assignment by invitation
+### 通过邀请分配角色
 
-New invitations can assign one of these organization roles immediately:
+新的邀请可以立即分配以下组织角色之一：
 
 - `member`
 - `admin`
 - `owner`
 
-That matters because the current **Members** table only lets you toggle existing members between `member` and `admin`. If you want to add another owner, invite that person as an `owner` from the invitation flow.
+这一点很重要，因为当前的**成员**表格只允许你在 `member` 和 `admin` 之间切换现有成员。如果你想添加另一个 owner，请从邀请流程中邀请该用户为 `owner`。
 
-## Member management behavior
+## 成员管理行为
 
-- Organization admins and owners can promote `member -> admin`.
-- Organization admins and owners can demote `admin -> member`.
-- Owners cannot be demoted through the member-management API.
-- Owners cannot be removed through the member-management API.
-- Removing a member immediately removes their access to that organization's resources.
+- 组织管理员和 owner 可以将 `member` 提升为 `admin`。
+- 组织管理员和 owner 可以将 `admin` 降级为 `member`。
+- Owner 不能通过成员管理 API 被降级。
+- Owner 不能通过成员管理 API 被移除。
+- 移除成员会立即撤销他们对组织资源的访问权限。
 
-If the removed user belongs to another organization, Zerobyte rehomes their active session to a fallback organization membership. If they do not belong to any other organization, Zerobyte revokes their sessions and they must sign in again after being re-added.
+如果被移除的用户属于另一个组织，Zerobyte 会将其活跃会话重新归属到备用组织成员身份。如果他们不属于任何其他组织，Zerobyte 会撤销其会话，他们在被重新添加后必须重新登录。
 
-## Organization ID
+## 组织 ID
 
-The **Organization ID** shown in **Settings > Organization** is primarily a reference value, but it is important for operator-managed setups because provisioning entries must point at an existing organization ID.
+**设置 > 组织**中显示的**组织 ID**主要是一个参考值，但对于运维管理的设置很重要，因为自动配置条目必须指向一个现有的组织 ID。
 
-See [Provisioning](/docs/guides/provisioning) if you manage repositories and volumes declaratively.
+如果你以声明式方式管理仓库和卷，请参阅[自动配置](/docs/guides/provisioning)。
 
-## Related docs
+## 相关文档
 
-- [OIDC and Single Sign-On](/docs/guides/oidc-sso)
-- [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords)
+- [OIDC 和单点登录](/docs/guides/oidc-sso)
+- [恢复密钥和仓库密码](/docs/guides/recovery-key-and-repository-passwords)
 
 import { Callout } from "fumadocs-ui/components/callout";

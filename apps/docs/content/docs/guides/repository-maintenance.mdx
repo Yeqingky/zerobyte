@@ -1,124 +1,124 @@
 ---
-title: Repository Maintenance
-description: Interpret repository health states and use Doctor, Unlock, and stats refresh correctly
+title: 仓库维护
+description: 解读仓库健康状态，正确使用 Doctor、Unlock 和统计刷新功能
 ---
 
-The repository details page exposes a small set of maintenance tools, but they do different jobs. This guide explains what each status means and what the built-in actions actually do.
+仓库详情页面提供了一小组维护工具，但它们各自执行不同的任务。本指南解释每种状态的含义以及内置操作的实际作用。
 
-## Repository status values
+## 仓库状态值
 
-| Status | What it means in Zerobyte | What to do next |
+| 状态 | 在 Zerobyte 中的含义 | 后续操作 |
 | --- | --- | --- |
-| `healthy` | The last stored health verdict finished without errors | Keep monitoring and refresh stats when you want updated size metrics |
-| `error` | The last health or doctor run recorded an error | Review **Last Error** and the **Doctor Report**, fix the underlying issue, then rerun maintenance if needed |
-| `unknown` | Zerobyte does not currently have a fresh health verdict, or repository settings were changed and the old verdict was cleared | Expect this after some config changes; verify access and consider running Doctor |
-| `doctor` | A Doctor run is in progress | Wait for it to finish or cancel it during a maintenance window |
-| `cancelled` | A Doctor run was aborted before completion | Review any partial Doctor output and rerun Doctor if you still need validation |
+| `healthy` | 上次存储的健康检查结果无错误完成 | 持续监控，需要更新大小指标时刷新统计信息 |
+| `error` | 上次健康检查或诊断运行记录了错误 | 查看**上次错误**和**诊断报告**，修复根本问题，然后根据需要重新运行维护 |
+| `unknown` | Zerobyte 当前没有最新的健康检查结果，或者仓库设置已更改且旧结果已被清除 | 某些配置更改后可能出现此状态；验证访问权限并考虑运行诊断 |
+| `doctor` | 诊断运行正在进行中 | 等待其完成，或在维护窗口期间取消它 |
+| `cancelled` | 诊断运行在完成前被中止 | 查看任何部分诊断输出，如果仍需要验证则重新运行诊断 |
 
-Repository status is stored metadata inside Zerobyte. It is not a continuous live probe.
+仓库状态是存储在 Zerobyte 中的元数据。它不是持续的实时探测。
 
-## What each action really does
+## 每个操作的实际作用
 
-| Action | What it does | What it does **not** do |
+| 操作 | 作用 | **不**作用 |
 | --- | --- | --- |
-| `Run doctor` | Runs `unlock`, then `check`, then `repair-index` if restic says it is needed. Saves step output into the Doctor Report. | It does **not** run a full `check --read-data` scrub, it does **not** prune unused data, and it does **not** refresh the stats card. |
-| `Unlock` | Runs `restic unlock --remove-all` to clear stale repository locks. | It does **not** validate repository integrity and it does **not** change the stored health status by itself. |
-| Stats refresh button | Runs `restic stats --mode raw-data` and updates stored size and snapshot metrics. | It does **not** change repository health status, **Last Checked**, or the Doctor Report. |
+| `运行诊断` | 依次运行 `unlock`、`check`，如果 restic 指示需要则运行 `repair-index`。将各步骤输出保存到诊断报告中。 | 它**不**运行完整的 `check --read-data` 扫描，**不**清理未使用的数据，也**不**刷新统计信息卡片。 |
+| `解锁` | 运行 `restic unlock --remove-all` 清除过期的仓库锁。 | 它**不**验证仓库完整性，也**不**自行更改存储的健康状态。 |
+| 统计信息刷新按钮 | 运行 `restic stats --mode raw-data` 并更新存储的大小和快照指标。 | 它**不**更改仓库健康状态、**上次检查时间**或诊断报告。 |
 
-## Run doctor in detail
+## 运行诊断详解
 
-Doctor is the deepest repository-maintenance action currently exposed in the normal UI.
+诊断是当前普通 UI 中公开的最深入的仓库维护操作。
 
-During a Doctor run, Zerobyte:
+在诊断运行期间，Zerobyte：
 
-1. Sets the repository status to `doctor`
-2. Acquires an exclusive repository lock inside the app
-3. Runs an unlock step
-4. Runs `restic check`
-5. Runs `restic repair-index` only if the check output suggests that repair
-6. Saves the step-by-step result and updates the final status to `healthy`, `error`, or `cancelled`
+1. 将仓库状态设置为 `doctor`
+2. 在应用内获取排他性仓库锁
+3. 运行解锁步骤
+4. 运行 `restic check`
+5. 仅当检查输出提示需要修复时运行 `restic repair-index`
+6. 保存逐步结果，并将最终状态更新为 `healthy`、`error` 或 `cancelled`
 
-Because Doctor holds an exclusive repository lock, it can block other repository operations such as backups, restores, and snapshot mutations while it runs.
+由于诊断持有排他性仓库锁，它在运行期间可能会阻塞其他仓库操作，如备份、恢复和快照变更。
 
 <Callout type="warn">
-  Doctor is helpful, but it is lighter than a full offline integrity scrub. Today it does not read every stored data pack and it does not prune repository data. Treat `healthy` as a useful application-level signal, not as proof that every blob was recently re-read.
+  诊断很有用，但它比完整的离线完整性检查更轻量。目前它不会读取每个存储的数据包，也不会清理仓库数据。将 `healthy` 视为有用的应用级信号，而非每个数据块最近都被重新读取的证明。
 </Callout>
 
-## When to use Run doctor
+## 何时使用运行诊断
 
-- The repository status is `error`
-- **Last Error** suggests metadata or index problems
-- Operations keep failing after a crash or interrupted run
-- You changed repository settings and want a fresh maintenance pass
-- You want a stored Doctor Report before or after backend maintenance work
+- 仓库状态为 `error`
+- **上次错误**提示存在元数据或索引问题
+- 崩溃或运行中断后操作持续失败
+- 您更改了仓库设置并希望进行一次全新的维护检查
+- 在后端维护工作前后，您希望保存一份诊断报告
 
-## When to use Unlock
+## 何时使用解锁
 
-Use **Unlock** when the problem is specifically stale repository locks, for example after:
+当问题明确是过期的仓库锁时使用**解锁**，例如在以下情况之后：
 
-- A crashed backup or restore
-- A forced container restart
-- A cancelled or interrupted maintenance run
-- A Restic message that says the repository is locked
+- 崩溃的备份或恢复操作
+- 强制容器重启
+- 已取消或中断的维护运行
+- Restic 提示仓库已被锁定的消息
 
-If the problem is not a lock issue, Unlock will not fix it.
+如果问题不是锁相关的问题，解锁将无法解决。
 
 <Callout type="warn">
-  Only run Unlock when you are certain no real backup, restore, or maintenance operation is still using that repository.
+  仅当您确定没有真实的备份、恢复或维护操作仍在使用该仓库时，才运行解锁。
 </Callout>
 
-## What stats refresh actually recalculates
+## 统计信息刷新实际重新计算的内容
 
-The refresh button in **Compression Statistics** recalculates repository metrics using `restic stats --mode raw-data`, including:
+**压缩统计**中的刷新按钮使用 `restic stats --mode raw-data` 重新计算仓库指标，包括：
 
-- Stored size
-- Uncompressed size
-- Compression ratio
-- Compression progress
-- Compression space saving
-- Snapshot count
+- 存储大小
+- 未压缩大小
+- 压缩比
+- 压缩进度
+- 压缩空间节省
+- 快照数量
 
-This is useful when:
+这在以下情况很有用：
 
-- The stats card is still empty after connecting an existing repository
-- You deleted snapshots and want updated numbers
-- Retention cleanup changed repository usage
-- You want fresh size numbers without running Doctor
+- 连接现有仓库后统计信息卡片仍为空
+- 您删除了快照并希望更新数字
+- 保留策略清理更改了仓库使用情况
+- 您希望在不运行诊断的情况下获得最新的大小数据
 
-## Reading the Doctor Report
+## 阅读诊断报告
 
-The **Doctor Report** stores each maintenance step with its output and any error text. In current builds, the steps you will typically see are:
+**诊断报告**存储每个维护步骤及其输出和任何错误文本。在当前版本中，您通常会看到的步骤包括：
 
 - `unlock`
 - `check`
-- `repair_index` when suggested by restic
+- `repair_index`（当 restic 建议时）
 
-If a Doctor run is cancelled, the report can still contain partial step output from the work that completed before cancellation.
+如果诊断运行被取消，报告仍可能包含取消前已完成工作的部分步骤输出。
 
-## Practical workflows
+## 实用工作流程
 
-### Repository is locked after a crash
+### 仓库在崩溃后被锁定
 
-1. Use **Unlock**.
-2. Retry the blocked backup or restore.
-3. If problems continue, run **Doctor**.
+1. 使用**解锁**。
+2. 重试被阻塞的备份或恢复操作。
+3. 如果问题持续，运行**诊断**。
 
-### Status is `unknown`
+### 状态为 `unknown`
 
-1. Check whether you recently edited repository settings.
-2. Use the stats refresh button if you only need updated size numbers.
-3. Run **Doctor** if you want a fresh maintenance verdict.
+1. 检查您是否最近编辑了仓库设置。
+2. 如果只需要更新的大小数据，使用统计信息刷新按钮。
+3. 如果您希望获得全新的维护检查结果，运行**诊断**。
 
-### Status is `error`
+### 状态为 `error`
 
-1. Read **Last Error**.
-2. Expand the **Doctor Report** and identify the failing step.
-3. Fix the real problem first, such as credentials, backend reachability, or repository corruption.
-4. Run **Doctor** again after the fix.
+1. 阅读**上次错误**。
+2. 展开**诊断报告**并找出失败的步骤。
+3. 首先修复真正的问题，例如凭据、后端可达性或仓库损坏。
+4. 修复后重新运行**诊断**。
 
-## Related docs
+## 相关文档
 
-- [Repositories](/docs/concepts/repositories)
-- [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords)
+- [仓库](/docs/concepts/repositories)
+- [恢复密钥与仓库密码](/docs/guides/recovery-key-and-repository-passwords)
 
 import { Callout } from "fumadocs-ui/components/callout";

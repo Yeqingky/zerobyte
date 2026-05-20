@@ -1,85 +1,85 @@
 ---
-title: Notifications
-description: Create notification destinations, route backup events, and choose the right delivery type
+title: 通知
+description: 创建通知目标、路由备份事件，并选择合适的投递方式
 ---
 
-Zerobyte's notification system has two layers:
+Zerobyte 的通知系统分为两层：
 
-1. A **destination** is a reusable delivery channel such as Slack, SMTP, ntfy, or a webhook.
-2. A **backup schedule assignment** decides which events should be sent to which destination.
+1. **通知目的地** 是一个可复用的通知渠道，例如 Slack、SMTP、ntfy 或 Webhook。
+2. **备份计划分配** 决定哪些事件应发送到哪个目的地。
 
-You create destinations under **Notifications**. You route them per backup schedule from the backup details page.
+您可以在 **通知** 下创建目的地，并在备份详情页面上为每个备份计划配置路由。
 
-## How notifications work in Zerobyte
+## Zerobyte 的通知工作方式
 
-- Destinations are organization-scoped.
-- Sensitive destination fields are encrypted before storage.
-- Disabled destinations stay saved, but Zerobyte skips them when sending notifications.
-- The **Test** button sends a generic test message for that destination.
-- Per-schedule routing supports four events: `start`, `success`, `warning`, and `failure`.
+- 目的地按组织范围进行管理。
+- 敏感的目的地字段在存储前会加密。
+- 已禁用的目的地会保留，但 Zerobyte 在发送通知时会跳过它们。
+- **测试** 按钮会向该目的地发送一条通用测试消息。
+- 每个计划的路由支持四个事件：`start`（开始）、`success`（成功）、`warning`（警告）和 `failure`（失败）。
 
 <Callout type="info">
-  Create destinations once, then reuse them across as many backup schedules as you want.
+  目的地只需创建一次，之后可以在任意数量的备份计划中重复使用。
 </Callout>
 
-## Supported destination types
+## 支持的目的地类型
 
-| Type | Best for | Key fields |
+| 类型 | 适用场景 | 关键字段 |
 | --- | --- | --- |
-| `Email (SMTP)` | Existing mail infrastructure, multiple recipients, ticketing aliases | SMTP host, port, sender, recipients, optional auth, TLS |
-| `Slack` | Team chat channels | Webhook URL, optional bot username, optional icon emoji |
-| `Discord` | Server channels or threads | Webhook URL, optional username, optional avatar URL, optional thread ID |
-| `Gotify` | Self-hosted mobile or desktop push | Server URL, app token, priority, optional path |
-| `ntfy` | Lightweight publish-subscribe notifications | Topic, optional server URL, optional auth, priority |
-| `Pushover` | Personal mobile alerts | User key, API token, optional devices, priority |
-| `Telegram` | Group or direct chat notifications | Bot token, chat ID, optional thread ID |
-| `Generic Webhook` | Arbitrary HTTP endpoints and automation systems | URL, method, headers, content type, optional JSON template keys |
-| `Custom (Shoutrrr URL)` | Power users or services not exposed by the built-in forms | Raw Shoutrrr URL |
+| `Email (SMTP)` | 现有邮件基础设施、多个收件人、工单别名 | SMTP 主机、端口、发件人、收件人、可选认证、TLS |
+| `Slack` | 团队聊天频道 | Webhook URL、可选机器人用户名、可选图标表情 |
+| `Discord` | 服务器频道或子线程 | Webhook URL、可选用户名、可选头像 URL、可选线程 ID |
+| `Gotify` | 自托管的移动端或桌面端推送 | 服务器 URL、应用令牌、优先级、可选路径 |
+| `ntfy` | 轻量级的发布-订阅通知 | 主题、可选服务器 URL、可选认证、优先级 |
+| `Pushover` | 个人手机提醒 | 用户密钥、API 令牌、可选设备、优先级 |
+| `Telegram` | 群组或私聊通知 | 机器人令牌、聊天 ID、可选线程 ID |
+| `Generic Webhook` | 任意 HTTP 端点和自动化系统 | URL、方法、请求头、内容类型、可选 JSON 模板键 |
+| `Custom (Shoutrrr URL)` | 高级用户或内置表单未覆盖的服务 | 原始 Shoutrrr URL |
 
 <Callout type="warn">
-  Outbound HTTP notification destinations must use an origin listed in `WEBHOOK_ALLOWED_ORIGINS`. This applies to Generic Webhook, Gotify, self-hosted ntfy servers, and Custom Shoutrrr URLs that resolve to a custom HTTP endpoint.
+  出站 HTTP 通知目的地必须使用在 `WEBHOOK_ALLOWED_ORIGINS` 中列出的来源。这适用于 Generic Webhook、Gotify、自托管 ntfy 服务器以及解析到自定义 HTTP 端点的 Custom Shoutrrr URL。
 </Callout>
 
-## Which type should I use?
+## 应该使用哪种类型？
 
-- Choose **Email** when you already trust an SMTP relay and want easy fan-out to multiple recipients.
-- Choose **Slack** or **Discord** when backup events belong in a shared team room.
-- Choose **Gotify** or **ntfy** when you prefer self-hosted push.
-- Choose **Pushover** or **Telegram** when you want fast personal alerts on a phone.
-- Choose **Generic Webhook** when another system expects a normal HTTP request.
-- Choose **Custom (Shoutrrr URL)** when the built-in types are close but not flexible enough, or when you need a different Shoutrrr-supported service entirely.
+- 当您已经信任某个 SMTP 中继并希望轻松向多个收件人发送通知时选择 **Email**。
+- 当备份事件需要发送到共享团队空间时选择 **Slack** 或 **Discord**。
+- 当您更喜欢自托管的推送服务时选择 **Gotify** 或 **ntfy**。
+- 当您希望在手机上快速接收个人提醒时选择 **Pushover** 或 **Telegram**。
+- 当另一个系统期望收到普通 HTTP 请求时选择 **Generic Webhook**。
+- 当内置类型接近但不够灵活，或您需要 Shoutrrr 支持的其他服务时选择 **Custom (Shoutrrr URL)**。
 
-## Create a destination
+## 创建目的地
 
-1. Open **Notifications** in the sidebar.
-2. Click **Create Destination**.
-3. Pick the notification type.
-4. Fill in the type-specific settings.
-5. Save the destination.
-6. Open the destination and use **Test** before attaching it to production schedules.
+1. 打开侧边栏中的 **通知**。
+2. 点击 **创建目的地**。
+3. 选择通知类型。
+4. 填写该类型对应的设置项。
+5. 保存目的地。
+6. 打开目的地并使用 **测试** 功能，然后再将其挂接到生产环境中。
 
-The type is effectively fixed after creation in the current UI, so create a new destination instead of trying to repurpose an existing one from Slack to Email or similar.
+在当前 UI 中，类型在创建后实际上是固定的，因此请创建新的目的地，而不是试图将现有的 Slack 修改为 Email 等。
 
-## Route notifications per backup schedule
+## 按备份计划路由通知
 
-1. Open the backup schedule you want to configure.
-2. In the **Notifications** section, click **Add notification**.
-3. Select an existing destination.
-4. Choose which events should trigger that destination.
-5. Save the backup schedule notification settings.
+1. 打开要配置的备份计划。
+2. 在 **通知** 部分，点击 **添加通知**。
+3. 选择一个现有的目的地。
+4. 选择哪些事件应触发该目的地。
+5. 保存备份计划的通知设置。
 
-Each assignment is independent. One schedule can send failures to Email, warnings to Slack, and successes nowhere.
+每个分配是独立的。一个计划可以将失败事件发送到 Email，将警告发送到 Slack，而成功事件不发送任何通知。
 
-## Backup event meanings
+## 备份事件含义
 
-| Event | When Zerobyte sends it | What is included |
+| 事件 | Zerobyte 何时发送 | 包含内容 |
 | --- | --- | --- |
-| `start` | The backup begins running | Volume name, repository name, and schedule name |
-| `success` | The backup completes cleanly | Volume, repository, schedule, and backup summary details when available |
-| `warning` | The backup completes with warnings instead of a clean success | Success details plus warning text when available |
-| `failure` | The backup fails validation or execution | Volume, repository, schedule, and the error text |
+| `start` | 备份开始运行时 | 卷名称、仓库名称和计划名称 |
+| `success` | 备份成功完成 | 卷、仓库、计划，以及可用时的备份摘要详情 |
+| `warning` | 备份完成但带有警告 | 成功详情加上可用时的警告文本 |
+| `failure` | 备份验证或执行失败 | 卷、仓库、计划和错误文本 |
 
-## Type reference
+## 类型参考
 
 <Tabs
   items={[
@@ -95,25 +95,25 @@ Each assignment is independent. One schedule can send failures to Email, warning
   ]}
 >
   <Tab value="Email (SMTP)">
-    Use Email when you want alerts to go to people, shared mailboxes, or downstream systems that already process email.
+    当您希望将通知发送给相关人员、共享邮箱或已处理邮件的下游系统时，使用 Email。
 
-    **Fields**
+    **字段**
 
-    - `SMTP Host`
-    - `SMTP Port`
-    - `Username` and `Password` (optional)
-    - `From Address`
-    - `From Name` (optional)
-    - `To Addresses`
-    - `Use TLS`
+    - `SMTP Host`（SMTP 主机）
+    - `SMTP Port`（SMTP 端口）
+    - `Username` 和 `Password`（可选）
+    - `From Address`（发件人地址）
+    - `From Name`（发件人名称，可选）
+    - `To Addresses`（收件人地址）
+    - `Use TLS`（是否使用 TLS）
 
-    **Notes**
+    **说明**
 
-    - `To Addresses` is a comma-separated list in the UI.
-    - TLS is a simple yes or no toggle.
-    - SMTP authentication is optional because some relays accept trusted network senders.
+    - `To Addresses` 在 UI 中是以逗号分隔的列表。
+    - TLS 是简单的开关选项。
+    - SMTP 认证是可选的，因为某些中继接受受信任的网络发送方。
 
-    **Example**
+    **示例**
 
     ```text
     Type: Email (SMTP)
@@ -129,15 +129,15 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 
   <Tab value="Slack">
-    Use Slack for shared operational visibility in a team channel.
+    在团队频道中使用 Slack 以实现共享的操作可见性。
 
-    **Fields**
+    **字段**
 
     - `Webhook URL`
-    - `Bot Username` (optional)
-    - `Icon Emoji` (optional)
+    - `Bot Username`（可选）
+    - `Icon Emoji`（可选）
 
-    **Example**
+    **示例**
 
     ```text
     Type: Slack
@@ -148,50 +148,50 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 
   <Tab value="Discord">
-    Use Discord when your team lives in a server channel, or when you want to post to a specific thread.
+    当您的团队在服务器频道中协作，或希望向特定线程发布消息时，使用 Discord。
 
-    **Fields**
+    **字段**
 
     - `Webhook URL`
-    - `Bot Username` (optional)
-    - `Avatar URL` (optional)
-    - `Thread ID` (optional)
+    - `Bot Username`（可选）
+    - `Avatar URL`（可选）
+    - `Thread ID`（可选）
   </Tab>
 
   <Tab value="Gotify">
-    Use Gotify when you want self-hosted push with explicit priority control.
+    当您希望使用自托管推送并明确控制优先级时，使用 Gotify。
 
-    **Fields**
+    **字段**
 
-    - `Server URL`
-    - `App Token`
-    - `Priority` from `0` to `10`
-    - `Path` (optional)
+    - `Server URL`（服务器 URL）
+    - `App Token`（应用令牌）
+    - `Priority` 从 `0` 到 `10`
+    - `Path`（可选）
 
-    **Notes**
+    **说明**
 
-    - Add the Gotify server origin, such as `https://gotify.example.com`, to `WEBHOOK_ALLOWED_ORIGINS`.
+    - 将 Gotify 服务器来源（如 `https://gotify.example.com`）添加到 `WEBHOOK_ALLOWED_ORIGINS`。
   </Tab>
 
   <Tab value="ntfy">
-    Use ntfy when you want a simple topic-based push service, either on `ntfy.sh` or your own server.
+    当您需要一个简单的基于主题的推送服务（无论是在 `ntfy.sh` 还是您自己的服务器上）时，使用 ntfy。
 
-    **Fields**
+    **字段**
 
-    - `Server URL` (optional, leave empty for `ntfy.sh`)
-    - `Topic`
-    - `Username` and `Password` (optional)
-    - `Access token` (optional)
-    - `Priority`
+    - `Server URL`（可选，留空则使用 `ntfy.sh`）
+    - `Topic`（主题）
+    - `Username` 和 `Password`（可选）
+    - `Access token`（访问令牌，可选）
+    - `Priority`（优先级）
 
-    **Notes**
+    **说明**
 
-    - Leave `Server URL` empty to use `ntfy.sh`.
-    - Add self-hosted ntfy origins, such as `https://ntfy.example.com`, to `WEBHOOK_ALLOWED_ORIGINS`.
-    - If you set an access token, it takes precedence over username and password.
-    - Priority values are `max`, `high`, `default`, `low`, and `min`.
+    - 将 `Server URL` 留空以使用 `ntfy.sh`。
+    - 将自托管 ntfy 的来源（如 `https://ntfy.example.com`）添加到 `WEBHOOK_ALLOWED_ORIGINS`。
+    - 如果设置了访问令牌，它将优先于用户名和密码。
+    - 优先级值为 `max`、`high`、`default`、`low` 和 `min`。
 
-    **Example**
+    **示例**
 
     ```text
     Type: Ntfy
@@ -203,26 +203,26 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 
   <Tab value="Pushover">
-    Use Pushover for direct, personal push notifications.
+    使用 Pushover 接收直接的个人推送通知。
 
-    **Fields**
+    **字段**
 
-    - `User Key`
-    - `API Token`
-    - `Devices` (optional)
-    - `Priority` as `-1`, `0`, or `1`
+    - `User Key`（用户密钥）
+    - `API Token`（API 令牌）
+    - `Devices`（可选）
+    - `Priority` 值为 `-1`、`0` 或 `1`
   </Tab>
 
   <Tab value="Telegram">
-    Use Telegram when you want notifications in a bot chat or a group topic.
+    当您希望在机器人聊天或群组主题中接收通知时，使用 Telegram。
 
-    **Fields**
+    **字段**
 
-    - `Bot Token`
-    - `Chat ID`
-    - `Thread ID` (optional)
+    - `Bot Token`（机器人令牌）
+    - `Chat ID`（聊天 ID）
+    - `Thread ID`（可选）
 
-    **Example**
+    **示例**
 
     ```text
     Type: Telegram
@@ -233,25 +233,25 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 
   <Tab value="Generic Webhook">
-    Use Generic Webhook when another service expects a normal HTTP request instead of a provider-specific webhook format.
+    当另一个服务期望接收普通 HTTP 请求而非特定提供商的 webhook 格式时，使用 Generic Webhook。
 
-    **Fields**
+    **字段**
 
     - `Webhook URL`
-    - `Method` as `GET` or `POST`
-    - `Content Type`
-    - `Headers`
-    - `Use JSON Template`
-    - `Title Key` and `Message Key` when JSON mode is enabled
+    - `Method` 为 `GET` 或 `POST`
+    - `Content Type`（内容类型）
+    - `Headers`（请求头）
+    - `Use JSON Template`（是否使用 JSON 模板）
+    - `Title Key` 和 `Message Key`（启用 JSON 模式时）
 
-    **Notes**
+    **说明**
 
-    - Add the webhook origin, such as `https://hooks.example.com`, to `WEBHOOK_ALLOWED_ORIGINS`.
-    - Headers are entered one per line as `Key: Value`.
-    - With JSON mode enabled, Zerobyte sends a body shaped like `{titleKey: "...", messageKey: "..."}`.
-    - With JSON mode disabled, the request body is plain notification text.
+    - 将 webhook 来源（如 `https://hooks.example.com`）添加到 `WEBHOOK_ALLOWED_ORIGINS`。
+    - 请求头按每行一个 `Key: Value` 的格式输入。
+    - 启用 JSON 模式后，Zerobyte 会发送一个类似 `{titleKey: "...", messageKey: "..."}` 格式的请求体。
+    - 禁用 JSON 模式时，请求体为纯通知文本。
 
-    **Example**
+    **示例**
 
     ```text
     Type: Generic Webhook
@@ -268,17 +268,17 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 
   <Tab value="Custom">
-    Use Custom when you already know the exact Shoutrrr URL you want Zerobyte to use.
+    当您已经知道要让 Zerobyte 使用的确切 Shoutrrr URL 时，使用 Custom。
 
-    See the [Shoutrrr documentation](https://shoutrrr.nickfedor.com/services/overview) for the supported URL formats and service-specific options.
+    请参阅 [Shoutrrr 文档](https://shoutrrr.nickfedor.com/services/overview) 了解支持的 URL 格式和服务特定选项。
 
-    If the Shoutrrr URL targets a custom HTTP endpoint, add that endpoint origin to `WEBHOOK_ALLOWED_ORIGINS`.
+    如果 Shoutrrr URL 指向自定义 HTTP 端点，请将该端点来源添加到 `WEBHOOK_ALLOWED_ORIGINS`。
 
-    **Fields**
+    **字段**
 
     - `Shoutrrr URL`
 
-    **Example**
+    **示例**
 
     ```text
     slack://hook:T000-B000-XXX@webhook?username=Zerobyte
@@ -286,20 +286,20 @@ Each assignment is independent. One schedule can send failures to Email, warning
   </Tab>
 </Tabs>
 
-## Practical routing patterns
+## 实用的路由模式
 
-| Goal | Suggested routing |
+| 目标 | 建议路由 |
 | --- | --- |
-| Only wake someone up for real problems | `failure` to Email or Pushover |
-| Keep the team informed without noise | `warning` and `failure` to Slack or Discord |
-| Audit every run | `start`, `success`, `warning`, and `failure` to Email or Generic Webhook |
-| Mobile-first personal alerting | `failure` to Telegram, ntfy, Gotify, or Pushover |
-| Feed another incident or workflow system | `failure` and optionally `warning` to Generic Webhook |
+| 仅在出现真正问题时提醒相关人员 | `failure` 发送到 Email 或 Pushover |
+| 让团队了解情况而不产生噪音 | `warning` 和 `failure` 发送到 Slack 或 Discord |
+| 审计每次运行 | `start`、`success`、`warning` 和 `failure` 发送到 Email 或 Generic Webhook |
+| 以移动端为主的个人提醒 | `failure` 发送到 Telegram、ntfy、Gotify 或 Pushover |
+| 接入其他事件或工作流系统 | `failure` 以及可选的 `warning` 发送到 Generic Webhook |
 
-## Related docs
+## 相关文档
 
-- [Backups](/docs/concepts/backups)
-- [Repository maintenance and status](/docs/guides/repository-maintenance)
+- [备份](/docs/concepts/backups)
+- [仓库维护与状态](/docs/guides/repository-maintenance)
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";

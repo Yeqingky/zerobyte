@@ -1,300 +1,300 @@
 ---
-title: Volumes
-description: Understand volume types, mounting, and how Zerobyte connects to your data sources
+title: 存储卷
+description: 了解存储卷类型、挂载方式以及 Zerobyte 如何连接到你的数据源
 ---
 
-Volumes are the data sources you want to protect with Zerobyte. Each volume represents a filesystem, such as a local directory, a network share, or a remote storage location, that Zerobyte mounts and reads from when running backups.
+Volume 是您想要用 Zerobyte 保护的数据源。每个 Volume 代表一个文件系统，例如本地目录、网络共享或远程存储位置，Zerobyte 在运行备份时会挂载并从中读取数据。
 
-## What are volumes?
+## 什么是 Volume？
 
-A volume tells Zerobyte *where* your data lives. When you create a volume, you provide connection details (a path, a server address, credentials) and Zerobyte takes care of mounting that filesystem, monitoring its health, and making it available to your backup jobs.
+Volume 告诉 Zerobyte 您的数据存放在*哪里*。创建 Volume 时，您需要提供连接信息（路径、服务器地址、凭据），Zerobyte 负责挂载该文件系统、监控其健康状况，并使其可用于备份任务。
 
-Volumes support a range of protocols, from simple local directories to NFS shares, Windows/Samba file servers, WebDAV endpoints, SFTP connections, and cloud storage via rclone. Once a volume is mounted, you can browse its contents directly in the UI, assign it to one or more backup jobs, and let Zerobyte handle the rest.
+Volume 支持多种协议，从简单的本地目录到 NFS 共享、Windows/Samba 文件服务器、WebDAV 端点、SFTP 连接，以及通过 rclone 访问的云存储。一旦 Volume 挂载完成，您可以直接在 UI 中浏览其内容，将其分配给一个或多个备份任务，剩下的交给 Zerobyte 处理。
 
 <Callout type="warn">
-  Mounted remote volumes can expose translated metadata instead of the source system's original ownership and ACL model. Before relying on NFS, SMB, WebDAV, SFTP, or rclone volumes for metadata-sensitive backups, read [Mounted Shares, ACLs, and Metadata Fidelity](/docs/guides/mounted-shares-and-acls).
+  挂载的远程 Volume 可能会暴露翻译后的元数据，而非源系统原有的所有权和 ACL 模型。在依赖 NFS、SMB、WebDAV、SFTP 或 rclone Volume 进行元数据敏感的备份之前，请阅读[挂载共享、ACL 与元数据保真度](/docs/guides/mounted-shares-and-acls)。
 </Callout>
 
-## Supported volume types
+## 支持的 Volume 类型
 
-Zerobyte supports six volume types. Each one is configured through the web UI when you create or edit a volume.
+Zerobyte 支持六种 Volume 类型。每种类型都可以通过 Web UI 在创建或编辑 Volume 时进行配置。
 
 <Tabs items={["Directory", "NFS", "SMB/CIFS", "WebDAV", "SFTP", "Rclone"]}>
   <Tab value="Directory">
-    ### Directory (local)
+    ### Directory（本地目录）
 
-    A local directory on the host machine, mounted into the Zerobyte container via your `docker-compose.yml` file.
+    主机上的本地目录，通过您的 `docker-compose.yml` 文件挂载到 Zerobyte 容器中。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Backing up application data, configuration files, or databases on the host
-    - Testing backup configurations before adding remote volumes
-    - Protecting Docker volume data or bind-mounted directories
+    - 备份主机上的应用数据、配置文件或数据库
+    - 在添加远程 Volume 前测试备份配置
+    - 保护 Docker Volume 数据或绑定挂载的目录
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Path**, the path *inside the container* where the directory is mounted (e.g., `/data`)
+    - **名称**，此 Volume 的描述性标签
+    - **路径**，目录在*容器内部*的挂载路径（例如 `/data`）
 
     <Callout type="info">
-      You must first mount the host directory into the Zerobyte container by adding it to the `volumes` section of your `docker-compose.yml`. For example, to back up `/home/user/photos` on the host, add `- /home/user/photos:/photos:ro` to your compose file, restart the container, then create a Directory volume in the UI with the path `/photos`.
+      您必须先将主机目录挂载到 Zerobyte 容器中，方法是将其添加到 `docker-compose.yml` 的 `volumes` 部分。例如，要备份主机上的 `/home/user/photos`，请将 `- /home/user/photos:/photos:ro` 添加到您的 compose 文件中，重启容器，然后在 UI 中创建一个路径为 `/photos` 的 Directory Volume。
     </Callout>
   </Tab>
 
   <Tab value="NFS">
-    ### NFS (Network File System)
+    ### NFS（网络文件系统）
 
-    Mount NFS exports from a NAS, file server, or any system that shares directories over the NFS protocol.
+    从 NAS、文件服务器或任何通过 NFS 协议共享目录的系统挂载 NFS 导出。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Backing up NAS devices (Synology, QNAP, TrueNAS, etc.)
-    - Enterprise file server protection
-    - Shared storage in Linux environments
+    - 备份 NAS 设备（Synology、QNAP、TrueNAS 等）
+    - 企业文件服务器保护
+    - Linux 环境中的共享存储
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Server**, hostname or IP address of the NFS server
-    - **Export Path**, the exported directory on the server (e.g., `/volume1/data`)
-    - **NFS Version**, protocol version: `3`, `4`, or `4.1`
-    - **Port**, NFS port (default: `2049`)
-    - **Read Only**, mount the share in read-only mode
+    - **名称**，此 Volume 的描述性标签
+    - **服务器**，NFS 服务器的主机名或 IP 地址
+    - **导出路径**，服务器上导出的目录（例如 `/volume1/data`）
+    - **NFS 版本**，协议版本：`3`、`4` 或 `4.1`
+    - **端口**，NFS 端口（默认：`2049`）
+    - **只读**，以只读模式挂载共享
 
     <Callout type="warn">
-      NFS volumes require the `SYS_ADMIN` capability in your Docker container configuration. See the [Installation guide](/docs/installation) for details on enabling `cap_add: [SYS_ADMIN]`.
+      NFS Volume 需要在 Docker 容器配置中启用 `SYS_ADMIN` 权限。请参阅[安装指南](/docs/installation)了解如何启用 `cap_add: [SYS_ADMIN]`。
     </Callout>
   </Tab>
 
   <Tab value="SMB/CIFS">
     ### SMB/CIFS
 
-    Connect to Windows file shares or Samba servers using the SMB/CIFS protocol.
+    使用 SMB/CIFS 协议连接到 Windows 文件共享或 Samba 服务器。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Windows file server backups
-    - Samba shares on Linux or NAS devices
-    - Active Directory-integrated storage
+    - Windows 文件服务器备份
+    - Linux 或 NAS 设备上的 Samba 共享
+    - Active Directory 集成存储
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Server**, hostname or IP address of the SMB server
-    - **Share**, name of the shared folder (e.g., `documents`)
-    - **Guest Mode**, enable unauthenticated access if the share allows it
-    - **Username**, account used to connect when guest mode is disabled
-    - **Password**, account password when guest mode is disabled
-    - **Domain**, Windows domain (optional)
-    - **SMB Version**, protocol version: `1.0`, `2.0`, `2.1`, or `3.0`
-    - **Port**, SMB port (default: `445`)
-    - **Read Only**, mount the share in read-only mode
+    - **名称**，此 Volume 的描述性标签
+    - **服务器**，SMB 服务器的主机名或 IP 地址
+    - **共享名称**，共享文件夹的名称（例如 `documents`）
+    - **访客模式**，如果共享允许，启用未经身份验证的访问
+    - **用户名**，关闭访客模式时用于连接的账户
+    - **密码**，关闭访客模式时的账户密码
+    - **域**，Windows 域（可选）
+    - **SMB 版本**，协议版本：`1.0`、`2.0`、`2.1` 或 `3.0`
+    - **端口**，SMB 端口（默认：`445`）
+    - **只读**，以只读模式挂载共享
 
     <Callout type="info">
-      Guest access is supported through the **Guest Mode** option.
+      通过**访客模式**选项支持访客访问。
     </Callout>
 
     <Callout type="warn">
-      SMB volumes require the `SYS_ADMIN` capability in your Docker container configuration. See the [Installation guide](/docs/installation) for setup details.
+      SMB Volume 需要在 Docker 容器配置中启用 `SYS_ADMIN` 权限。请参阅[安装指南](/docs/installation)了解设置详情。
     </Callout>
   </Tab>
 
   <Tab value="WebDAV">
     ### WebDAV
 
-    Mount storage over HTTP/HTTPS using the WebDAV protocol. This is a common option for self-hosted cloud platforms.
+    使用 WebDAV 协议通过 HTTP/HTTPS 挂载存储。这是自托管云平台的常见选项。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Nextcloud or ownCloud instances
-    - Web-based file storage services
-    - Any server that exposes a WebDAV endpoint
+    - Nextcloud 或 ownCloud 实例
+    - 基于 Web 的文件存储服务
+    - 任何公开 WebDAV 端点的服务器
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Server**, hostname or IP of the WebDAV server
-    - **Path**, path on the server (e.g., `/remote.php/dav/files/username`)
-    - **Username**, WebDAV account username (optional)
-    - **Password**, WebDAV account password (optional)
-    - **Port**, server port (e.g., `443` for HTTPS)
-    - **SSL**, enable HTTPS connection
-    - **Read Only**, mount in read-only mode
+    - **名称**，此 Volume 的描述性标签
+    - **服务器**，WebDAV 服务器的主机名或 IP
+    - **路径**，服务器上的路径（例如 `/remote.php/dav/files/username`）
+    - **用户名**，WebDAV 账户用户名（可选）
+    - **密码**，WebDAV 账户密码（可选）
+    - **端口**，服务器端口（例如 HTTPS 的 `443`）
+    - **SSL**，启用 HTTPS 连接
+    - **只读**，以只读模式挂载
 
     <Callout type="warn">
-      WebDAV volumes require the `SYS_ADMIN` capability in your Docker container configuration. See the [Installation guide](/docs/installation) for setup details.
+      WebDAV Volume 需要在 Docker 容器配置中启用 `SYS_ADMIN` 权限。请参阅[安装指南](/docs/installation)了解设置详情。
     </Callout>
   </Tab>
 
   <Tab value="SFTP">
-    ### SFTP (SSH File Transfer Protocol)
+    ### SFTP（SSH 文件传输协议）
 
-    Mount remote directories over SSH. Supports both password-based and private key authentication.
+    通过 SSH 挂载远程目录。支持基于密码和私钥的身份验证。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Remote Linux server backups
-    - VPS data protection
-    - Any SSH-accessible storage
+    - 远程 Linux 服务器备份
+    - VPS 数据保护
+    - 任何可通过 SSH 访问的存储
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Host**, hostname or IP of the SSH server
-    - **Port**, SSH port (default: `22`)
-    - **Username**, SSH account username
-    - **Password**, password authentication (optional if using a private key)
-    - **Private Key**, SSH private key authentication (optional if using a password)
-    - **Path**, directory path on the remote server
-    - **Skip Host Key Verification**, disable host key checking (not recommended for production)
-    - **Known Hosts**, required unless host key verification is skipped
-    - **Read Only**, mount in read-only mode
+    - **名称**，此 Volume 的描述性标签
+    - **主机**，SSH 服务器的主机名或 IP
+    - **端口**，SSH 端口（默认：`22`）
+    - **用户名**，SSH 账户用户名
+    - **密码**，密码认证（使用私钥时可选）
+    - **私钥**，SSH 私钥认证（使用密码时可选）
+    - **路径**，远程服务器上的目录路径
+    - **跳过主机密钥验证**，禁用主机密钥检查（不建议用于生产环境）
+    - **已知主机**，除非跳过了主机密钥验证，否则此项必填
+    - **只读**，以只读模式挂载
 
     <Callout type="warn">
-      SFTP volumes require both the `SYS_ADMIN` capability and access to `/dev/fuse` in your Docker container configuration. See the [Installation guide](/docs/installation) for setup details.
+      SFTP Volume 需要在 Docker 容器配置中同时启用 `SYS_ADMIN` 权限和访问 `/dev/fuse`。请参阅[安装指南](/docs/installation)了解设置详情。
     </Callout>
   </Tab>
 
   <Tab value="Rclone">
-    ### Rclone (40+ cloud providers)
+    ### Rclone（40+ 云服务提供商）
 
-    Access cloud storage from providers like Google Drive, Dropbox, OneDrive, Backblaze B2, and many more through rclone.
+    通过 rclone 访问 Google Drive、Dropbox、OneDrive、Backblaze B2 等云存储服务。
 
-    **Use cases:**
+    **使用场景：**
 
-    - Backing up data stored in cloud services to an encrypted repository
-    - Consolidating data from multiple cloud providers
-    - Accessing specialized storage backends not natively supported
+    - 将存储在云服务中的数据备份到加密仓库
+    - 整合来自多个云服务提供商的数据
+    - 访问未原生支持的特殊存储后端
 
-    **Form fields:**
+    **表单字段：**
 
-    - **Name**, a descriptive label for this volume
-    - **Remote**, the rclone remote name as defined in your rclone configuration (e.g., `gdrive`)
-    - **Path**, path within the remote (e.g., `/documents`)
-    - **Read Only**, mount in read-only mode
+    - **名称**，此 Volume 的描述性标签
+    - **远程名称**，rclone 配置中定义的 rclone 远程名称（例如 `gdrive`）
+    - **路径**，远程位置中的路径（例如 `/documents`）
+    - **只读**，以只读模式挂载
 
     <Callout type="info">
-      Rclone must be configured on your host first, and the configuration directory must be mounted into the Zerobyte container. See the [Installation guide](/docs/installation#mounting-rclone-configuration) for instructions on mounting your rclone config.
+      Rclone 必须先在主机上完成配置，并且配置目录必须挂载到 Zerobyte 容器中。请参阅[安装指南](/docs/installation#mounting-rclone-configuration)了解如何挂载 rclone 配置。
     </Callout>
 
     <Callout type="warn">
-      Rclone volumes require both the `SYS_ADMIN` capability and access to `/dev/fuse` in your Docker container configuration.
+      Rclone Volume 需要在 Docker 容器配置中同时启用 `SYS_ADMIN` 权限和访问 `/dev/fuse`。
     </Callout>
   </Tab>
 </Tabs>
 
-## Volume status
+## Volume 状态
 
-Every volume is in one of three states, visible at a glance in the Volumes list.
+每个 Volume 处于三种状态之一，在 Volume 列表中一目了然。
 
 <Steps>
   <Step>
 
-### Mounted
+### 已挂载
 
-The volume is connected and accessible. Backup jobs can read from this volume.
-
-  </Step>
-
-  <Step>
-
-### Unmounted
-
-The volume exists in Zerobyte but is not currently connected. Backups that depend on this volume will not run until it is mounted again.
+Volume 已连接并可访问。备份任务可以从此 Volume 读取数据。
 
   </Step>
 
   <Step>
 
-### Error
+### 未挂载
 
-Something went wrong, the mount failed, the network is unreachable, or credentials were rejected. The volume detail view shows the specific error message. If auto-remount is enabled, Zerobyte will attempt to recover automatically.
+Volume 存在于 Zerobyte 中但当前未连接。依赖此 Volume 的备份将不会运行，直到它重新挂载。
+
+  </Step>
+
+  <Step>
+
+### 错误
+
+出现了问题：挂载失败、网络不可达或凭据被拒绝。Volume 详情视图会显示具体的错误信息。如果启用了自动重新挂载，Zerobyte 将尝试自动恢复。
 
   </Step>
 </Steps>
 
-## Auto-remount
+## 自动重新挂载
 
-Auto-remount is enabled by default for every volume. When a mounted volume enters an error state (for example, due to a temporary network outage or a server restart), Zerobyte automatically attempts to re-establish the connection without any manual action.
+每个 Volume 默认启用自动重新挂载。当已挂载的 Volume 进入错误状态时（例如由于临时网络中断或服务器重启），Zerobyte 会自动尝试重新建立连接，无需手动操作。
 
-This is especially valuable for network-based volume types (NFS, SMB, WebDAV, SFTP, Rclone) where transient connectivity issues are common. Auto-remount ensures your scheduled backups continue to run even after brief disruptions.
+这对于基于网络的 Volume 类型（NFS、SMB、WebDAV、SFTP、Rclone）尤为有价值，因为临时连接问题很常见。自动重新挂载可确保您的定期备份即使在短暂中断后也能继续运行。
 
-You can disable auto-remount for any volume if you prefer to handle reconnections manually.
+如果您希望手动处理重新连接，可以为任何 Volume 禁用自动重新挂载。
 
-## File browsing
+## 文件浏览
 
-Once a volume is mounted, you can browse its contents directly from the Zerobyte web interface. File browsing lets you:
+Volume 挂载后，您可以直接从 Zerobyte Web 界面浏览其内容。文件浏览功能让您可以：
 
-- Verify that the volume mounted correctly and points to the expected data
-- Explore the directory structure to identify paths you want to include or exclude in your backup jobs
-- Confirm that the files and folders you need to protect are accessible
+- 验证 Volume 是否正确挂载并指向预期的数据
+- 浏览目录结构，确定要在备份任务中包含或排除的路径
+- 确认需要保护的文件和文件夹是否可访问
 
-This is a read-only view of the volume's contents, browsing does not modify any files.
+这是 Volume 内容的只读视图，浏览不会修改任何文件。
 
-## Read-only mode
+## 只读模式
 
-All six volume types support mounting in read-only mode. When enabled, Zerobyte can still read and back up files, but write operations are blocked at the filesystem level.
-
-<Callout type="info">
-  Read-only mode adds an extra layer of safety when backing up production data. It guarantees that the backup process cannot accidentally modify or delete source files.
-</Callout>
-
-## Credential security
-
-Sensitive fields, such as passwords, private keys, and other secrets, are encrypted before they are stored. Zerobyte never saves credentials in plain text.
-
-Provisioned volumes also support secret references:
-
-- **`env://VARIABLE_NAME`**, resolves the value from an environment variable set in your `docker-compose.yml` during provisioning
-- **`file://secret_name`**, resolves the value from a Docker secrets file at `/run/secrets/secret_name` during provisioning
-
-During provisioning, Zerobyte resolves these references on startup and stores the resolved value encrypted in the database.
-
-The regular volume form in the UI currently expects the actual credential value. Entering `env://...` or `file://...` there will not resolve it at runtime.
+所有六种 Volume 类型都支持以只读模式挂载。启用后，Zerobyte 仍然可以读取和备份文件，但写入操作将在文件系统层面被阻止。
 
 <Callout type="info">
-  For a complete walkthrough of managing secrets through environment variables, Docker secrets, and provisioning files, see the [Provisioning guide](/docs/guides/provisioning).
+  只读模式在备份生产数据时增加了一层额外的安全保障。它确保备份过程不会意外修改或删除源文件。
 </Callout>
 
-## Best practices
+## 凭据安全
+
+敏感字段（如密码、私钥和其他密钥）在存储前会进行加密。Zerobyte 从不以明文保存凭据。
+
+通过预配置创建的 Volume 还支持密钥引用：
+
+- **`env://VARIABLE_NAME`**，在预配置期间从 `docker-compose.yml` 中设置的环境变量解析值
+- **`file://secret_name`**，在预配置期间从 `/run/secrets/secret_name` 的 Docker secrets 文件解析值
+
+在预配置过程中，Zerobyte 在启动时解析这些引用，并将解析后的值加密存储在数据库中。
+
+UI 中的常规 Volume 表单目前需要实际的凭据值。在其中输入 `env://...` 或 `file://...` 不会在运行时被解析。
+
+<Callout type="info">
+  有关通过环境变量、Docker secrets 和预配置文件管理 secrets 的完整指南，请参阅[预配置指南](/docs/guides/provisioning)。
+</Callout>
+
+## 最佳实践
 
 <Accordions>
-  <Accordion title="Name volumes descriptively">
-    Use names that clearly identify what data the volume contains and where it comes from. Good examples:
+  <Accordion title="为 Volume 使用描述性名称">
+    使用能够清晰标识 Volume 包含什么数据以及来自何处的名称。好的例子：
 
     - `production-database-dumps`
     - `customer-uploads-nfs`
     - `accounting-smb-share`
 
-    Avoid generic names like `volume1` or `backup`, they become confusing as you add more volumes.
+    避免使用 `volume1` 或 `backup` 等通用名称，随着添加更多 Volume，它们会变得令人困惑。
   </Accordion>
 
-  <Accordion title="Enable auto-remount for network volumes">
-    Network shares can experience transient failures from server restarts, brief network outages, or DNS hiccups. Keep auto-remount enabled so Zerobyte recovers on its own and your scheduled backups are not disrupted.
+  <Accordion title="为网络 Volume 启用自动重新挂载">
+    网络共享可能会因服务器重启、短暂网络中断或 DNS 故障而出现临时故障。保持自动重新挂载开启，这样 Zerobyte 可以自行恢复，您的定期备份不会中断。
   </Accordion>
 
-  <Accordion title="Use read-only mode when possible">
-    Mounting volumes in read-only mode prevents any chance of the backup process modifying source data. This is especially important for:
+  <Accordion title="尽可能使用只读模式">
+    以只读模式挂载 Volume 可以防止备份过程修改源数据。这对于以下场景尤为重要：
 
-    - Live production systems
-    - Archive or compliance data
-    - Shared storage used by multiple applications
+    - 正在运行的生产系统
+    - 归档或合规性数据
+    - 多个应用程序使用的共享存储
   </Accordion>
 
-  <Accordion title="Monitor volume health">
-    A volume in error state will cause its associated backup jobs to fail. Check the Volumes list regularly. Catching mount issues early prevents gaps in your backup coverage.
+  <Accordion title="监控 Volume 健康状态">
+    处于错误状态的 Volume 会导致其关联的备份任务失败。定期检查 Volume 列表。及早发现挂载问题可以防止备份覆盖范围出现缺口。
   </Accordion>
 </Accordions>
 
-## Next steps
+## 下一步
 
 <Cards>
-  <Card title="Repositories" href="/docs/concepts/repositories">
-    Learn about encrypted storage destinations where your backup snapshots are kept
+  <Card title="仓库" href="/docs/concepts/repositories">
+    了解备份快照存放的加密存储目标
   </Card>
 
-  <Card title="Backups" href="/docs/concepts/backups">
-    Configure backup jobs that connect your volumes to repositories with scheduling and retention
+  <Card title="备份" href="/docs/concepts/backups">
+    配置将 Volume 连接到仓库的备份任务，包含调度与保留策略
   </Card>
 </Cards>
 

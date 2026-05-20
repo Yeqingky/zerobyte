@@ -1,255 +1,255 @@
 ---
-title: Backups
-description: Learn how backup jobs connect volumes to repositories with scheduling, retention policies, and restore capabilities
+title: 备份
+description: 了解备份任务如何通过计划调度、保留策略和恢复功能将存储卷连接到仓库
 ---
 
-Learn how backup jobs connect volumes to repositories with scheduling, retention policies, and restore capabilities.
+了解备份作业如何通过调度、保留策略和恢复功能将卷与仓库连接起来。
 
-## What are backup jobs?
+## 什么是备份作业？
 
-A backup job is the central piece of Zerobyte. It defines four things:
+备份作业是 Zerobyte 的核心。它定义了四个要素：
 
-- **What** to back up, a [volume](/docs/concepts/volumes) (your data source)
-- **Where** to store it, a [repository](/docs/concepts/repositories) (your encrypted storage destination)
-- **When** to run, a cron schedule
-- **How long** to keep snapshots, a retention policy
+- **备份什么**，一个[卷](/docs/concepts/volumes)（你的数据源）
+- **存储在哪里**，一个[仓库](/docs/concepts/repositories)（你的加密存储目标）
+- **何时运行**，一个 cron 调度
+- **保留多久**，一个保留策略
 
-Each time a backup job runs, Restic creates an incremental, encrypted snapshot of the volume's contents and stores it in the repository.
+每次备份作业运行时，Restic 都会创建卷内容的一个增量加密快照，并将其存储在仓库中。
 
-## Creating a backup job
+## 创建备份作业
 
-To create a backup job, navigate to **Backups** in the sidebar and click **Create a backup job**. First choose a volume, then fill in the backup form:
+要创建备份作业，请导航到侧边栏中的**备份**，然后点击**创建备份作业**。首先选择一个卷，然后填写备份表单：
 
-- **Backup name**, a descriptive name for the job (e.g., "Daily Database Backup")
-- **Backup repository**, select from your configured repositories
-- **Backup frequency**, choose `Manual only`, `Hourly`, `Daily`, `Weekly`, `Specific days`, or `Custom (Cron)`
-- **Retention policy**, optionally define how many snapshots to keep
+- **备份名称**，作业的描述性名称（例如，"每日数据库备份"）
+- **备份仓库**，从已配置的仓库中选择
+- **备份频率**，选择`仅手动`、`每小时`、`每天`、`每周`、`特定日期`或`自定义 (Cron)`
+- **保留策略**，可选定义保留多少快照
 
 <Callout type="info">
-  Choose **Manual only** if you want to create the job without scheduled runs and trigger it yourself.
+  选择**仅手动**如果你希望创建作业但不设置自动调度，由你自己触发执行。
 </Callout>
 
-## Scheduling
+## 调度
 
-Backup jobs use **cron expressions** to define when they run. Cron syntax gives you precise control over scheduling.
+备份作业使用 **cron 表达式** 来定义运行时间。Cron 语法让你可以精确控制调度。
 
-### Common cron patterns
+### 常用 cron 模式
 
-| Cron Expression   | Schedule                     |
+| Cron 表达式   | 调度安排               |
 | ----------------- | ---------------------------- |
-| `0 2 * * *`       | Daily at 2:00 AM             |
-| `0 2 * * 0`       | Weekly on Sunday at 2:00 AM  |
-| `0 2 1 * *`       | Monthly on the 1st at 2:00 AM |
-| `0 */6 * * *`     | Every 6 hours                |
-| `0 0 * * 1-5`     | Weekdays at midnight         |
+| `0 2 * * *`       | 每天凌晨 2:00                |
+| `0 2 * * 0`       | 每周日凌晨 2:00              |
+| `0 2 1 * *`       | 每月 1 日凌晨 2:00           |
+| `0 */6 * * *`     | 每 6 小时                    |
+| `0 0 * * 1-5`     | 工作日午夜                   |
 
 <Callout type="info">
-  The timezone for cron schedules is controlled by the `TZ` environment variable set on the Zerobyte container. If `TZ` is not set, the system defaults to UTC.
+  cron 调度的时区由 Zerobyte 容器上设置的 `TZ` 环境变量控制。如果未设置 `TZ`，系统默认使用 UTC。
 </Callout>
 
-## Retention policies
+## 保留策略
 
-Retention policies control how long snapshots are kept. After each backup, Restic automatically prunes snapshots that fall outside the defined policy, freeing up storage space.
+保留策略控制快照的保留时长。每次备份后，Restic 会自动修剪超出定义策略范围的快照，从而释放存储空间。
 
-You can configure the following retention rules:
+你可以配置以下保留规则：
 
-| Rule           | Description                                |
-| -------------- | ------------------------------------------ |
-| **Keep Last**    | Number of most recent snapshots to keep    |
-| **Keep Daily**   | Number of daily snapshots to keep          |
-| **Keep Weekly**  | Number of weekly snapshots to keep         |
-| **Keep Monthly** | Number of monthly snapshots to keep        |
-| **Keep Yearly**  | Number of yearly snapshots to keep         |
+| 规则         | 描述                              |
+| -------------- | ---------------------------------------- |
+| **保留最近**    | 保留最近快照的数量          |
+| **保留每日**   | 保留每日快照的数量        |
+| **保留每周**  | 保留每周快照的数量       |
+| **保留每月** | 保留每月快照的数量      |
+| **保留每年**  | 保留每年快照的数量       |
 
-### Example retention policy
+### 保留策略示例
 
-A balanced policy for most workloads:
+适用于大多数工作负载的均衡策略：
 
-- **Keep Daily**: 7, one snapshot per day for the past week
-- **Keep Weekly**: 4, one snapshot per week for the past month
-- **Keep Monthly**: 6, one snapshot per month for the past half year
-- **Keep Yearly**: 1, one snapshot per year for long-term archival
+- **保留每日**：7，过去一周每天一个快照
+- **保留每周**：4，过去一个月每周一个快照
+- **保留每月**：6，过去半年每月一个快照
+- **保留每年**：1，长期存档每年一个快照
 
 <Callout type="info">
-  Retention rules are additive. A snapshot that satisfies any rule is kept. Restic determines which snapshots best represent each time period automatically.
+  保留规则是累加的。满足任何规则条件的快照都会被保留。Restic 会自动确定哪些快照最能代表每个时间段。
 </Callout>
 
-## Include and exclude paths
+## 包含和排除路径
 
-By default, the entire volume is backed up. You can refine this with include and exclude patterns.
+默认情况下，整个卷都会被备份。你可以使用包含和排除模式进行精细化控制。
 
-### Include paths
+### 包含路径
 
-Specify subdirectories within the volume to back up. Only these paths will be included in the snapshot.
+指定卷中要备份的子目录。只有这些路径会包含在快照中。
 
-### Exclude patterns
+### 排除模式
 
-Exclude files or directories that do not need to be backed up. Common patterns:
+排除不需要备份的文件或目录。常见模式：
 
-- `*.tmp`, temporary files
-- `node_modules/`, dependency directories
-- `.cache/`, cache directories
-- `*.log`, log files
+- `*.tmp`，临时文件
+- `node_modules/`，依赖目录
+- `.cache/`，缓存目录
+- `*.log`，日志文件
 
 <Callout type="warn">
-  Exclude patterns use Restic's pattern matching. Test your patterns after the first backup by browsing the snapshot contents to confirm the right files are included.
+  排除模式使用 Restic 的模式匹配。首次备份后，通过浏览快照内容来确认包含的文件是否正确，以测试你的模式。
 </Callout>
 
-## Compression
+## 压缩
 
-Backups inherit the compression mode from the repository they write to. Compression is configured per repository and applies to all backup jobs targeting that repository.
+备份继承其所写入仓库的压缩模式。压缩按仓库配置，并适用于所有针对该仓库的备份作业。
 
-Available modes are **auto** (default), **off**, and **max**. See [Repositories](/docs/concepts/repositories) for details on each mode.
+可用模式为 **auto**（默认）、**off** 和 **max**。关于每种模式的详细信息，请参阅[仓库](/docs/concepts/repositories)。
 
-## Running backups
+## 运行备份
 
-There are two ways to run a backup job:
+有两种方式可以运行备份作业：
 
-- **Scheduled**, the job runs automatically according to its cron schedule. No intervention required.
-- **Manual**, click **Backup now** on any backup job to trigger it immediately, regardless of the schedule.
+- **定时调度**，作业根据其 cron 调度自动运行，无需干预。
+- **手动触发**，在任何备份作业上点击**立即备份**，无论调度如何都会立即触发。
 
-Both methods produce identical snapshots. Manual runs are useful for verifying a new backup job or creating an extra snapshot before a major change.
+两种方式生成相同的快照。手动运行对于验证新的备份作业或在重大变更前创建额外快照非常有用。
 
 <Callout type="info">
-  You can monitor backup progress in real time through the web interface. Zerobyte streams file counts, data processed, and upload progress as the backup runs.
+  你可以通过网页界面实时监控备份进度。Zerobyte 会在备份运行时流式传输文件计数、已处理数据和上传进度。
 </Callout>
 
-## Backup webhooks
+## 备份 Webhook
 
-Backup jobs can run optional HTTP webhooks immediately before and after Restic. Pre-backup webhooks are useful for preparing the source, such as pausing a service or creating a dump. Post-backup webhooks are useful for cleanup, such as resuming a service after the snapshot.
+备份作业可以在 Restic 运行之前和之后立即运行可选的 HTTP webhook。备份前 webhook 适用于准备源数据，例如暂停服务或创建转储。备份后 webhook 适用于清理操作，例如在快照创建后恢复服务。
 
-Pre-backup hook failures stop the backup before Restic runs. Post-backup hook failures are recorded with the run result; a clean backup becomes a warning if the post hook fails.
+备份前 webhook 的失败会在 Restic 运行前停止备份。备份后 webhook 的失败会记录在运行结果中；如果后置钩子失败，原本成功的备份会变成警告状态。
 
-For setup details and a container stop/start example, see [Backup Webhooks](/docs/guides/backup-webhooks).
+有关设置细节和一个容器停止/启动的示例，请参阅[备份 Webhook](/docs/guides/backup-webhooks)。
 
-## Backup status
+## 备份状态
 
-The UI exposes two related status views:
+UI 展示了两种相关的状态视图：
 
-- In the **Backups** list, the status dot shows **Active**, **Paused**, **Error**, **Warning**, or **Backup in progress**
-- In the backup job details page, the last run status shows **Success**, **Error**, **Warning**, or **in progress**
-- If a backup job has not completed a run yet, the details page shows no last run value
+- 在**备份**列表中，状态点显示**活跃**、**已暂停**、**错误**、**警告**或**备份进行中**
+- 在备份作业详情页面，上次运行状态显示**成功**、**错误**、**警告**或**进行中**
+- 如果备份作业尚未完成任何运行，详情页不会显示上次运行的值
 
-## Snapshots
+## 快照
 
-Each successful backup creates a snapshot in the repository. Snapshots have several important properties:
+每次成功备份都会在仓库中创建一个快照。快照具有几个重要属性：
 
-- **Immutable**, once created, a snapshot cannot be modified
-- **Incremental**, only changed data since the last snapshot is uploaded
-- **Browsable**, you can explore snapshot contents directly in the web interface, viewing file sizes, modification times, and directory structure
+- **不可变**，一旦创建，快照无法修改
+- **增量**，仅上传自上次快照以来发生变化的数据
+- **可浏览**，你可以直接在网页界面中浏览快照内容，查看文件大小、修改时间和目录结构
 
-The first backup uploads all data and may take longer. Subsequent backups are significantly faster because Restic deduplicates data at the chunk level and only transfers new or changed blocks.
+首次备份会上传所有数据，可能需要较长时间。后续备份会显著加快，因为 Restic 在数据块级别进行去重，只传输新的或已更改的数据块。
 
-## Restoring data
+## 恢复数据
 
-Zerobyte lets you browse snapshots, restore them back to a filesystem path, or download the selected contents directly.
+Zerobyte 允许你浏览快照、将其恢复到文件系统路径，或直接下载所选内容。
 
-For the complete restore workflow, overwrite modes, custom-target guidance, and mounted-volume permission caveats, see [Restoring Data](/docs/guides/restoring).
+有关完整的恢复工作流程、覆盖模式、自定义目标指南以及挂载卷的权限注意事项，请参阅[恢复数据](/docs/guides/restoring)。
 
-At a high level, restoring works like this:
+在较高层次上，恢复的工作方式如下：
 
 <Steps>
   <Step>
 
-### Navigate to the backup job
+### 导航到备份作业
 
-Go to **Backups** and select the job containing the data you need.
-
-  </Step>
-
-  <Step>
-
-### Select a snapshot
-
-Choose the snapshot from the time period you want to restore from.
+前往**备份**并选择包含所需数据的作业。
 
   </Step>
 
   <Step>
 
-### Browse and select files
+### 选择快照
 
-Navigate the file tree and select the files or folders you want to restore.
-
-  </Step>
-
-  <Step>
-
-### Choose a restore location
-
-Decide whether to restore to the original location or specify a custom path.
+从你想要恢复的时间段中选择快照。
 
   </Step>
 
   <Step>
 
-### Restore
+### 浏览并选择文件
 
-Click **Restore** and wait for the operation to complete.
+浏览文件树，选择要恢复的文件或文件夹。
+
+  </Step>
+
+  <Step>
+
+### 选择恢复位置
+
+决定是恢复到原始位置还是指定自定义路径。
+
+  </Step>
+
+  <Step>
+
+### 恢复
+
+点击**恢复**并等待操作完成。
 
   </Step>
 </Steps>
 
 <Callout type="warn">
-  By default, restored files are placed back in their original location. This can overwrite current files. If you want to inspect the restored data before replacing anything, specify an alternate restore path.
+  默认情况下，恢复的文件会放回其原始位置。这可能会覆盖现有文件。如果你想在替换之前检查恢复的数据，请指定一个替代恢复路径。
 </Callout>
 
-## Mirror repositories
+## 镜像仓库
 
-You can optionally copy snapshots to additional repositories after each backup. Mirrors provide:
+你可以选择在每次备份后将快照复制到其他仓库。镜像提供：
 
-- **Geographic redundancy**, store copies in different regions or data centers
-- **Provider diversification**, avoid depending on a single cloud provider
-- **Compliance**, meet data locality or regulatory requirements
+- **地理冗余**，在不同区域或数据中心存储副本
+- **提供商多样化**，避免依赖单一云提供商
+- **合规性**，满足数据本地化或监管要求
 
-Mirrors are configured per backup job. After each successful backup, snapshots are automatically copied to all enabled mirror repositories.
+镜像按备份作业进行配置。每次成功备份后，快照会自动复制到所有已启用的镜像仓库。
 
-For a practical pattern that combines fast local restores with an offsite copy, see [3-2-1 Backup Strategy](/docs/guides/3-2-1-backup-strategy).
+有关结合快速本地恢复和异地副本的实用模式，请参阅[3-2-1 备份策略](/docs/guides/3-2-1-backup-strategy)。
 
-## Monitoring
+## 监控
 
-The Zerobyte web interface provides visibility into each backup job:
+Zerobyte 网页界面提供了每个备份作业的可见性：
 
-- **Schedule**, the cron expression or `Manual only` configuration for the job
-- **Last backup**, when the most recent run happened
-- **Next backup**, when the job is expected to run next
-- **Snapshot history**, the list of snapshots created for that job
-- **Snapshot statistics**, data added, data stored, files processed, bytes processed, and duration for the selected snapshot
-- **Restore actions**, restore or download data from the selected snapshot
+- **调度**，作业的 cron 表达式或`仅手动`配置
+- **上次备份**，最近一次运行的时间
+- **下次备份**，作业预计下次运行的时间
+- **快照历史**，为该作业创建的快照列表
+- **快照统计信息**，所选快照的添加数据量、存储数据量、处理的文件数、处理的字节数和持续时间
+- **恢复操作**，从所选快照恢复或下载数据
 
-## Best practices
+## 最佳实践
 
 <Accordions type="multiple">
-  <Accordion title="Schedule backups during off-peak hours">
-    Run backups when system load is lowest to minimize impact on production workloads. Late night or early morning schedules (e.g., `0 2 * * *`) work well for most setups.
+  <Accordion title="在非高峰时段安排备份">
+    在系统负载最低时运行备份，以最小化对生产工作负载的影响。深夜或清晨的调度（例如 `0 2 * * *`）适用于大多数环境。
   </Accordion>
 
-  <Accordion title="Use retention policies to balance storage and history">
-    Keeping every snapshot indefinitely wastes storage. A policy like 7 daily, 4 weekly, 6 monthly, and 1 yearly provides good coverage without excessive cost.
+  <Accordion title="使用保留策略平衡存储与历史记录">
+    无限期保留每个快照会浪费存储空间。像 7 天每日、4 天每周、6 天每月和 1 天每年的策略可以在不过度增加成本的情况下提供良好的覆盖范围。
   </Accordion>
 
-  <Accordion title="Test restores regularly">
-    A backup is only valuable if you can restore from it. Periodically restore files to a test location to verify data integrity and familiarize yourself with the restore process.
+  <Accordion title="定期测试恢复">
+    只有能够从中恢复的备份才有价值。定期将文件恢复到测试位置，以验证数据完整性并熟悉恢复流程。
   </Accordion>
 
-  <Accordion title="Use exclude patterns for temporary files">
-    Excluding directories like `node_modules/`, `.cache/`, and `*.tmp` files reduces backup size and duration without losing important data.
+  <Accordion title="对临时文件使用排除模式">
+    排除 `node_modules/`、`.cache/` 和 `*.tmp` 文件等目录可以减少备份大小和时间，而不会丢失重要数据。
   </Accordion>
 
-  <Accordion title="Monitor failed backups and set up notifications">
-    Check the backup dashboard regularly for failed jobs. Configure notifications so you are alerted immediately when a backup fails rather than discovering it during a restore. See the [Notifications guide](/docs/guides/notifications) for destination setup, event routing, and delivery examples.
+  <Accordion title="监控失败的备份并设置通知">
+    定期检查备份仪表板是否有失败的作业。配置通知，以便在备份失败时立即收到警报，而不是在恢复时才发现。有关目标设置、事件路由和投递示例，请参阅[通知指南](/docs/guides/notifications)。
   </Accordion>
 </Accordions>
 
-## Next steps
+## 下一步
 
 <Cards>
-  <Card title="Configuration" icon={<Settings />} href="/docs/configuration">
-    Configure environment variables, Docker secrets, and deployment options
+  <Card title="配置" icon={<Settings />} href="/docs/configuration">
+    配置环境变量、Docker 密钥和部署选项
   </Card>
 
-  <Card title="Troubleshooting" icon={<LifeBuoy />} href="/docs/troubleshooting">
-    Diagnose and resolve common backup issues
+  <Card title="故障排除" icon={<LifeBuoy />} href="/docs/troubleshooting">
+    诊断和解决常见的备份问题
   </Card>
 </Cards>
 

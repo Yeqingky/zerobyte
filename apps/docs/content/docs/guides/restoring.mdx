@@ -1,163 +1,163 @@
 ---
-title: Restoring Data
-description: Restore files and folders from snapshots, choose the right destination, and avoid common restore pitfalls
+title: 数据恢复
+description: 从快照中恢复文件和文件夹，选择正确的目标位置，避免常见的恢复陷阱
 ---
 
-Zerobyte lets you recover data in two ways:
+Zerobyte 让您可以通过两种方式恢复数据：
 
-- **Restore**, writes files back to a filesystem path
-- **Download**, retrieves the selected contents without restoring them directly into a mounted destination
+- **还原**，将文件写回到文件系统路径
+- **下载**，检索所选内容，而不直接还原到已挂载的目标位置
 
-This guide covers when to use each option, how the restore form works, and what to do when a destination rejects ownership or permission changes.
+本指南涵盖何时使用每种选项、还原表单的使用方法，以及目标位置拒绝所有权或权限更改时的应对措施。
 
-## Before you restore
+## 还原之前的准备
 
-Before starting a restore, check these basics:
+开始还原之前，请检查以下基本事项：
 
-- the repository is reachable and unlocked
-- the target path is writable
-- the destination has enough free space
+- 仓库可访问且未锁定
+- 目标路径可写
+- 目标位置有足够的可用空间
 
-If you are restoring into a path that is bind-mounted into the container, make sure it is **not** mounted read-only. Read-only mounts can be backed up, but they cannot accept restores back into the original location.
+如果您要还原到绑定挂载到容器中的路径，请确保它**不是**只读挂载的。只读挂载可以被备份，但无法接受还原回原始位置。
 
 <Callout type="warn">
-If you are not fully sure about the target, restore to a custom staging path first. It is safer, easier to verify, and reduces the chance of overwriting live data.
+如果您对目标位置不完全确定，请先还原到自定义的临时路径。这样更安全、更容易验证，并降低了覆盖实时数据的可能性。
 </Callout>
 
-## Restore vs Download
+## 还原 vs 下载
 
-Use **Restore** when you want Zerobyte to write files back onto a filesystem path.
+当您希望 Zerobyte 将文件写回到文件系统路径时，使用**还原**。
 
-Use **Download** when you want to recover the contents without restoring them directly into the current mounted destination.
+当您想要恢复内容而不直接还原到当前已挂载的目标位置时，使用**下载**。
 
-As a rule of thumb:
+作为经验法则：
 
-- use **Restore** for normal recovery back to a server path
-- use **Download** for one-off recovery to your workstation, or when a mounted destination keeps failing on permissions or metadata
+- 对于正常恢复到服务器路径，使用**还原**
+- 对于一次性恢复到工作站，或当已挂载的目标位置持续出现权限或元数据问题时，使用**下载**
 
-In the current UI, **Download** is available when you select a single item, or when you leave the selection empty and download the snapshot contents directly.
+在当前 UI 中，当您选择单个项目，或保留选择为空并直接下载快照内容时，**下载**选项可用。
 
-## Standard restore workflow
+## 标准还原工作流
 
 <Steps>
 <Step>
 
-### Open the backup job
+### 打开备份任务
 
-Go to **Backups** and open the job that contains the data you need.
-
-</Step>
-
-<Step>
-
-### Choose the snapshot
-
-Select the snapshot from the time period you want to recover.
+转到**备份**，打开包含所需数据的任务。
 
 </Step>
 
 <Step>
 
-### Browse and select data
+### 选择快照
 
-Use the file browser to inspect the snapshot and optionally select specific files or folders.
-
-If you leave the selection empty, Zerobyte restores the full snapshot scope that is currently being viewed.
+从您想要恢复的时间段中选择快照。
 
 </Step>
 
 <Step>
 
-### Choose the destination
+### 浏览并选择数据
 
-Pick either:
+使用文件浏览器检查快照，并可选地选择特定文件或文件夹。
 
-- **Original location**, to put the data back where it came from
-- **Custom location**, to restore into another path
-
-</Step>
-
-<Step>
-
-### Review overwrite behavior
-
-Choose how Zerobyte should handle files that already exist at the target.
+如果您将选择保留为空，Zerobyte 将还原当前正在查看的完整快照范围。
 
 </Step>
 
 <Step>
 
-### Start the restore
+### 选择目标位置
 
-Click **Restore** and wait for the progress indicator to finish. When it completes, verify that the recovered files are present and usable.
+选择以下任一选项：
+
+- **原始位置**，将数据放回原来的位置
+- **自定义位置**，还原到另一路径
+
+</Step>
+
+<Step>
+
+### 审查覆盖行为
+
+选择 Zerobyte 应如何处理目标位置已存在的文件。
+
+</Step>
+
+<Step>
+
+### 开始还原
+
+点击**还原**并等待进度指示器完成。完成后，验证恢复的文件是否存在且可用。
 
 </Step>
 </Steps>
 
-## Choosing the restore location
+## 选择还原位置
 
-### Original location
+### 原始位置
 
-Original-location restore is convenient when you want to put the snapshot back exactly where it came from.
+当您希望将快照精确还原回其原始位置时，原始位置还原很方便。
 
-Use it when:
+在以下情况下使用：
 
-- the original path still exists
-- the path is writable
-- you are intentionally restoring back in place
+- 原始路径仍然存在
+- 路径可写
+- 您有意进行原地还原
 
-Be careful with it because it targets live paths.
+请注意，它会直接操作实时路径。
 
-### Custom location
+### 自定义位置
 
-Custom-location restore writes the recovered data to another path that you choose.
+自定义位置还原将恢复的数据写入您选择的其他路径。
 
-This is the safer default when:
+在以下情况下，这是更安全的默认选项：
 
-- you want to inspect the recovered files first
-- you are restoring onto a different server or container
-- the original location is no longer correct
-- you expect permission or metadata problems on the final destination
+- 您希望先检查恢复的文件
+- 您要还原到不同的服务器或容器
+- 原始位置不再正确
+- 您预期最终目标位置会出现权限或元数据问题
 
 <Callout type="info">
-If the snapshot was created from non-POSIX paths, or from source paths that do not match the current Zerobyte server or linked volume, original-location restore is unavailable. Restore to a custom location instead.
+如果快照是从非 POSIX 路径创建的，或来自与当前 Zerobyte 服务器或关联 Volume 不匹配的源路径，则原始位置还原不可用。请改为还原到自定义位置。
 </Callout>
 
-## Overwrite modes
+## 覆盖模式
 
-Zerobyte exposes Restic's overwrite behavior in the restore form.
+Zerobyte 在还原表单中提供了 Restic 的覆盖行为。
 
-### Always overwrite
+### 始终覆盖
 
-Replace existing files with the snapshot version. This is the most direct in-place restore mode.
+用快照版本替换现有文件。这是最直接的原地还原模式。
 
-### Only if content changed
+### 仅内容变更时覆盖
 
-Overwrite existing files only when their content differs from the snapshot. This avoids replacing identical files unnecessarily.
+仅当现有文件的内容与快照不同时才覆盖。这避免了不必要地替换相同文件。
 
-### Only if snapshot is newer
+### 仅快照更新时覆盖
 
-Overwrite existing files only when the snapshot version has a newer modification time.
+仅当快照版本的修改时间更新时才覆盖现有文件。
 
-### Never overwrite
+### 从不覆盖
 
-Restore only missing files. Existing files are left in place.
+仅还原缺失的文件。现有文件保持不变。
 
-## Advanced option: excluding extended attributes
+## 高级选项：排除扩展属性
 
-The restore form includes an **Exclude extended attributes** field under **Advanced options**.
+还原表单在**高级选项**下包含一个**排除扩展属性**字段。
 
-Use it only when the destination accepts file contents but rejects specific xattrs. Common examples include:
+仅当目标位置接受文件内容但拒绝特定扩展属性时使用。常见示例包括：
 
 - `security.*`
 - `system.*`
-- ACL-related attributes
+- ACL 相关属性
 
-This is useful for narrowly targeted compatibility problems. It does **not** fix ownership or mode failures like `lchown` or `chmod`.
+这对于针对性的兼容性问题很有用。它**不能**解决所有权或模式失败问题，如 `lchown` 或 `chmod`。
 
-## Why some restores fail on permissions or ownership
+## 为什么某些还原会在权限或所有权上失败
 
-If you see errors like these:
+如果您看到如下错误：
 
 ```text
 lchown /path/to/file: operation not permitted
@@ -166,100 +166,100 @@ chmod /path/to/file: operation not permitted
 failed to restore timestamp
 ```
 
-the data copy often succeeded. The failure usually happens afterward, when Restic tries to re-apply the original metadata from the snapshot.
+数据复制通常已经成功。失败通常发生在之后，当 Restic 尝试重新应用快照中的原始元数据时。
 
-Restic restores more than file contents. It also restores metadata such as:
+Restic 还原的不仅仅是文件内容。它还会还原以下元数据：
 
-- owner and group
-- file mode
-- timestamps
-- extended attributes and ACL-related metadata
+- 所有者和组
+- 文件模式
+- 时间戳
+- 扩展属性和 ACL 相关元数据
 
-That works well on a normal local Linux filesystem. It gets more complicated when the target is a mounted or translated filesystem such as:
+这在正常的本地 Linux 文件系统上运行良好。当目标位置是挂载的或经过转换的文件系统时，情况会变得更加复杂，例如：
 
-- SFTP volumes mounted through SSHFS
-- SMB or CIFS shares
-- WebDAV volumes
-- rclone-mounted cloud storage
-- Windows systems accessed through SFTP
-- NAS or appliance-managed shares that do not allow arbitrary ownership changes
+- 通过 SSHFS 挂载的 SFTP Volume
+- SMB 或 CIFS 共享
+- WebDAV Volume
+- rclone 挂载的云存储
+- 通过 SFTP 访问的 Windows 系统
+- 不允许任意更改所有权的 NAS 或设备管理共享
 
-These destinations may let Zerobyte write file contents while still rejecting `chown`, `chmod`, timestamp, or xattr updates.
+这些目标位置可能允许 Zerobyte 写入文件内容，同时仍然拒绝 `chown`、`chmod`、时间戳或扩展属性更新。
 
 <Callout type="info">
-Mounted destinations can expose translated metadata. In Zerobyte today, WebDAV and SFTP mounts still pass the container process `uid` and `gid` to the mount command, and SMB mounts still depend on what the Linux CIFS client can represent from the remote server. A backup taken from any mounted view records what Linux can see there, which may not be the remote system's full ACL model.
+已挂载的目标位置可能会暴露翻译后的元数据。在当前的 Zerobyte 中，WebDAV 和 SFTP 挂载仍将容器进程的 `uid` 和 `gid` 传递给挂载命令，而 SMB 挂载仍取决于 Linux CIFS 客户端能从远程服务器表示的内容。从任何挂载视图进行的备份记录的是 Linux 在那里能看到的内容，这可能不是远程系统的完整 ACL 模型。
 
-For the practical implications and backend-by-backend tradeoffs, see [Mounted Shares and Permissions](/docs/guides/mounted-shares-and-acls).
+有关实际影响和各后端权衡的详细信息，请参阅[挂载共享与权限](/docs/guides/mounted-shares-and-acls)。
 </Callout>
 
-## What Zerobyte can and cannot change
+## Zerobyte 能做什么和不能做什么
 
-Zerobyte can:
+Zerobyte 可以：
 
-- restore to another target path
-- restore selected files or folders
-- let you download data instead of restoring it directly
-- exclude specific extended attributes during restore
+- 还原到另一个目标路径
+- 还原选定的文件或文件夹
+- 让您下载数据而不是直接还原
+- 在还原期间排除特定的扩展属性
 
-Zerobyte cannot currently tell Restic to restore file contents while completely skipping owner, group, mode, and timestamp restoration. Restic supports xattr filtering, but it does not provide a general "ignore metadata" restore mode.
+Zerobyte 目前无法告诉 Restic 在完全跳过所有者、组、模式和时间戳恢复的情况下还原文件内容。Restic 支持扩展属性过滤，但它没有提供通用的"忽略元数据"还原模式。
 
-That means a restore directly into a metadata-rejecting mount cannot be made fully reliable without using a different destination or a second manual copy step.
+这意味着直接还原到拒绝元数据的挂载点无法完全可靠，除非使用不同的目标位置或额外的手动复制步骤。
 
-## Reliable workarounds
+## 可靠的解决方法
 
-### Restore to a different place first
+### 先还原到其他位置
 
-This is the most reliable workaround.
+这是最可靠的解决方法。
 
-Restore to a local Linux path or another writable POSIX filesystem first, verify the recovered files, then move or copy them to the final destination manually.
+首先还原到本地 Linux 路径或其他可写的 POSIX 文件系统，验证恢复的文件，然后手动将它们移动或复制到最终目标位置。
 
-This works because:
+这样做之所以有效，是因为：
 
-- Restic finishes on a filesystem that accepts metadata updates
-- the later copy step only has to match what the final destination actually supports
+- Restic 在能接受元数据更新的文件系统上完成操作
+- 后续的复制步骤只需要匹配最终目标位置实际支持的内容
 
-### Use Download for small recoveries
+### 小规模恢复使用下载
 
-If you only need one file or one folder quickly, use **Download** instead of **Restore**.
+如果您只需要快速获取一个文件或一个文件夹，请使用**下载**而不是**还原**。
 
-This avoids asking the mounted destination to accept snapshot ownership and permission metadata.
+这避免了要求已挂载的目标位置接受快照的所有权和权限元数据。
 
-### Exclude failing xattrs when that is the only problem
+### 如果只有扩展属性有问题，排除失败的扩展属性
 
-If the failure is limited to extended attributes, exclude the failing xattr under **Advanced options** and retry.
+如果失败仅限于扩展属性，请在**高级选项**下排除失败的扩展属性并重试。
 
-Do not expect this to solve `lchown` or `chmod` failures.
+不要期望这能解决 `lchown` 或 `chmod` 失败。
 
-### Prefer host mounts or native paths
+### 优先使用主机挂载或本地路径
 
-If you control the Docker host, a more reliable pattern is:
+如果您控制 Docker 主机，更可靠的模式是：
 
-1. mount the remote share on the host
-2. bind-mount that host path into the Zerobyte container
-3. restore to that bind-mounted path or to another local staging path first
+1. 在主机上挂载远程共享
+2. 将该主机路径绑定挂载到 Zerobyte 容器中
+3. 还原到该绑定挂载的路径，或先还原到另一个本地临时路径
 
-This often behaves better than restoring straight through a FUSE-based mount created inside the container.
+这通常比直接通过容器内创建的基于 FUSE 的挂载进行还原表现更好。
 
-### Use a filesystem that supports POSIX metadata when exact restore fidelity matters
+### 当需要精确还原保真度时，使用支持 POSIX 元数据的文件系统
 
-If you need the restored data to keep Unix owner, group, and mode information exactly, restore to a destination that supports those semantics end-to-end.
+如果您需要还原的数据精确保留 Unix 所有者、组和模式信息，请还原到端到端支持这些语义的目标位置。
 
-That is usually a local Linux filesystem or a properly configured NFS share, not a translated or appliance-managed mount.
+通常是本地 Linux 文件系统或配置正确的 NFS 共享，而不是经过转换的或设备管理的挂载点。
 
-## Practical recommendations
+## 实用建议
 
-- Test restores regularly, not just backups
-- Prefer a custom restore path for routine verification
-- Keep at least one fast local repository for quick recovery
-- Use **Download** for ad-hoc recovery to your own machine
-- Verify recovered files before deleting or overwriting the originals
+- 定期测试还原，而不仅仅是备份
+- 常规验证时优先使用自定义还原路径
+- 至少保留一个快速的本地仓库以进行快速恢复
+- 对于临时恢复到您自己的机器，使用**下载**
+- 在删除或覆盖原始文件之前，验证恢复的文件
 
-## Related guides
+## 相关指南
 
-- [Quick Start](/docs/quickstart)
-- [3-2-1 Backup Strategy](/docs/guides/3-2-1-backup-strategy)
-- [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords)
-- [Troubleshooting](/docs/troubleshooting)
+- [快速开始](/docs/quickstart)
+- [3-2-1 备份策略](/docs/guides/3-2-1-backup-strategy)
+- [恢复密钥与仓库密码](/docs/guides/recovery-key-and-repository-passwords)
+- [故障排除](/docs/troubleshooting)
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Step, Steps } from "fumadocs-ui/components/steps";

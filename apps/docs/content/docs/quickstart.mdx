@@ -1,112 +1,112 @@
 ---
-title: Quick Start
-description: Set up your first backup in minutes with Zerobyte
+title: 快速开始
+description: 使用 Zerobyte 在几分钟内设置你的第一个备份
 ---
 
-This guide walks you through creating your first backup in Zerobyte, from initial setup to verifying a successful backup.
+本指南将引导您在 Zerobyte 中创建第一个备份，从初始设置到验证备份成功。
 
 <Callout type="info">
-  This guide assumes you've already [installed Zerobyte](/docs/installation) and can access the web interface.
+  本指南假设您已经[安装了 Zerobyte](/docs/installation) 并且可以访问 Web 界面。
 </Callout>
 
-## Overview
+## 概述
 
-Setting up a backup involves three key steps:
+设置备份包含三个关键步骤：
 
 <Steps>
   <Step>
 
-### Add a Volume
+### 添加卷
 
-Define the source data you want to backup
-
-</Step>
-
-  <Step>
-
-### Create a Repository
-
-Set up an encrypted storage destination for your backups
+定义要备份的源数据
 
 </Step>
 
   <Step>
 
-### Configure a Backup Job
+### 创建仓库
 
-Connect your volume to your repository with scheduling and retention policies
+为备份设置加密的存储目标
+
+</Step>
+
+  <Step>
+
+### 配置备份任务
+
+将卷连接到仓库，并设置调度和保留策略
 
 </Step>
 </Steps>
 
-Let's walk through each step.
+让我们逐步完成每个步骤。
 
-## First-Time Setup
+## 首次设置
 
-On a brand new Zerobyte install with no users yet, the app starts with onboarding:
+在全新的 Zerobyte 安装中（尚无任何用户），应用会从引导流程开始：
 
 <Steps>
   <Step>
 
-### Open Zerobyte
+### 打开 Zerobyte
 
-Navigate to the URL you configured in `BASE_URL` during installation. This is usually `http://<server-ip>:4096`.
-
-</Step>
-
-  <Step>
-
-### Create the Admin User
-
-On the **Onboarding** page, enter:
-
-- **Email**
-- **Username**
-- **Password**
-- **Confirm Password**
-
-Then click **Create admin user**.
+导航到您在安装时配置的 `BASE_URL` 中指定的 URL。通常是 `http://<服务器IP>:4096`。
 
 </Step>
 
   <Step>
 
-### Download the Recovery Key
+### 创建管理员用户
 
-After the admin user is created, Zerobyte redirects to **Download Recovery Key**.
+在**引导**页面上，输入：
 
-Enter your account password in **Confirm Your Password**, then click **Download Recovery Key**.
+- **电子邮箱**
+- **用户名**
+- **密码**
+- **确认密码**
+
+然后点击**创建管理员用户**。
 
 </Step>
 
   <Step>
 
-### Continue to Volumes
+### 下载恢复密钥
 
-After the recovery key is downloaded, Zerobyte redirects to **Volumes**. The rest of this guide starts from there.
+管理员用户创建后，Zerobyte 会重定向到**下载恢复密钥**页面。
+
+在**确认您的密码**中输入您的账户密码，然后点击**下载恢复密钥**。
+
+</Step>
+
+  <Step>
+
+### 继续前往卷
+
+恢复密钥下载完成后，Zerobyte 会重定向到**卷**页面。本指南的后续部分将从此处开始。
 
 </Step>
 </Steps>
 
 <Callout type="warn">
-  **Critical**: Store the downloaded recovery key file safely. It contains the Restic password required to recover your backups. If you lose both server access and this file, your backups will be unrecoverable. See [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords) for the full model, including imported repositories with custom passwords.
+  **重要**：请安全保存下载的恢复密钥文件。它包含恢复备份所需的 Restic 密码。如果您同时丢失了服务器访问权限和此文件，您的备份将无法恢复。有关完整模型（包括使用自定义密码的导入仓库），请参阅[恢复密钥和仓库密码](/docs/guides/recovery-key-and-repository-passwords)。
 </Callout>
 
 <Callout type="info">
-  After onboarding is complete, future visits use the normal **Login** page instead of the onboarding flow.
+  引导流程完成后，后续访问将使用普通的**登录**页面，而不是引导流程。
 </Callout>
 
-## Step 1: Add a Volume
+## 步骤 1：添加卷
 
-A **volume** represents the source data you want to backup. Zerobyte supports various volume types including local directories, NFS shares, SMB shares, WebDAV, SFTP, and rclone mounts.
+**卷**代表您要备份的源数据。Zerobyte 支持多种卷类型，包括本地目录、NFS 共享、SMB 共享、WebDAV、SFTP 和 rclone 挂载。
 
-### Adding a Local Directory
+### 添加本地目录
 
-For this quick start, we'll add a local directory. First, ensure the directory is mounted into your Zerobyte container.
+在本快速入门中，我们将添加一个本地目录。首先，确保该目录已挂载到您的 Zerobyte 容器中。
 
-#### Mount the Directory
+#### 挂载目录
 
-Update your `docker-compose.yml` to mount the directory you want to backup:
+更新您的 `docker-compose.yml` 以挂载要备份的目录：
 
 ```yaml
 services:
@@ -114,191 +114,191 @@ services:
     image: ghcr.io/nicotsx/zerobyte:v0.36
     container_name: zerobyte
     restart: unless-stopped
-    # ... other configuration ...
+    # ... 其他配置 ...
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/zerobyte:/var/lib/zerobyte
-      - /path/to/your/data:/data  # Add this line
+      - /path/to/your/data:/data  # 添加此行
 ```
 
-Restart the container to apply changes:
+重启容器以应用更改：
 
 ```bash
 docker compose down
 docker compose up -d
 ```
 
-#### Create the Volume in Zerobyte
+#### 在 Zerobyte 中创建卷
 
 <Steps>
   <Step>
 
-### Navigate to Volumes
+### 导航到卷
 
-After logging in, you are already on **Volumes**. If you navigate away, click **Volumes** in the sidebar.
-
-</Step>
-
-  <Step>
-
-### Create New Volume
-
-Click the **Create Volume** button
+登录后，您已经位于**卷**页面。如果您导航到了其他地方，请点击侧边栏中的**卷**。
 
 </Step>
 
   <Step>
 
-### Configure Volume
+### 创建新卷
 
-Fill in the volume details:
-
-- **Name**: Give it a descriptive name (e.g., "My Documents")
-- **Backend**: Leave this set to `Directory`
-- **Directory Path**: Use the filesystem browser to select the mounted directory (e.g., `/data`)
+点击**创建卷**按钮
 
 </Step>
 
   <Step>
 
-### Save Volume
+### 配置卷
 
-Click **Create** to save the volume configuration
+填写卷的详细信息：
+
+- **名称**：给卷起一个描述性名称（例如："我的文档"）
+- **后端**：保持设置为 `Directory`
+- **目录路径**：使用文件系统浏览器选择已挂载的目录（例如：`/data`）
+
+</Step>
+
+  <Step>
+
+### 保存卷
+
+点击**创建**以保存卷配置
 
 </Step>
 </Steps>
 
 <Callout type="info">
-  The directory browser shows paths from the Zerobyte server or container filesystem, not your host filesystem directly. In the Docker example above, the host path `/path/to/your/data` appears in Zerobyte as `/data`, so that is the path you select in the browser.
+  目录浏览器显示的是 Zerobyte 服务器或容器文件系统中的路径，而不是直接显示宿主机文件系统。在上述 Docker 示例中，宿主机路径 `/path/to/your/data` 在 Zerobyte 中显示为 `/data`，因此这就是您在浏览器中选择的路径。
 </Callout>
 
-### Adding Remote Volumes
+### 添加远程卷
 
-Zerobyte also supports remote volume types:
+Zerobyte 还支持远程卷类型：
 
 <Tabs items={['NFS', 'SMB/CIFS', 'WebDAV', 'SFTP']}>
   <Tab value="NFS">
-    Configure an NFS share:
+    配置 NFS 共享：
 
-    - **Server**: NFS server hostname or IP
-    - **Export Path**: NFS export path (e.g., `/mnt/data`)
-    - **Port**: NFS port (default: `2049`)
-    - **Version**: `3`, `4`, or `4.1`
-    - **Read-only Mode**: Optional, recommended for backup sources
+    - **服务器**：NFS 服务器主机名或 IP
+    - **导出路径**：NFS 导出路径（例如：`/mnt/data`）
+    - **端口**：NFS 端口（默认：`2049`）
+    - **版本**：`3`、`4` 或 `4.1`
+    - **只读模式**：可选，建议用于备份源
   </Tab>
 
   <Tab value="SMB/CIFS">
-    Configure an SMB/CIFS share:
+    配置 SMB/CIFS 共享：
 
-    - **Server**: SMB server hostname or IP
-    - **Share**: Share name
-    - **Guest Mode**: Optional for unauthenticated shares
-    - **Username**: SMB username
-    - **Password**: SMB password
-    - **SMB Version**: `1.0`, `2.0`, `2.1`, or `3.0`
-    - **Domain**: Windows domain or workgroup (optional)
-    - **Port**: SMB port (default: `445`)
+    - **服务器**：SMB 服务器主机名或 IP
+    - **共享**：共享名称
+    - **访客模式**：可选，用于无需认证的共享
+    - **用户名**：SMB 用户名
+    - **密码**：SMB 密码
+    - **SMB 版本**：`1.0`、`2.0`、`2.1` 或 `3.0`
+    - **域**：Windows 域或工作组（可选）
+    - **端口**：SMB 端口（默认：`445`）
   </Tab>
 
   <Tab value="WebDAV">
-    Configure a WebDAV server:
+    配置 WebDAV 服务器：
 
-    - **Server**: WebDAV server hostname or IP
-    - **Path**: Remote path on the server
-    - **Username**: WebDAV username (optional)
-    - **Password**: WebDAV password (optional)
-    - **Port**: Server port (`80` by default, or `443` for HTTPS)
-    - **Use SSL/HTTPS**: Enable secure HTTPS connections
-    - **Read-only Mode**: Optional, recommended for backup sources
+    - **服务器**：WebDAV 服务器主机名或 IP
+    - **路径**：服务器上的远程路径
+    - **用户名**：WebDAV 用户名（可选）
+    - **密码**：WebDAV 密码（可选）
+    - **端口**：服务器端口（默认 `80`，HTTPS 为 `443`）
+    - **使用 SSL/HTTPS**：启用安全的 HTTPS 连接
+    - **只读模式**：可选，建议用于备份源
   </Tab>
 
   <Tab value="SFTP">
-    Configure an SFTP server:
+    配置 SFTP 服务器：
 
-    - **Host**: SFTP server hostname or IP
-    - **Port**: SFTP port (default: 22)
-    - **Username**: SSH username
-    - **Password**: SSH password (optional if using a private key)
-    - **Private Key**: SSH private key (optional if using a password)
-    - **Path**: Remote directory path
-    - **Known Hosts**: Required unless you enable **Skip Host Key Verification**
+    - **主机**：SFTP 服务器主机名或 IP
+    - **端口**：SFTP 端口（默认：22）
+    - **用户名**：SSH 用户名
+    - **密码**：SSH 密码（如果使用私钥则可选）
+    - **私钥**：SSH 私钥（如果使用密码则可选）
+    - **路径**：远程目录路径
+    - **已知主机**：必需，除非您启用**跳过主机密钥验证**
   </Tab>
 </Tabs>
 
 <Callout type="info">
-  Remote volumes require the full installation with `SYS_ADMIN` capability and `/dev/fuse` device. See the [Installation guide](/docs/installation) for details.
+  远程卷需要完整的安装配置，包括 `SYS_ADMIN` 能力和 `/dev/fuse` 设备。详情请参阅[安装指南](/docs/installation)。
 </Callout>
 
-## Step 2: Create a Repository
+## 步骤 2：创建仓库
 
-A **repository** is the encrypted storage destination where your backups will be stored. Zerobyte supports multiple repository backends.
+**仓库**是存储备份的加密目标。Zerobyte 支持多种仓库后端。
 
-### Creating a Local Repository
+### 创建本地仓库
 
-For this quick start, we'll create a local repository:
+在本快速入门中，我们将创建一个本地仓库：
 
 <Steps>
   <Step>
 
-### Navigate to Repositories
+### 导航到仓库
 
-Click on **Repositories** in the sidebar
-
-</Step>
-
-  <Step>
-
-### Create New Repository
-
-On a new install, click **Create repository** from the empty state
+点击侧边栏中的**仓库**
 
 </Step>
 
   <Step>
 
-### Configure Repository
+### 创建新仓库
 
-Fill in the repository details:
-
-- **Name**: Descriptive name (e.g., "Local Backup Repository")
-- **Backend**: Select `Local`
-- **Compression Mode**: `Auto (fast)` is the default and a good starting point
-- **Import existing repository**: Leave this unchecked for a brand new repository
+在新安装中，从空状态点击**创建仓库**
 
 </Step>
 
   <Step>
 
-### Review Repository Directory
+### 配置仓库
 
-For local repositories, Zerobyte stores data under the repository base directory, which defaults to `/var/lib/zerobyte/repositories/{unique-id}`. Click **Change** only if you want to pick a different base directory.
+填写仓库的详细信息：
+
+- **名称**：描述性名称（例如："本地备份仓库"）
+- **后端**：选择 `Local`
+- **压缩模式**：`Auto (fast)` 是默认值，也是一个不错的起点
+- **导入现有仓库**：如果是全新仓库，请保持未选中状态
 
 </Step>
 
   <Step>
 
-### Create Repository
+### 查看仓库目录
 
-Click **Create repository**. Zerobyte creates and initializes the repository, then redirects you to the repository details page.
+对于本地仓库，Zerobyte 将数据存储在仓库基本目录下，默认为 `/var/lib/zerobyte/repositories/{unique-id}`。只有在您想选择不同的基本目录时才点击**更改**。
+
+</Step>
+
+  <Step>
+
+### 创建仓库
+
+点击**创建仓库**。Zerobyte 会创建并初始化仓库，然后将您重定向到仓库详情页面。
 
 </Step>
 </Steps>
 
 <Callout type="info">
-  If you choose a custom local repository directory, make sure it is mounted from the host into the container. Otherwise the repository data can be lost when the container restarts.
+  如果您选择了自定义的本地仓库目录，请确保它已从宿主机挂载到容器中。否则，容器重启时仓库数据可能会丢失。
 </Callout>
 
 <Callout type="info">
-  If you are importing an existing repository instead of creating a new one, read [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords) before choosing between the existing recovery key and a custom repository password.
+  如果您要导入现有仓库而不是创建新仓库，请在选择使用现有恢复密钥还是自定义仓库密码之前，阅读[恢复密钥和仓库密码](/docs/guides/recovery-key-and-repository-passwords)。
 </Callout>
 
-### Cloud Storage Repositories
+### 云存储仓库
 
-For production use, consider using cloud storage for offsite backups:
+在生产环境中，建议使用云存储进行异地备份：
 
-<Tabs items={['S3-Compatible', 'Google Cloud Storage', 'Azure Blob', 'rclone']}>
+<Tabs items={['兼容 S3', 'Google Cloud Storage', 'Azure Blob', 'rclone']}>
   <Tab value="S3-Compatible">
-    Configure S3-compatible storage (AWS S3, MinIO, Wasabi, Backblaze B2, etc.):
+    配置兼容 S3 的存储（AWS S3、MinIO、Wasabi、Backblaze B2 等）：
 
     ```yaml
     Type: S3
@@ -310,7 +310,7 @@ For production use, consider using cloud storage for offsite backups:
   </Tab>
 
   <Tab value="Google Cloud Storage">
-    Configure Google Cloud Storage:
+    配置 Google Cloud Storage：
 
     ```yaml
     Type: Google Cloud Storage
@@ -321,7 +321,7 @@ For production use, consider using cloud storage for offsite backups:
   </Tab>
 
   <Tab value="Azure Blob">
-    Configure Azure Blob Storage:
+    配置 Azure Blob Storage：
 
     ```yaml
     Type: Azure Blob Storage
@@ -333,7 +333,7 @@ For production use, consider using cloud storage for offsite backups:
   </Tab>
 
   <Tab value="rclone">
-    Configure rclone-based storage (requires rclone config mounted):
+    配置基于 rclone 的存储（需要挂载 rclone 配置）：
 
     ```yaml
     Type: rclone
@@ -342,78 +342,78 @@ For production use, consider using cloud storage for offsite backups:
     ```
 
     <Callout type="info">
-      rclone must be configured on the host and mounted into the container. See [Installation - Mounting rclone Configuration](/docs/installation#mounting-rclone-configuration).
+      必须在宿主机上配置 rclone 并将其挂载到容器中。请参阅[安装 - 挂载 rclone 配置](/docs/installation#mounting-rclone-configuration)。
     </Callout>
   </Tab>
 </Tabs>
 
 <Callout type="info">
-  If you want credentials to come from environment variables or Docker secrets, use the [Provisioning guide](/docs/guides/provisioning). The standard volume and repository forms currently expect the actual secret value and store it encrypted.
+  如果您希望从环境变量或 Docker secrets 中获取凭据，请使用[预配置指南](/docs/guides/provisioning)。标准的卷和仓库表单目前期望直接输入实际密钥值并将其加密存储。
 </Callout>
 
-## Step 3: Create a Backup Job
+## 步骤 3：创建备份任务
 
-A **backup job** connects a volume to a repository and defines when and how backups should run.
+**备份任务**将卷连接到仓库，并定义备份的运行时间和方式。
 
 <Steps>
   <Step>
 
-### Navigate to Backups
+### 导航到备份
 
-Click on **Backups** in the sidebar
-
-</Step>
-
-  <Step>
-
-### Start a New Backup Job
-
-Click **Create a backup job**
+点击侧边栏中的**备份**
 
 </Step>
 
   <Step>
 
-### Choose the Volume
+### 开始新建备份任务
 
-Select the volume you just created. Zerobyte then opens the backup configuration form for that volume.
-
-</Step>
-
-  <Step>
-
-### Configure Basic Settings
-
-- **Backup name**: Descriptive name (e.g., "Daily Documents Backup")
-- **Backup repository**: Select the repository you created earlier
-- **Backup frequency**: Choose how often the job should run
+点击**创建备份任务**
 
 </Step>
 
   <Step>
 
-### Configure Schedule
+### 选择卷
 
-Choose the schedule that matches how you want this backup to run:
+选择您刚刚创建的卷。Zerobyte 随后会打开该卷的备份配置表单。
 
-- **Manual only**: Create the job without a schedule and run it on demand
-- **Hourly**
-- **Daily**
-- **Weekly**
-- **Specific days**: Pick one or more days of the month
-- **Custom (Cron)**: Enter a cron expression
+</Step>
 
-If you choose **Daily**, **Weekly**, or **Specific days**, set an **Execution time**.
+  <Step>
 
-If you choose **Weekly**, also choose the day of the week.
+### 配置基本设置
+
+- **备份名称**：描述性名称（例如："每日文档备份"）
+- **备份仓库**：选择您之前创建的仓库
+- **备份频率**：选择任务应运行的频率
+
+</Step>
+
+  <Step>
+
+### 配置调度
+
+选择符合您备份需求的调度方式：
+
+- **仅手动**：创建任务时不设置调度，按需手动运行
+- **每小时**
+- **每日**
+- **每周**
+- **特定日期**：选择一个或多个每月的日期
+- **自定义（Cron）**：输入 cron 表达式
+
+如果您选择了**每日**、**每周**或**特定日期**，请设置**执行时间**。
+
+如果您选择了**每周**，还需选择星期几。
 
 <Accordions type="single">
-  <Accordion title="Common Cron Patterns">
-    - `0 2 * * *` - Daily at 2:00 AM
-    - `0 2 * * 0` - Weekly on Sunday at 2:00 AM
-    - `0 2 1 * *` - Monthly on the 1st at 2:00 AM
-    - `0 */6 * * *` - Every 6 hours
-    - `0 0 * * 1-5` - Weekdays at midnight
+  <Accordion title="常见 Cron 模式">
+    - `0 2 * * *` - 每天凌晨 2:00
+    - `0 2 * * 0` - 每周日凌晨 2:00
+    - `0 2 1 * *` - 每月 1 日凌晨 2:00
+    - `0 */6 * * *` - 每 6 小时
+    - `0 0 * * 1-5` - 工作日午夜
   </Accordion>
 </Accordions>
 
@@ -421,9 +421,9 @@ If you choose **Weekly**, also choose the day of the week.
 
   <Step>
 
-### Configure Retention Policy
+### 配置保留策略
 
-Define how long backups should be kept:
+定义备份的保留时长：
 
 ```yaml
 Keep Daily: 7
@@ -433,393 +433,393 @@ Keep Yearly: 1
 ```
 
 <Callout type="info">
-  Retention policies automatically prune old backups to save storage space. Restic's deduplication ensures you only store unique data.
+  保留策略会自动清理旧备份以节省存储空间。Restic 的去重机制确保您只存储唯一数据。
 </Callout>
 
 </Step>
 
   <Step>
 
-### Configure Paths (Optional)
+### 配置路径（可选）
 
-By default, the entire volume is backed up. You can optionally:
+默认情况下，会备份整个卷。您可以选择：
 
-- Use **Backup paths** to select only specific files or folders from the volume
-- Add **Additional include patterns** for glob-based include rules
-- Add **Exclude patterns** for files or folders to skip (e.g., `*.tmp`, `node_modules/**`)
-
-</Step>
-
-  <Step>
-
-### Advanced Options (Optional)
-
-Open **Advanced** if you need extra Restic options.
-
-Common options include:
-
-- **Maximum retries**: Retry failed backup runs automatically
-- **Retry delay**: Wait before retrying a failed run
-- **Custom restic parameters**: Pass supported Restic flags one per line
+- 使用**备份路径**仅选择卷中的特定文件或文件夹
+- 添加**额外的包含模式**，用于基于 glob 的包含规则
+- 添加**排除模式**，跳过特定文件或文件夹（例如：`*.tmp`、`node_modules/**`）
 
 </Step>
 
   <Step>
 
-### Save Backup Job
+### 高级选项（可选）
 
-Click **Create** to save the backup job. Zerobyte redirects you straight to the backup job details page.
+如果您需要额外的 Restic 选项，请打开**高级**。
+
+常见选项包括：
+
+- **最大重试次数**：自动重试失败的备份运行
+- **重试延迟**：重试失败运行前的等待时间
+- **自定义 restic 参数**：每行传递一个受支持的 Restic 参数
+
+</Step>
+
+  <Step>
+
+### 保存备份任务
+
+点击**创建**以保存备份任务。Zerobyte 会直接将您重定向到备份任务详情页面。
 
 </Step>
 </Steps>
 
-## Step 4: Run Your First Backup
+## 步骤 4：运行您的第一次备份
 
-Instead of waiting for the scheduled time, let's run the backup immediately:
+无需等待计划的执行时间，让我们立即运行备份：
 
 <Steps>
   <Step>
 
-### Open the Backup Job Details
+### 打开备份任务详情
 
-After creating the job, Zerobyte opens the backup job details page automatically
-
-</Step>
-
-  <Step>
-
-### Run Backup Manually
-
-Click **Backup now**
+创建任务后，Zerobyte 会自动打开备份任务详情页面
 
 </Step>
 
   <Step>
 
-### Monitor Progress
+### 手动运行备份
 
-Zerobyte starts the job immediately and updates the status on the details page. A success toast appears when the run begins.
+点击**立即备份**
 
 </Step>
 
   <Step>
 
-### Wait for Completion
+### 监控进度
 
-Wait for the backup to finish. When it completes successfully, the job status changes to **Success** and a new entry appears in the **Snapshots** section.
+Zerobyte 会立即启动任务并在详情页面上更新状态。运行开始时会出现一个成功提示。
+
+</Step>
+
+  <Step>
+
+### 等待完成
+
+等待备份完成。当备份成功完成时，任务状态将变为**成功**，并且**快照**部分会出现一个新条目。
 
 </Step>
 </Steps>
 
 <Callout type="info">
-  During the first backup, all data is uploaded. Subsequent backups are much faster due to Restic's incremental backup and deduplication.
+  首次备份时，所有数据都会被上传。由于 Restic 的增量备份和去重机制，后续备份会快得多。
 </Callout>
 
-## Step 5: Verify Your Backup
+## 步骤 5：验证您的备份
 
-After the backup completes, verify it was successful:
+备份完成后，验证其是否成功：
 
 <Steps>
   <Step>
 
-### Open the Snapshot
+### 打开快照
 
-In the **Snapshots** section, click the snapshot you just created
-
-</Step>
-
-  <Step>
-
-### Check Snapshots
-
-You should see snapshot details such as:
-
-- Snapshot timestamp
-- Total size
-- Data added vs. data stored
-- Files processed
-- Duration
+在**快照**部分，点击您刚刚创建的快照
 
 </Step>
 
   <Step>
 
-### Browse Backup Contents
+### 查看快照
 
-Use the inline file browser to inspect the snapshot contents. You can:
+您应该可以看到快照的详细信息，例如：
 
-- Navigate the directory structure
-- View file sizes
-- Confirm the expected files are present
+- 快照时间戳
+- 总大小
+- 新增数据 vs. 已存储数据
+- 已处理文件数
+- 耗时
 
 </Step>
 
   <Step>
 
-### Test Restore (Optional)
+### 浏览备份内容
 
-For peace of mind, test restoring a file:
+使用内嵌的文件浏览器检查快照内容。您可以：
 
-- Click **Restore** from the snapshot details
-- Choose **Original location** or **Custom location**
-- Use **Restore All** or select specific files and restore only those
-- Verify the restored file is present in the target location
+- 浏览目录结构
+- 查看文件大小
+- 确认预期的文件是否存在
+
+</Step>
+
+  <Step>
+
+### 测试恢复（可选）
+
+为了安心，测试恢复一个文件：
+
+- 从快照详情中点击**恢复**
+- 选择**原始位置**或**自定义位置**
+- 使用**全部恢复**或选择特定文件仅恢复所选内容
+- 验证恢复的文件是否存在于目标位置
 
 </Step>
 </Steps>
 
 <Callout type="warn">
-  By default, restored files are placed back in their original location. Be careful not to overwrite current files. You can specify an alternate restore path if needed.
+  默认情况下，恢复的文件会被放回其原始位置。注意不要覆盖当前文件。如果需要，您可以指定一个替代的恢复路径。
 </Callout>
 
-## Understanding Backup Status
+## 了解备份状态
 
-The UI exposes two related status views:
+界面展示了两种相关的状态视图：
 
-- In the **Backups** list, the status dot shows **Active**, **Paused**, **Error**, **Warning**, or **Backup in progress**
-- In the backup job details page, the last run status shows **✓ Success**, **✗ Error**, **! Warning**, or **⟳ in progress...**
-- If a backup job has not completed a run yet, the details page shows no last run value
+- 在**备份**列表中，状态点显示**活跃**、**已暂停**、**错误**、**警告**或**备份进行中**
+- 在备份任务详情页面中，上次运行状态显示**✓ 成功**、**✗ 错误**、**! 警告**或**⟳ 进行中...**
+- 如果备份任务尚未完成任何一次运行，详情页面将不显示上次运行值
 
 <Callout type="info">
-  Click any backup job to view its snapshot history, restore actions, schedule summary, and repository links. If a run fails and the UI does not show enough detail, check your container logs with `docker compose logs -f zerobyte`.
+  点击任意备份任务可查看其快照历史、恢复操作、调度摘要和仓库链接。如果运行失败且界面未显示足够详细的信息，请使用 `docker compose logs -f zerobyte` 检查容器日志。
 </Callout>
 
-## Monitoring Your Backups
+## 监控备份
 
-Zerobyte provides several ways to monitor backup health:
+Zerobyte 提供了多种监控备份健康状态的方式：
 
-### Backup Jobs List
+### 备份任务列表
 
-The **Backups** page shows:
+**备份**页面显示：
 
-- Backup job names
-- Source volume and target repository
-- Schedule
-- Last backup time
-- Next backup time
+- 备份任务名称
+- 源卷和目标仓库
+- 调度
+- 上次备份时间
+- 下次备份时间
 
-### Backup Job Details
+### 备份任务详情
 
-Each backup job displays:
+每个备份任务显示：
 
-- Last run time and status
-- Next backup time
-- Snapshot history
-- Snapshot statistics for the selected snapshot
-- Restore actions for the selected snapshot
+- 上次运行时间和状态
+- 下次备份时间
+- 快照历史
+- 所选快照的快照统计信息
+- 所选快照的恢复操作
 
-### Repository Health
+### 仓库健康状态
 
-Repository details show:
+仓库详情显示：
 
-- Current repository status (`healthy`, `error`, `unknown`, `doctor`, or `cancelled`)
-- Last checked time
-- Compression statistics and snapshot count
-- Doctor report output
+- 当前仓库状态（`healthy`、`error`、`unknown`、`doctor` 或 `cancelled`）
+- 上次检查时间
+- 压缩统计信息和快照数量
+- Doctor 报告输出
 
 <Callout type="info">
-  Use **Run doctor** in the repository details page when you need a repository maintenance pass. Use the refresh button in **Compression Statistics** when you only need updated stored-size and snapshot metrics. For the exact meaning of the status values and actions, see [Repository maintenance and status](/docs/guides/repository-maintenance).
+  当您需要进行仓库维护时，请在仓库详情页面中使用**运行 doctor**。当您只需要更新存储大小和快照指标时，请使用**压缩统计信息**中的刷新按钮。有关状态值和操作的确切含义，请参阅[仓库维护与状态](/docs/guides/repository-maintenance)。
 </Callout>
 
-## Next Steps
+## 下一步
 
-Now that you have a working backup, consider:
+现在您已经有了一个可用的备份，可以考虑：
 
 <Cards>
-  <Card title="Add More Volumes" icon={<FolderPlus />}>
-    Back up additional directories or remote shares
+  <Card title="添加更多卷" icon={<FolderPlus />}>
+    备份更多目录或远程共享
   </Card>
 
-  <Card title="Set Up Cloud Storage" icon={<Cloud />}>
-    Configure offsite backups to S3, Google Cloud, or Azure
+  <Card title="设置云存储" icon={<Cloud />}>
+    配置到 S3、Google Cloud 或 Azure 的异地备份
   </Card>
 
-  <Card title="Configure Notifications" icon={<Bell />} href="/docs/guides/notifications">
-    Get alerted when backups fail or complete
+  <Card title="配置通知" icon={<Bell />} href="/docs/guides/notifications">
+    在备份失败或完成时接收告警
   </Card>
 
-  <Card title="Optimize Retention" icon={<History />}>
-    Fine-tune retention policies to balance storage and history
+  <Card title="优化保留策略" icon={<History />}>
+    微调保留策略以平衡存储和备份历史
   </Card>
 </Cards>
 
-## Common Tasks
+## 常见操作
 
-### Restoring Data
+### 恢复数据
 
-To restore data from a backup:
+要从备份中恢复数据：
 
 <Steps>
   <Step>
 
-### Navigate to Backup
+### 导航到备份
 
-Go to **Backups** and select the backup job containing the data you need
-
-</Step>
-
-  <Step>
-
-### Select Snapshot
-
-Choose the snapshot from the time period you want to restore from
+进入**备份**，选择包含所需数据的备份任务
 
 </Step>
 
   <Step>
 
-### Browse and Select
+### 选择快照
 
-Browse the file tree and select files/folders to restore
-
-</Step>
-
-  <Step>
-
-### Choose Restore Location
-
-Decide whether to restore to original location or specify a new path
+从您要恢复的时间段中选择快照
 
 </Step>
 
   <Step>
 
-### Restore
+### 浏览并选择
 
-Click **Restore All** to restore everything, or select specific files first and restore only those
+浏览文件树，选择要恢复的文件/文件夹
+
+</Step>
+
+  <Step>
+
+### 选择恢复位置
+
+决定是恢复到原始位置还是指定新路径
+
+</Step>
+
+  <Step>
+
+### 恢复
+
+点击**全部恢复**恢复所有内容，或先选择特定文件再仅恢复所选内容
 
 </Step>
 </Steps>
 
 <Callout type="info">
-  For the full restore workflow, overwrite modes, download vs restore, and mounted-volume permission caveats, see [Restoring Data](/docs/guides/restoring).
+  有关完整的恢复工作流程、覆盖模式、下载与恢复以及挂载卷权限注意事项，请参阅[恢复数据](/docs/guides/restoring)。
 </Callout>
 
-### Pausing a Backup Job
+### 暂停备份任务
 
-To temporarily stop a backup from running:
+要临时停止备份运行：
 
-1. Navigate to the backup job
-2. Toggle the **Enabled** switch to off
-3. The job will skip scheduled runs until re-enabled
+1. 导航到备份任务
+2. 关闭**启用**开关
+3. 任务将跳过计划的运行，直到重新启用
 
-### Checking Backup Details
+### 查看备份详情
 
-To inspect a backup run:
+要检查备份运行情况：
 
-1. Click on a backup job
-2. Review the current **Status**, **Last backup**, and **Snapshots** sections
-3. Click a snapshot to inspect its file browser and restore actions
-4. For deeper troubleshooting, check `docker compose logs -f zerobyte`
+1. 点击备份任务
+2. 查看当前的**状态**、**上次备份**和**快照**部分
+3. 点击快照以查看其文件浏览器和恢复操作
+4. 如需更深入的故障排查，请检查 `docker compose logs -f zerobyte`
 
-### Deleting Old Snapshots
+### 删除旧快照
 
-Backups are automatically pruned according to retention policies, but you can manually delete snapshots:
+备份会根据保留策略自动清理，但您也可以手动删除快照：
 
-1. Navigate to backup job
-2. Select the snapshot you want to delete
-3. Click **Delete Snapshot**
-4. Confirm deletion
+1. 导航到备份任务
+2. 选择要删除的快照
+3. 点击**删除快照**
+4. 确认删除
 
 <Callout type="warn">
-  Deleting snapshots is irreversible. Ensure you don't need the data before deleting.
+  删除快照是不可逆的操作。请确保在删除前您不再需要这些数据。
 </Callout>
 
-## Troubleshooting
+## 故障排除
 
-### Backup Failed: Permission Denied
+### 备份失败：权限被拒绝
 
-Ensure the volume directory has proper permissions:
+请确保卷目录具有正确的权限：
 
 ```bash
-# On the host system
+# 在宿主机系统上
 sudo chmod -R 755 /path/to/your/data
 ```
 
-### Backup Running Slowly
+### 备份运行缓慢
 
-Check:
+请检查：
 
-- Network bandwidth (for cloud repositories)
-- Disk I/O performance
-- Enable compression if uploading large compressible files
-- Review repository upload/download speed limits if you enabled them
+- 网络带宽（对于云仓库）
+- 磁盘 I/O 性能
+- 如果上传大量可压缩文件，请启用压缩
+- 检查是否启用了仓库上传/下载速度限制
 
-### Repository Initialization Failed
+### 仓库初始化失败
 
-Verify:
+请确认：
 
-- Repository path is writable
-- For cloud repositories, credentials are correct
-- Network connectivity to cloud storage
+- 仓库路径可写入
+- 对于云仓库，凭据是否正确
+- 与云存储的网络连接是否正常
 
-### Can't Find Mounted Directory
+### 找不到已挂载的目录
 
-Ensure:
+请确保：
 
-- Directory is mounted in `docker-compose.yml`
-- Container was restarted after mounting: `docker compose restart`
-- Path matches the container path, not host path
+- 目录已在 `docker-compose.yml` 中挂载
+- 挂载后已重启容器：`docker compose restart`
+- 路径使用的是容器路径，而非宿主机路径
 
-## Getting Help
+## 获取帮助
 
-If you encounter issues:
+如果您遇到问题：
 
 <Cards>
-  <Card title="Check Logs" icon={<FileText />}>
-    View detailed logs with `docker compose logs -f zerobyte`
+  <Card title="查看日志" icon={<FileText />}>
+    使用 `docker compose logs -f zerobyte` 查看详细日志
   </Card>
 
   <Card title="GitHub Issues" icon={<GithubLogoIcon />}>
-    Report bugs or request features at [github.com/nicotsx/zerobyte/issues](https://github.com/nicotsx/zerobyte/issues)
+    在 [github.com/nicotsx/zerobyte/issues](https://github.com/nicotsx/zerobyte/issues) 报告错误或请求功能
   </Card>
 
-  <Card title="Documentation" icon={<BookOpen />}>
-    Explore the full documentation for advanced topics
+  <Card title="文档" icon={<BookOpen />}>
+    浏览完整文档以了解高级主题
   </Card>
 
-  <Card title="Community" icon={<Users />}>
-    Join discussions and get help from other users
+  <Card title="社区" icon={<Users />}>
+    加入讨论，从其他用户那里获得帮助
   </Card>
 </Cards>
 
 <Callout type="info">
-  When reporting issues, include:
+  报告问题时，请提供：
 
-  - Zerobyte version (visible in UI footer)
-  - Docker and Docker Compose versions
-  - Relevant logs from `docker compose logs zerobyte`
-  - Steps to reproduce the issue
+  - Zerobyte 版本（在 UI 页脚可见）
+  - Docker 和 Docker Compose 版本
+  - `docker compose logs zerobyte` 中的相关日志
+  - 复现问题的步骤
 </Callout>
 
-## Conclusion
+## 总结
 
-You've successfully:
+您已经成功完成了以下操作：
 
 <ul className="my-4 list-none space-y-2 pl-0">
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Created an admin account and downloaded the recovery key</span>
+    <span>创建了管理员账户并下载了恢复密钥</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Added a volume to backup</span>
+    <span>添加了要备份的卷</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Created a repository for encrypted storage</span>
+    <span>创建了用于加密存储的仓库</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Configured and ran your first backup job</span>
+    <span>配置并运行了您的第一个备份任务</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Verified your backup was successful</span>
+    <span>验证了备份已成功</span>
   </li>
 </ul>
 
-Your data is now protected with encrypted, deduplicated backups. Zerobyte will continue to run backups automatically according to your schedule.
+您的数据现在已受到加密、去重的备份保护。Zerobyte 将根据您的计划自动继续运行备份。
 
 import { GithubLogoIcon } from "@phosphor-icons/react";
 import { FolderPlus, Cloud, Bell, History, FileText, BookOpen, Users, Check } from "lucide-react";

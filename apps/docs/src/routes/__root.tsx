@@ -17,6 +17,14 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
+				property: "og:locale",
+				content: "zh_CN",
+			},
+			{
+				property: "og:site_name",
+				content: "Zerobyte",
+			},
+			{
 				property: "og:type",
 				content: "website",
 			},
@@ -34,7 +42,7 @@ export const Route = createRootRoute({
 			},
 			{
 				property: "og:image:alt",
-				content: "Zerobyte backups dashboard preview",
+				content: "Zerobyte 备份仪表盘预览",
 			},
 			{
 				name: "twitter:card",
@@ -72,7 +80,7 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" data-theme="dark" className="dark">
+		<html lang="zh-CN" data-theme="dark" className="dark">
 			<head>
 				<script defer data-domain="zerobyte.app" src="https://assets.foreach.li/js/script.js"></script>
 				<HeadContent />

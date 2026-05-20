@@ -1,182 +1,182 @@
 ---
-title: Mounted Shares and Permissions
-description: A simple guide to what mounted volumes preserve well, what they simplify, and when a local directory is the better fit
+title: 挂载共享与权限
+description: 了解挂载卷的优势、简化之处以及何时更适合使用本地目录
 ---
 
-Mounted volumes are still very useful in Zerobyte. For many people, backing up the file contents is the main goal, and mounted shares work well for that.
+挂载卷在 Zerobyte 中仍然非常有用。对许多人来说，备份文件内容是主要目标，挂载共享在这方面表现良好。
 
-Where things get a little more nuanced is permissions and other filesystem details.
+权限和其他文件系统细节则稍微复杂一些。
 
 <Callout type="info">
-  Backing up a mounted share does **not** remove permissions from the source.
+  备份挂载共享并**不会**从源端移除权限。
 
-  The main question is simpler than it sounds: how much of the source system's permission information can the mounted view actually show to the backup?
+  主要问题比听起来更简单：挂载的视图能向备份展示多少源系统的权限信息？
 </Callout>
 
-## The short version
+## 简要总结
 
-- If your main goal is recovering files and folders, mounted volumes are often perfectly fine.
-- Zerobyte backs up the view that the mounted filesystem presents inside the container.
-- Some backends show permissions and ownership very well.
-- Some backends show a simplified view.
-- If you want the closest thing to a true replica, a local **Directory** volume is the best choice.
+- 如果您的主要目标是恢复文件和文件夹，挂载卷通常完全可以满足需求。
+- Zerobyte 备份的是容器内挂载文件系统所呈现的视图。
+- 某些后端能够很好地显示权限和所有权。
+- 某些后端则显示简化后的视图。
+- 如果您想要最接近真实副本的效果，本地**目录**卷是最佳选择。
 
-## Why this matters
+## 为什么这很重要
 
-When Zerobyte backs up a remote volume, it does not talk directly to every storage system in its native format.
+当 Zerobyte 备份远程卷时，它并不直接以原生格式与每个存储系统通信。
 
-Instead:
+实际情况是：
 
-1. Zerobyte mounts the volume inside the Linux container.
-2. Linux sees that mounted volume as a normal filesystem.
-3. Restic backs up what Linux can see there.
+1. Zerobyte 将卷挂载到 Linux 容器内。
+2. Linux 将挂载的卷视为普通文件系统。
+3. Restic 备份 Linux 在该文件系统上能看到的内容。
 
-That means the backup is only as detailed as the mounted view.
+这意味着备份的详细信息程度取决于挂载视图的详细程度。
 
-If the mount shows the real owner, permissions, and advanced permission rules, Restic can back them up.
+如果挂载视图显示真实的拥有者、权限和高级权限规则，Restic 就可以备份它们。
 
-If the mount shows a simplified version, the snapshot will also contain that simplified version.
+如果挂载视图显示的是简化版本，快照也将包含该简化版本。
 
-## What might be simplified
+## 可能被简化的内容
 
-Depending on the backend, the mounted view may simplify:
+根据后端不同，挂载视图可能简化以下内容：
 
-- file owner
-- group
-- read, write, and execute permissions
-- advanced permission rules
-- extra filesystem metadata
+- 文件拥有者
+- 组
+- 读、写和执行权限
+- 高级权限规则
+- 额外的文件系统元数据
 
-This is why a backup can be excellent for file contents while being less exact for permission details.
+这就是为什么备份在文件内容方面可能非常出色，但在权限细节方面可能不够精确。
 
-## Editing files on a mounted share
+## 在挂载共享上编辑文件
 
-This is also useful to know outside of backups.
+这在备份之外也很有用。
 
-- Editing an existing file often keeps that file's existing server-side permissions.
-- Deleting a file and creating it again usually creates a new remote file.
-- A new file usually gets the folder's default or inherited permissions, not necessarily the old file's exact ones.
-- Some editors save by replacing the file behind the scenes, so they may behave more like recreate than edit-in-place.
+- 编辑现有文件通常会保留该文件原有的服务器端权限。
+- 删除文件并重新创建通常会产生一个新的远程文件。
+- 新文件通常会获得文件夹的默认或继承权限，不一定是旧文件的精确权限。
+- 某些编辑器通过替换文件来保存，因此它们的行为更像是重新创建而非原地编辑。
 
-For many users this is not a problem. It mainly matters when you are trying to keep permissions exactly the same.
+对许多用户来说这不是问题。这主要在你试图保持权限完全一致时才重要。
 
-Common examples where permissions matter more:
+权限更重要的常见示例：
 
-- a shared company folder where different teams should see different subfolders
-- user home directories where private files should stay private after restore
-- website or app files where the service depends on the right owner or executable permissions
-- server scripts, cron jobs, or deployment hooks that need to remain executable
-- business shares with inherited folder rules, such as finance or HR documents
+- 共享的公司文件夹，不同团队应看到不同的子文件夹
+- 用户主目录，私人文件在恢复后应保持私密
+- 网站或应用文件，其服务依赖于正确的拥有者或可执行权限
+- 服务器脚本、cron 任务或部署钩子，需要保持可执行状态
+- 具有继承文件夹规则的业务共享，例如财务或人力资源文档
 
-## Backend comparison
+## 后端对比
 
-| Backend | Good fit for | Permission fidelity | What to keep in mind |
+| 后端 | 适用场景 | 权限保真度 | 注意事项 |
 | --- | --- | --- | --- |
-| **Directory** | Local data and bind-mounted host paths | **Best** | Best choice when you want the backup and restore to stay as close as possible to the original filesystem |
-| **NFS** | Linux and NAS shares | **Usually good** | Often a strong remote option, but ownership mapping can still vary between systems |
-| **SMB/CIFS** | Windows shares and Samba servers | **Mixed to good** | Often the best remote option when permission details matter, but still not a perfect copy of the original Windows permission model |
-| **WebDAV** | Nextcloud, ownCloud, and content-focused remote access | **Limited** | Great for backing up files, less reliable for exact permission replication |
-| **SFTP** | Secure access to remote Linux servers | **Limited** | Good for content backup, but advanced permission details are often reduced |
-| **Rclone** | Cloud providers and object storage | **Lowest** | Best treated as a content source, not as a full filesystem replica |
+| **目录** | 本地数据和绑定挂载的主机路径 | **最佳** | 当你希望备份和恢复尽可能接近原始文件系统时的最佳选择 |
+| **NFS** | Linux 和 NAS 共享 | **通常良好** | 通常是较强的远程选项，但所有权映射在不同系统之间仍可能有差异 |
+| **SMB/CIFS** | Windows 共享和 Samba 服务器 | **中等至良好** | 当权限细节很重要时通常是最佳的远程选项，但仍不是原始 Windows 权限模型的完美副本 |
+| **WebDAV** | Nextcloud、ownCloud 和面向内容的远程访问 | **有限** | 非常适合备份文件，但在精确权限复制方面可靠性较低 |
+| **SFTP** | 安全访问远程 Linux 服务器 | **有限** | 适合内容备份，但高级权限细节通常会被简化 |
+| **Rclone** | 云提供商和对象存储 | **最低** | 最好视为内容源，而非完整的文件系统副本 |
 
-## What each backend is best at
+## 各后端的优势
 
-### Directory
+### 目录
 
-This is the easiest option to trust when you care about both file contents and permissions.
+当您同时关心文件内容和权限时，这是最容易信赖的选项。
 
-Why it works so well:
+为什么它表现如此出色：
 
-- Zerobyte sees the filesystem directly
-- there is no extra network protocol translating the data
-- restores are usually the most predictable
+- Zerobyte 直接访问文件系统
+- 没有额外的网络协议来转换数据
+- 恢复通常是可预测性最高的
 
-If your goal is the closest thing to a true replica, choose **Directory** whenever you can.
+如果您想要最接近真实副本的效果，尽可能选择**目录**。
 
 ### NFS
 
-NFS is often a very good fit for Linux-style file sharing.
+NFS 通常非常适合 Linux 风格的文件共享。
 
-It is usually a strong choice when:
+在以下情况下它通常是强有力的选择：
 
-- the share comes from a Linux or NAS system
-- ownership matches well between systems
-- you want a remote option that still feels fairly native
+- 共享来自 Linux 或 NAS 系统
+- 系统之间的所有权匹配良好
+- 您希望一个仍然相当原生的远程选项
 
-It can still vary depending on how the server is configured, so it is good to test with a few real files first.
+根据服务器配置方式，结果可能有所不同，因此最好先用几个真实文件进行测试。
 
 ### SMB/CIFS
 
-SMB is a good choice for Windows shares and Samba servers.
+SMB 是 Windows 共享和 Samba 服务器的不错选择。
 
-Compared with other remote options, it often gives Linux a richer view of remote permissions. That makes it the most promising remote choice when those details matter.
+与其他远程选项相比，它通常能为 Linux 提供更丰富的远程权限视图。当权限细节很重要时，它是最有希望的远程选择。
 
-Still, it helps to think of SMB as "often good" rather than "guaranteed exact."
+不过，最好将 SMB 视为"通常良好"而非"保证精确"。
 
 ### WebDAV
 
-WebDAV is very convenient and widely supported.
+WebDAV 非常方便且被广泛支持。
 
-It is usually best for:
+它通常最适合：
 
-- backing up file contents
-- reaching services like Nextcloud and ownCloud
-- simple remote access
+- 备份文件内容
+- 访问 Nextcloud 和 ownCloud 等服务
+- 简单的远程访问
 
-It is usually **not** the best choice if you want a very exact copy of the original permission model.
+如果您想要非常精确的原始权限模型副本，它通常**不是**最佳选择。
 
 ### SFTP
 
-SFTP is a solid option when you need secure remote access over SSH.
+SFTP 是当您需要通过 SSH 进行安全远程访问时的可靠选择。
 
-It is usually good for:
+它通常适用于：
 
-- backing up files from remote Linux servers
-- simple remote access with passwords or keys
-- content-focused backups
+- 从远程 Linux 服务器备份文件
+- 使用密码或密钥进行简单远程访问
+- 面向内容的备份
 
-Like WebDAV, it is usually better for file contents than for exact permission replication.
+与 WebDAV 一样，它通常更适合文件内容而非精确权限复制。
 
 ### Rclone
 
-Rclone is excellent for connecting to many cloud providers.
+Rclone 在连接众多云提供商方面表现出色。
 
-It is usually best for:
+它通常最适合：
 
-- backing up data stored in cloud services
-- content-focused backup jobs
-- providers that are not traditional filesystems
+- 备份存储在云服务中的数据
+- 面向内容的备份作业
+- 非传统文件系统的提供商
 
-It is the least suitable option when you want the mounted view to behave like a normal local filesystem.
+当您希望挂载视图表现得像普通本地文件系统时，它是最不合适的选择。
 
-## Best option for true replication
+## 真正复制的最佳选择
 
-If by "true replication" you mean:
+如果您所说的"真正复制"是指：
 
-- same files
-- same ownership
-- same permissions
-- same advanced permission rules
-- restore behavior that stays very close to the original
+- 相同的文件
+- 相同的所有权
+- 相同的权限
+- 相同的高级权限规则
+- 恢复行为与原始保持高度一致
 
-then the best option is still **Directory**.
+那么最佳选择仍然是**目录**。
 
-If the original data lives somewhere else, the most reliable approach is usually one of these:
+如果原始数据位于其他地方，最可靠的方法通常是以下几种之一：
 
-1. Run Zerobyte close to the data and back it up as a local directory there.
-2. Mount the source on the host first, then bind-mount that local path into Zerobyte as a Directory volume.
-3. Use remote mounted backends mainly for content backup, not for exact replication.
+1. 在数据附近运行 Zerobyte，并将其作为本地目录备份。
+2. 先在主机上挂载源，然后将该本地路径作为目录卷绑定挂载到 Zerobyte 中。
+3. 将远程挂载后端主要用于内容备份，而非精确复制。
 
-## Practical advice
+## 实用建议
 
-1. If you mainly care about recovering files, most mounted backends are fine.
-2. If you care a lot about permissions too, prefer **Directory** first.
-3. After **Directory**, **NFS** is often the next best choice.
-4. **SMB** can also be a good option, especially for Windows and Samba shares, but it is worth testing first.
-5. Treat **WebDAV**, **SFTP**, and **rclone** as content-first backends.
+1. 如果您主要关心恢复文件，大多数挂载后端都可以。
+2. 如果您也非常关心权限，首选**目录**。
+3. 在**目录**之后，**NFS** 通常是次优选择。
+4. **SMB** 也是一个不错的选择，尤其是对于 Windows 和 Samba 共享，但值得先进行测试。
+5. 将 **WebDAV**、**SFTP** 和 **rclone** 视为内容优先的后端。
 
 <Callout type="info">
-  The message here is not "avoid mounted shares." They are useful and often exactly the right choice.
+  这里的信息不是"避免使用挂载共享"。它们很有用，而且常常是恰当的选择。
 
-  The simpler rule is: if file contents matter most, mounted shares are often great. If you want the closest possible replica of the original filesystem, a local **Directory** volume is still the best option.
+  更简单的规则是：如果文件内容最重要，挂载共享通常很出色。如果您想要尽可能接近原始文件系统的副本，本地**目录**卷仍然是最佳选择。
 </Callout>

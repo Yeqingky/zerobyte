@@ -1,90 +1,90 @@
 ---
-title: Troubleshooting
-description: Solve common issues with permissions, mounts, rclone, and more
+title: 故障排除
+description: 解决权限、挂载、rclone 等常见问题
 ---
 
-This guide covers common issues and their solutions. Before troubleshooting, enable debug logging to get more detail.
+本指南涵盖常见问题及其解决方案。在进行故障排除之前，请启用调试日志以获取更多详细信息。
 
-## Enable Debug Logging
+## 启用调试日志
 
-Add `LOG_LEVEL=debug` to your environment variables and restart:
+在环境变量中添加 `LOG_LEVEL=debug` 并重启：
 
 ```yaml
 environment:
   - LOG_LEVEL=debug
 ```
 
-Then view logs:
+然后查看日志：
 
 ```bash
 docker logs -f zerobyte
 ```
 
 <Callout type="warn">
-  Never share sensitive information (passwords, access keys, personal data) in public issue reports. Redact them from logs before posting.
+  切勿在公开的问题报告中分享敏感信息（密码、访问密钥、个人数据）。在发布之前，请从日志中将其编辑掉。
 </Callout>
 
-## Container Won't Start
+## 容器无法启动
 
-1. Check logs: `docker compose logs zerobyte`
-2. Verify exactly one of `APP_SECRET` or `APP_SECRET_FILE` is set
-3. If using `APP_SECRET_FILE`, ensure the file exists inside the container, is readable, and contains a 32-256 character secret
-4. Ensure `/var/lib/zerobyte` exists and has correct permissions
-5. Verify port 4096 is not already in use: `netstat -tuln | grep 4096`
+1. 检查日志：`docker compose logs zerobyte`
+2. 确认 `APP_SECRET` 或 `APP_SECRET_FILE` 中恰好设置了一个
+3. 如果使用 `APP_SECRET_FILE`，确保文件存在于容器内部、可读，且包含 32-256 个字符的密钥
+4. 确保 `/var/lib/zerobyte` 存在并具有正确的权限
+5. 确认端口 4096 未被占用：`netstat -tuln | grep 4096`
 
-### Permission Issues
+### 权限问题
 
-If you encounter permission errors on the data directory:
+如果在数据目录上遇到权限错误：
 
 ```bash
 sudo chown -R 1000:1000 /var/lib/zerobyte
 ```
 
-## Remote Mount Issues
+## 远程挂载问题
 
-### Permission Denied When Mounting
+### 挂载时权限被拒绝
 
-Mounting remote filesystems requires kernel-level privileges. Ensure:
+挂载远程文件系统需要内核级权限。请确保：
 
-- Remote share credentials are correct
-- The host kernel supports the target filesystem (e.g., CIFS module is available)
-- Docker is running in **rootful mode** (rootless Docker cannot perform kernel mounts)
-- Your container has `SYS_ADMIN` capability:
+- 远程共享凭据正确
+- 主机内核支持目标文件系统（例如，CIFS 模块可用）
+- Docker 以 **rootful 模式** 运行（rootless Docker 无法执行内核挂载）
+- 你的容器具有 `SYS_ADMIN` 能力：
   ```yaml
   cap_add:
     - SYS_ADMIN
   ```
 
-### Alternative: Mount on Host
+### 替代方案：在主机上挂载
 
-If container-level mounting causes issues, mount the remote share on the host first, then bind-mount it into the container:
+如果容器级挂载导致问题，先在主机上挂载远程共享，然后将其绑定挂载到容器中：
 
 ```bash
-# Mount on host
+# 在主机上挂载
 sudo mount -t cifs //server/share /mnt/your-remote-share -o credentials=/path/to/creds
 ```
 
 ```yaml
-# Then in docker-compose.yml
+# 然后在 docker-compose.yml 中
 volumes:
   - /mnt/your-remote-share:/data
 ```
 
-### Security Framework Issues
+### 安全框架问题
 
-Linux security frameworks may block mount operations even with `SYS_ADMIN`. Try these solutions in order:
+Linux 安全框架可能即使有 `SYS_ADMIN` 也会阻止挂载操作。请按顺序尝试以下解决方案：
 
 <Tabs items={["AppArmor (Ubuntu/Debian)", "Seccomp", "SELinux (CentOS/Fedora)"]}>
 <Tab value="AppArmor (Ubuntu/Debian)">
 
-Check if AppArmor is blocking mounts:
+检查 AppArmor 是否阻止了挂载：
 
 ```bash
 sudo aa-status
 docker inspect --format='{{.AppArmorProfile}}' zerobyte
 ```
 
-If it returns `docker-default`, disable AppArmor for the container:
+如果返回 `docker-default`，为容器禁用 AppArmor：
 
 ```yaml
 security_opt:
@@ -94,7 +94,7 @@ security_opt:
 </Tab>
 <Tab value="Seccomp">
 
-Docker's default seccomp profile may block mount-related syscalls:
+Docker 的默认 seccomp 配置可能阻止与挂载相关的系统调用：
 
 ```yaml
 security_opt:
@@ -104,14 +104,14 @@ security_opt:
 </Tab>
 <Tab value="SELinux (CentOS/Fedora)">
 
-Adjust the SELinux context:
+调整 SELinux 上下文：
 
 ```yaml
 security_opt:
   - label:type:container_runtime_t
 ```
 
-Or disable SELinux enforcement for the container:
+或为容器禁用 SELinux 强制：
 
 ```yaml
 security_opt:
@@ -122,67 +122,67 @@ security_opt:
 </Tabs>
 
 <Callout type="warn">
-  **Last resort**: If nothing else works, you can run with `privileged: true`. This disables most container isolation and should only be used temporarily for diagnosis.
+  **最后手段**：如果其他方法都无效，你可以使用 `privileged: true` 运行。这会禁用大多数容器隔离，应仅临时用于诊断。
 </Callout>
 
-## FUSE Mount Failures
+## FUSE 挂载失败
 
-FUSE-based mounts (SFTP volumes, rclone volumes) require `/dev/fuse`:
+基于 FUSE 的挂载（SFTP 卷、rclone 卷）需要 `/dev/fuse`：
 
 ```yaml
 devices:
   - /dev/fuse:/dev/fuse
 ```
 
-Verify FUSE is accessible inside the container:
+确认 FUSE 在容器内可访问：
 
 ```bash
 docker exec zerobyte ls -la /dev/fuse
 ```
 
 <Callout type="info">
-  `/dev/fuse` is **not required** for SMB/CIFS or NFS mounts, only for SFTP and rclone volumes.
+  SMB/CIFS 或 NFS 挂载**不需要** `/dev/fuse`，仅 SFTP 和 rclone 卷需要。
 </Callout>
 
-## Rclone Issues
+## Rclone 问题
 
-### Test on Host First
+### 先在主机上测试
 
-Before reporting rclone issues, verify rclone works on your Docker host:
+在报告 rclone 问题之前，请确认 rclone 在 Docker 主机上正常工作：
 
 ```bash
-# List configured remotes
+# 列出已配置的远程
 rclone listremotes
 
-# Test listing a remote
+# 测试列出远程内容
 rclone lsd myremote:
 
-# Test reading files
+# 测试读取文件
 rclone ls myremote:path/to/test
 ```
 
-**If these commands fail on the host, fix your rclone configuration first.** Common causes:
-- Expired OAuth tokens, run `rclone config` to re-authenticate
-- Incorrect credentials
-- Missing permissions on the cloud provider side
-- Network or firewall issues
+**如果这些命令在主机上失败，请先修复你的 rclone 配置。** 常见原因：
+- OAuth 令牌已过期，运行 `rclone config` 重新认证
+- 凭据不正确
+- 云服务商侧缺少权限
+- 网络或防火墙问题
 
-### "No Remotes Available" in Dropdown
+### 下拉菜单中显示"没有可用的远程"
 
-Zerobyte can't find your rclone configuration. Check:
+Zerobyte 找不到你的 rclone 配置。请检查：
 
 ```bash
 docker exec zerobyte ls -la /root/.config/rclone/
 ```
 
-Ensure the config is mounted:
+确保配置文件已挂载：
 
 ```yaml
 volumes:
   - ~/.config/rclone:/root/.config/rclone:ro
 ```
 
-For non-root containers, set the correct path:
+对于非 root 容器，设置正确的路径：
 
 ```yaml
 environment:
@@ -191,81 +191,81 @@ volumes:
   - ~/.config/rclone:/home/appuser/.config/rclone:ro
 ```
 
-**Restart the container** after mounting the config.
+**挂载配置后重启容器。**
 
-### "Failed to Create File System" Error
+### "创建文件系统失败"错误
 
-Usually an authentication failure. On your host:
-1. Run `rclone config` and re-authenticate the remote
-2. Verify with `rclone lsd remote:`
-3. Restart the Zerobyte container
+通常是认证失败。在主机上：
+1. 运行 `rclone config` 并重新认证远程
+2. 使用 `rclone lsd remote:` 验证
+3. 重启 Zerobyte 容器
 
-### SFTP Repository Authentication Failures
+### SFTP 仓库认证失败
 
-If your rclone SFTP remote uses `key_file`, the path points to the host filesystem which isn't accessible inside the container.
+如果你的 rclone SFTP 远程使用 `key_file`，该路径指向主机文件系统，容器内部无法访问。
 
-Solutions:
-- **Mount SSH keys**: `~/.ssh:/root/.ssh:ro`
-- **Embed key in config**: Use `key_pem` instead of `key_file`
-- **Use ssh-agent**: Set `key_use_agent = true` and mount the SSH agent socket
+解决方案：
+- **挂载 SSH 密钥**：`~/.ssh:/root/.ssh:ro`
+- **将密钥嵌入配置**：使用 `key_pem` 代替 `key_file`
+- **使用 ssh-agent**：设置 `key_use_agent = true` 并挂载 SSH agent 套接字
 
-See the [rclone guide](/docs/guides/rclone) for detailed instructions.
+详细说明请参阅 [rclone 指南](/docs/guides/rclone)。
 
-### Rclone Volume Mount Errors
+### Rclone 卷挂载错误
 
-Rclone volumes (mounting cloud storage as a data source) require:
-- Linux host (Windows/macOS cannot use rclone volumes)
-- `/dev/fuse` device mounted
-- `SYS_ADMIN` capability
+Rclone 卷（将云存储挂载为数据源）需要：
+- Linux 主机（Windows/macOS 无法使用 rclone 卷）
+- 已挂载 `/dev/fuse` 设备
+- `SYS_ADMIN` 能力
 
-**"fusermount3: Permission denied"**: Verify `/dev/fuse` is mounted and check for AppArmor/seccomp restrictions.
+**"fusermount3: Permission denied"**：确认 `/dev/fuse` 已挂载，并检查 AppArmor/seccomp 限制。
 
-**"Operation not permitted"**: Add `SYS_ADMIN` capability.
+**"Operation not permitted"**：添加 `SYS_ADMIN` 能力。
 
-## Backup Issues
+## 备份问题
 
-### Restore Fails with `lchown` or `operation not permitted`
+### 恢复失败并提示 `lchown` 或 `operation not permitted`
 
-If you restore directly to SFTP, SMB, WebDAV, rclone, or another mounted filesystem, the destination may accept file contents but reject ownership, mode, timestamp, or xattr updates.
+如果直接恢复到 SFTP、SMB、WebDAV、rclone 或其他挂载的文件系统，目标可能接受文件内容，但拒绝所有权、模式、时间戳或扩展属性更新。
 
-See [Restoring Data](/docs/guides/restoring) for the full restore workflow, the explanation, and the safest workarounds.
+完整的恢复工作流程、说明和最安全的解决方法，请参阅 [恢复数据](/docs/guides/restoring)。
 
-### Backup Failed: Permission Denied
+### 备份失败：权限被拒绝
 
-Ensure the volume directory has proper permissions:
+确保卷目录具有正确的权限：
 
 ```bash
 sudo chmod -R 755 /path/to/your/data
 ```
 
-### Backup Running Slowly
+### 备份运行缓慢
 
-- Check network bandwidth (for cloud repositories)
-- Check disk I/O performance
-- Enable compression for large compressible files
-- Adjust parallel upload settings in repository configuration
-- Consider bandwidth limits if other services are affected
+- 检查网络带宽（对于云仓库）
+- 检查磁盘 I/O 性能
+- 为大型可压缩文件启用压缩
+- 在仓库配置中调整并行上传设置
+- 如果其他服务受影响，考虑设置带宽限制
 
-### Repository Locked
+### 仓库已锁定
 
-If you see "repository is locked" errors, a previous operation may have been interrupted. Use the **Unlock** button in the repository settings.
+如果你看到"仓库已锁定"错误，可能是之前的操作被中断了。请使用仓库设置中的**解锁**按钮。
 
 <Callout type="warn">
-  Only unlock if you're certain no other backup or restore operations are running against the repository.
+  只有确定没有其他备份或恢复操作正在使用该仓库时，才执行解锁操作。
 </Callout>
 
-## Getting Help
+## 获取帮助
 
-If you've tried the solutions above and still have issues:
+如果你已尝试上述解决方案但问题仍然存在：
 
-1. Enable debug logging (`LOG_LEVEL=debug`)
-2. Collect relevant logs: `docker compose logs --tail=200 zerobyte`
-3. Open an issue at [github.com/nicotsx/zerobyte/issues](https://github.com/nicotsx/zerobyte/issues)
+1. 启用调试日志（`LOG_LEVEL=debug`）
+2. 收集相关日志：`docker compose logs --tail=200 zerobyte`
+3. 在 [github.com/nicotsx/zerobyte/issues](https://github.com/nicotsx/zerobyte/issues) 提交问题
 
-Include in your report:
-- Zerobyte version (visible in the UI footer)
-- Docker and Docker Compose versions
-- Relevant logs (with sensitive data redacted)
-- Steps to reproduce the issue
+在你的报告中包含：
+- Zerobyte 版本（在 UI 页脚可见）
+- Docker 和 Docker Compose 版本
+- 相关日志（已编辑敏感数据）
+- 重现问题的步骤
 
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";

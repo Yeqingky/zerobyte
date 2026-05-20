@@ -1,241 +1,241 @@
 ---
-title: Repositories
-description: Encrypted storage destinations where your backup snapshots are stored
+title: 仓库
+description: 用于存储备份快照的加密存储目标
 ---
 
-Repositories are encrypted storage destinations where your backup snapshots are stored. Every piece of data that Zerobyte backs up ends up in a repository, protected by strong encryption and deduplicated to save space.
+仓库是存储备份快照的加密存储目标。Zerobyte 备份的每一条数据最终都存储在仓库中，受到强加密保护，并通过去重节省空间。
 
-## What are repositories?
+## 什么是仓库？
 
-A repository is a Restic-powered storage location that holds your backup snapshots. When you create a backup job, you point it at a repository, and that is where the encrypted data goes.
+仓库是一个由 Restic 驱动的存储位置，用于保存你的备份快照。当你创建备份作业时，将其指向一个仓库，加密数据就会存储在那里。
 
-Repositories provide:
+仓库提供：
 
-- **End-to-end encryption**, all data is encrypted before it leaves your machine, so even your storage provider cannot read it
-- **Deduplication**, identical data blocks are stored only once, even across different backups
-- **Compression**, configurable compression reduces storage costs
-- **Immutable snapshots**, once a snapshot is created, it cannot be modified
-- **Incremental backups**, only changed data is transferred and stored after the initial backup
+- **端到端加密**，所有数据在离开你的机器之前就已加密，即使存储提供商也无法读取
+- **去重**，相同的数据块只存储一次，即使跨越不同的备份
+- **压缩**，可配置的压缩降低了存储成本
+- **不可变快照**，一旦创建，快照无法修改
+- **增量备份**，首次备份后只传输和存储变化的数据
 
-Each repository is self-contained. You can store repositories on local disks, cloud object storage, remote servers, or any of 40+ backends supported through rclone.
+每个仓库都是独立的。你可以将仓库存储在本地磁盘、云对象存储、远程服务器，或通过 rclone 支持的 40 多种后端中。
 
-## Supported repository backends
+## 支持的仓库后端
 
-Zerobyte supports eight backend types. When creating a repository, you select a backend and fill in the required fields in the UI.
+Zerobyte 支持八种后端类型。创建仓库时，你需要选择一个后端并在 UI 中填写必填字段。
 
-### Local
+### 本地
 
-Store backups on a local disk or mounted filesystem. Zerobyte creates the repository directory under the path you provide.
+将备份存储在本地磁盘或挂载的文件系统上。Zerobyte 会在你提供的路径下创建仓库目录。
 
-**Use cases:** fast local backups, NAS devices, USB-attached drives, high-speed recovery scenarios.
+**适用场景：** 快速本地备份、NAS 设备、USB 外接硬盘、高速恢复场景。
 
-**Fields:** Name, Path.
+**字段：** 名称、路径。
 
 <Callout type="info">
-  Zerobyte automatically creates a subdirectory under the given path to keep each repository isolated.
+  Zerobyte 会在指定路径下自动创建一个子目录，以保持每个仓库的独立性。
 </Callout>
 
-### S3-compatible
+### S3 兼容
 
-Store backups on Amazon S3 or any S3-compatible service, including MinIO, Wasabi, Backblaze B2, and DigitalOcean Spaces.
+将备份存储在 Amazon S3 或任何 S3 兼容服务上，包括 MinIO、Wasabi、Backblaze B2 和 DigitalOcean Spaces。
 
-**Use cases:** cloud-native storage, offsite backups, long-term archival.
+**适用场景：** 云原生存储、异地备份、长期归档。
 
-**Fields:** Name, Endpoint, Bucket, Access Key ID, Secret Access Key.
+**字段：** 名称、端点、存储桶、访问密钥 ID、秘密访问密钥。
 
-Sensitive fields are encrypted before storage. See [Credential security](#credential-security) below.
+敏感字段在存储前会加密。请参阅下面的[凭据安全](#credential-security)。
 
 ### Cloudflare R2
 
-S3-compatible object storage from Cloudflare with zero egress fees, making it cost-effective for frequent restores.
+来自 Cloudflare 的 S3 兼容对象存储，零出口费用，非常适合频繁恢复的场景。
 
-**Use cases:** cost-effective cloud backups, frequent restore operations, global edge storage.
+**适用场景：** 经济高效的云备份、频繁的恢复操作、全球边缘存储。
 
-**Fields:** Name, Endpoint, Bucket, Access Key ID, Secret Access Key.
+**字段：** 名称、端点、存储桶、访问密钥 ID、秘密访问密钥。
 
 ### Google Cloud Storage
 
-Store backups on Google Cloud Platform's object storage.
+将备份存储在 Google Cloud Platform 的对象存储上。
 
-**Use cases:** GCP-native storage, integration with existing GCP infrastructure, Nearline/Coldline storage tiers.
+**适用场景：** GCP 原生存储、与现有 GCP 基础设施集成、Nearline/Coldline 存储层级。
 
-**Fields:** Name, Bucket, Project ID, Service Account JSON.
+**字段：** 名称、存储桶、项目 ID、服务账号 JSON。
 
 <Callout type="info">
-  The service account needs permissions to create, read, and delete objects in the target bucket.
+  服务账号需要具有在目标存储桶中创建、读取和删除对象的权限。
 </Callout>
 
 ### Azure Blob Storage
 
-Store backups on Microsoft Azure's object storage.
+将备份存储在 Microsoft Azure 的对象存储上。
 
-**Use cases:** Azure-native storage, enterprise compliance, Hot/Cool/Archive tier optimization.
+**适用场景：** Azure 原生存储、企业合规、Hot/Cool/Archive 层级优化。
 
-**Fields:** Name, Container, Account Name, Account Key, Endpoint Suffix (optional).
+**字段：** 名称、容器、账号名称、账号密钥、终结点后缀（可选）。
 
 ### Rclone
 
-Access any of rclone's 40+ supported cloud storage backends, including Dropbox, Google Drive, OneDrive, and many more.
+访问 rclone 支持的 40 多种云存储后端，包括 Dropbox、Google Drive、OneDrive 等。
 
-**Use cases:** exotic cloud providers, consumer cloud storage, cross-cloud backup strategies.
+**适用场景：** 特殊云提供商、消费者云存储、跨云备份策略。
 
-**Fields:** Name, Remote (as configured in your rclone config), Path.
+**字段：** 名称、远程（按 rclone 配置中的设置）、路径。
 
 <Callout type="warn">
-  Your rclone configuration file must be mounted into the Zerobyte container. Consumer services like Google Drive may have API rate limits and are not recommended for production backups.
+  你的 rclone 配置文件必须挂载到 Zerobyte 容器中。Google Drive 等消费者服务可能有 API 速率限制，不建议用于生产备份。
 </Callout>
 
-### REST server
+### REST 服务器
 
-Connect to a Restic REST server for network-based backup storage.
+连接到 Restic REST 服务器以进行基于网络的备份存储。
 
-**Use cases:** self-hosted backup infrastructure, dedicated backup servers, REST-based appliances.
+**适用场景：** 自托管备份基础设施、专用备份服务器、基于 REST 的设备。
 
-**Fields:** Name, URL, Path (optional), Username (optional), Password (optional).
+**字段：** 名称、URL、路径（可选）、用户名（可选）、密码（可选）。
 
 ### SFTP
 
-Store backups on remote servers accessible via SSH.
+将备份存储在可通过 SSH 访问的远程服务器上。
 
-**Use cases:** backup to remote Linux servers, VPS-based offsite storage, SSH-accessible targets.
+**适用场景：** 备份到远程 Linux 服务器、基于 VPS 的异地存储、SSH 可访问的目标。
 
-**Fields:** Name, Host, Port, User, Path, SSH Private Key, Known Hosts or Skip Host Key Verification.
+**字段：** 名称、主机、端口、用户、路径、SSH 私钥、已知主机或跳过主机密钥验证。
 
 <Callout type="warn">
-  For production use, keep host key verification enabled and provide the server's known host key to prevent man-in-the-middle attacks.
+  在生产环境中，请保持主机密钥验证启用，并提供服务器的主机公钥以防止中间人攻击。
 </Callout>
 
-## Connecting to an existing repository
+## 连接到现有仓库
 
-When creating a repository, you can mark it as **existing** to connect to a Restic repository that was already initialized elsewhere. This is useful when:
+创建仓库时，你可以将其标记为**现有的**，以连接到已在其他地方初始化过的 Restic 仓库。这在以下情况下很有用：
 
-- Another Zerobyte instance already created the repository
-- You initialized the repository directly with the Restic CLI
-- You are migrating from another backup tool that uses Restic
+- 另一个 Zerobyte 实例已经创建了该仓库
+- 你直接使用 Restic CLI 初始化了该仓库
+- 你正在从另一个使用 Restic 的备份工具迁移
 
-Zerobyte will verify that it can access the existing repository and begin using it for backups and restores without re-initializing it.
+Zerobyte 会验证它是否可以访问现有仓库，并在不重新初始化的情况下开始将其用于备份和恢复。
 
-When importing an existing repository, Zerobyte can either use the active organization's recovery key or store a separate custom password for that repository. See [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords) for the exact password model and when to choose each option.
+导入现有仓库时，Zerobyte 可以使用活跃组织的恢复密钥，也可以为该仓库存储单独的自定义密码。有关确切的密码模型以及何时选择每个选项，请参阅[恢复密钥和仓库密码](/docs/guides/recovery-key-and-repository-passwords)。
 
-## Compression modes
+## 压缩模式
 
-Compression is set when creating a repository and applies to all backups stored in it. Three modes are available:
+压缩在创建仓库时设置，并适用于存储在该仓库中的所有备份。有三种可用模式：
 
 <Accordions>
-  <Accordion title="Auto (default, recommended)">
-    Restic automatically decides whether to compress each data chunk. This provides the best balance of speed and space savings for most workloads.
+  <Accordion title="自动（默认，推荐）">
+    Restic 自动决定是否压缩每个数据块。这为大多数工作负载提供了速度和空间节省的最佳平衡。
   </Accordion>
 
-  <Accordion title="Off">
-    No compression is applied. Use this when backing up data that is already compressed, such as video files, ZIP archives, or compressed images. Avoids wasting CPU on data that will not shrink further.
+  <Accordion title="关闭">
+    不应用压缩。当备份已经压缩的数据时使用此模式，例如视频文件、ZIP 归档或压缩图像。避免浪费 CPU 处理不会再缩小的数据。
   </Accordion>
 
-  <Accordion title="Max">
-    Maximum compression for the best space savings. Uses more CPU time during backups. Best suited for text-heavy data, source code, and database dumps where CPU is not a bottleneck.
+  <Accordion title="最大">
+    最大压缩以获得最佳空间节省。备份期间会消耗更多 CPU 时间。最适合文本密集型数据、源代码和数据库转储，在这些场景中 CPU 不是瓶颈。
   </Accordion>
 </Accordions>
 
-## Bandwidth limiting
+## 带宽限制
 
-You can configure upload and download speed limits per repository to prevent backups from saturating your network. Limits are set in the repository settings with the following units: **Kbps**, **Mbps**, or **Gbps**.
+你可以为每个仓库配置上传和下载速度限制，以防止备份占满网络。限制在仓库设置中设置，使用以下单位：**Kbps**、**Mbps** 或 **Gbps**。
 
-- **Upload limit**, controls the speed at which data is sent to the repository during backups. Useful for avoiding bandwidth contention during business hours or staying within ISP caps.
-- **Download limit**, controls the speed at which data is retrieved during restores or snapshot browsing. Helps manage egress costs on cloud providers.
+- **上传限制**，控制备份期间数据发送到仓库的速度。有助于避免在工作时间出现带宽争用或保持在 ISP 限制内。
+- **下载限制**，控制恢复或浏览快照期间检索数据的速度。有助于管理云提供商的出口费用。
 
 <Callout type="info">
-  Bandwidth limits are enforced at the application layer. Actual network usage may be slightly higher due to protocol overhead.
+  带宽限制在应用层实施。由于协议开销，实际网络使用量可能会略高。
 </Callout>
 
-## Repository maintenance
+## 仓库维护
 
-Zerobyte provides maintenance actions in the repository details page.
+Zerobyte 在仓库详情页面提供了维护操作。
 
 ### Doctor
 
-A background maintenance run that unlocks the repository, runs `restic check`, and repairs the index if restic reports that repair is needed.
+一个后台维护运行，用于解锁仓库、运行 `restic check`，并在 restic 报告需要修复时修复索引。
 
 <Callout type="warn">
-  Doctor blocks other repository operations while it runs, but it does **not** currently perform a full `check --read-data` scrub and it does **not** prune unused data. See the [Repository maintenance guide](/docs/guides/repository-maintenance) for the exact behavior.
+  Doctor 在运行时会阻止其他仓库操作，但它目前**不会**执行完整的 `check --read-data` 扫描，也**不会**修剪未使用的数据。有关确切行为，请参阅[仓库维护指南](/docs/guides/repository-maintenance)。
 </Callout>
 
-### Unlock
+### 解锁
 
-Removes stale locks from a repository. Use this when you see "repository is locked" errors after a crash or forced termination of a backup or restore operation.
+移除仓库中的过期锁。当你在崩溃或强制终止备份/恢复操作后看到"仓库已锁定"错误时使用此功能。
 
 <Callout type="info">
-  Only run unlock if you are certain no other operations are actively accessing the repository.
+  只有确定没有其他操作正在活跃访问该仓库时，才执行解锁操作。
 </Callout>
 
-### Statistics refresh
+### 统计信息刷新
 
-The refresh button in **Compression Statistics** recalculates stored-size, compression, and snapshot-count metrics. It does not replace Doctor and it does not change repository health status.
+**压缩统计**中的刷新按钮会重新计算存储大小、压缩率和快照数量等指标。它不会替代 Doctor，也不会改变仓库健康状态。
 
-## Snapshots
+## 快照
 
-Each backup creates an immutable snapshot in the repository. Snapshots are incremental, so after the initial full backup, only changed data is stored in subsequent snapshots. This means the 10th backup of a 100 GB dataset might only add a few megabytes if little has changed.
+每次备份都会在仓库中创建一个不可变的快照。快照是增量的，因此在首次完整备份之后，后续快照只存储变化的数据。这意味着一个 100 GB 数据集的第 10 次备份如果变化很小，可能只增加几 MB。
 
-You can browse the contents of any snapshot and restore individual files or entire directories from the Zerobyte interface.
+你可以浏览任何快照的内容，并从 Zerobyte 界面恢复单个文件或整个目录。
 
-## Mirror repositories
+## 镜像仓库
 
-You can configure backup jobs to copy snapshots to additional repositories after each successful backup. This provides:
+你可以配置备份作业，在每次成功备份后将快照复制到其他仓库。这提供了：
 
-- **Geographic redundancy**, store copies in different regions or data centers
-- **Provider diversification**, avoid depending on a single cloud provider
-- **Compliance**, meet data locality or multi-copy retention requirements
+- **地理冗余**，在不同区域或数据中心存储副本
+- **提供商多样化**，避免依赖单一云提供商
+- **合规性**，满足数据本地化或多副本保留要求
 
-Mirrors are configured per backup job. See [Backups](/docs/concepts/backups) for details on setting up mirror repositories.
+镜像按备份作业配置。有关设置镜像仓库的详细信息，请参阅[备份](/docs/concepts/backups)。
 
-## Credential security
+## 凭据安全
 
-All sensitive fields (passwords, access keys, private keys, service account credentials) are encrypted before being stored. Credentials are never saved in plaintext.
+所有敏感字段（密码、访问密钥、私钥、服务账号凭据）在存储前都会加密。凭据永远不会以明文形式保存。
 
-Provisioned repositories also support secret references:
+通过配置自动创建的仓库还支持密钥引用：
 
-- **`env://VARIABLE_NAME`**, resolves the value from the specified environment variable during provisioning
-- **`file://secret_name`**, resolves the value from a Docker secret file at `/run/secrets/secret_name` during provisioning
+- **`env://VARIABLE_NAME`**，在配置时从指定的环境变量解析值
+- **`file://secret_name`**，在配置时从 `/run/secrets/secret_name` 的 Docker 密钥文件解析值
 
-During provisioning, Zerobyte resolves these references on startup and stores the resolved value encrypted in the database.
+在配置过程中，Zerobyte 在启动时解析这些引用，并将解析后的值加密存储在数据库中。
 
-The regular repository form in the UI currently expects the actual credential value. Entering `env://...` or `file://...` there will not resolve it at runtime.
+UI 中的常规仓库表单目前需要实际的凭据值。在那里输入 `env://...` 或 `file://...` 不会在运行时解析。
 
-## Best practices
+## 最佳实践
 
 <Accordions>
-  <Accordion title="Use separate repositories for different data classes">
-    Create distinct repositories for critical data, archive data, and test/development environments. This lets you apply different retention policies, storage tiers, and maintenance schedules to each class.
+  <Accordion title="为不同数据类别使用不同的仓库">
+    为关键数据、归档数据和测试/开发环境创建独立的仓库。这样你可以为每个类别应用不同的保留策略、存储层级和维护计划。
   </Accordion>
 
-  <Accordion title="Enable bandwidth limits for cloud repositories">
-    Prevent backup operations from saturating your internet connection, especially during business hours. Even modest limits (e.g., 50 Mbps) can make a significant difference to other services sharing the same link.
+  <Accordion title="为云仓库启用带宽限制">
+    防止备份操作占满你的互联网连接，尤其是在工作时间。即使是适度的限制（例如 50 Mbps）也能对共享同一链接的其他服务产生显著影响。
   </Accordion>
 
-  <Accordion title="Run maintenance (Doctor) periodically">
-    Schedule the Doctor operation monthly or quarterly for production repositories to verify data integrity, rebuild indexes, and reclaim space from deleted snapshots.
+  <Accordion title="定期运行维护（Doctor）">
+    对于生产仓库，建议每月或每季度安排 Doctor 操作，以验证数据完整性、重建索引并回收已删除快照的空间。
   </Accordion>
 
-  <Accordion title="Test restore operations regularly">
-    Backups are only as good as your ability to restore from them. Periodically restore files from your repositories to verify that data can be recovered, recovery time meets your expectations, and restored data is complete.
+  <Accordion title="定期测试恢复操作">
+    备份的价值取决于你从中恢复的能力。定期从你的仓库中恢复文件，以验证数据是否可以恢复、恢复时间是否符合预期以及恢复的数据是否完整。
   </Accordion>
 
-  <Accordion title="Monitor repository health">
-    Keep an eye on repository status. A repository in an error state will cause backup jobs to fail. Set up notifications so you are alerted to issues before they affect your backup schedule.
+  <Accordion title="监控仓库健康状态">
+    密切关注仓库状态。处于错误状态的仓库会导致备份作业失败。设置通知，以便在问题影响备份计划之前收到警报。
   </Accordion>
 </Accordions>
 
-## Next steps
+## 下一步
 
 <Cards>
-  <Card title="Backups" icon={<CalendarDays />} href="/docs/concepts/backups">
-    Learn how backup jobs create snapshots and manage retention
+  <Card title="备份" icon={<CalendarDays />} href="/docs/concepts/backups">
+    了解备份作业如何创建快照和管理保留策略
   </Card>
 
-  <Card title="Rclone integration" icon={<Cloud />} href="/docs/guides/rclone">
-    Set up rclone to access 40+ cloud storage backends
+  <Card title="Rclone 集成" icon={<Cloud />} href="/docs/guides/rclone">
+    设置 rclone 以访问 40 多种云存储后端
   </Card>
 
-  <Card title="Configuration reference" icon={<Wrench />} href="/docs/configuration">
-    Full reference for all environment variables and Docker settings
+  <Card title="配置参考" icon={<Wrench />} href="/docs/configuration">
+    所有环境变量和 Docker 设置的完整参考
   </Card>
 </Cards>
 

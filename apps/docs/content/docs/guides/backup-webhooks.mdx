@@ -1,32 +1,32 @@
 ---
-title: Backup Webhooks
-description: Run HTTP hooks before and after a backup job
+title: 备份 Webhook
+description: 在备份任务前后运行 HTTP 钩子
 ---
 
-Backup webhooks let a backup job call an HTTP endpoint immediately before Restic starts and immediately after Restic finishes. Use them when the source needs a short runtime action around the backup, such as pausing a service, creating a database dump, flushing a cache, or resuming a container after the snapshot.
+备份 Webhook 让备份作业在 Restic 启动前和完成后立即调用 HTTP 端点。当源端需要在备份前后执行短时运行时操作时使用，例如暂停服务、创建数据库转储、刷新缓存或在快照完成后恢复容器。
 
-Backup webhooks are configured per backup job in the **Advanced** section. They are different from [notifications](/docs/guides/notifications): notifications report backup events to people or systems, while backup webhooks are part of the backup execution lifecycle.
+备份 Webhook 在每个备份作业的**高级**部分中配置。它们与[通知](/docs/guides/notifications)不同：通知将备份事件报告给人员或系统，而备份 Webhook 是备份执行生命周期的一部分。
 
-## How backup webhooks work
+## 备份 Webhook 的工作原理
 
-Zerobyte supports two lifecycle hooks:
+Zerobyte 支持两个生命周期钩子：
 
-| Hook | When it runs | Failure behavior |
+| 钩子 | 运行时机 | 失败行为 |
 | --- | --- | --- |
-| **Pre-backup webhook** | Before Restic starts reading the volume | A failed request stops the backup before Restic runs |
-| **Post-backup webhook** | After Restic finishes, fails, or is cancelled | A failed request is recorded with the final result; a clean backup becomes a warning |
+| **备份前 Webhook** | 在 Restic 开始读取卷之前 | 请求失败会在 Restic 运行前停止备份 |
+| **备份后 Webhook** | 在 Restic 完成、失败或被取消后 | 失败的请求会记录在最终结果中；原本正常的备份会变为警告 |
 
-Each hook sends a `POST` request. A response with a `2xx` status code is treated as success. Redirects are not followed. Webhook requests time out after `WEBHOOK_TIMEOUT` seconds, which defaults to 60 seconds.
+每个钩子发送一个 `POST` 请求。返回 `2xx` 状态码视为成功。不跟随重定向。Webhook 请求在 `WEBHOOK_TIMEOUT` 秒后超时，默认为 60 秒。
 
 <Callout type="warn">
-  Every backup webhook URL must use an origin listed in `WEBHOOK_ALLOWED_ORIGINS`. The origin is the scheme, hostname, and port, such as `http://host.docker.internal:9000`.
+  每个备份 Webhook URL 必须使用 `WEBHOOK_ALLOWED_ORIGINS` 中列出的来源。来源是协议、主机名和端口，例如 `http://host.docker.internal:9000`。
 </Callout>
 
-## Request body
+## 请求体
 
-If the hook body field is empty, Zerobyte sends a JSON backup context body and sets `Content-Type: application/json`.
+如果钩子体字段为空，Zerobyte 会发送一个 JSON 备份上下文体，并设置 `Content-Type: application/json`。
 
-Pre-backup webhook example:
+备份前 Webhook 示例：
 
 ```json
 {
@@ -39,7 +39,7 @@ Pre-backup webhook example:
 }
 ```
 
-Post-backup webhook example:
+备份后 Webhook 示例：
 
 ```json
 {
@@ -53,33 +53,33 @@ Post-backup webhook example:
 }
 ```
 
-`status` is only sent to the post-backup webhook. It can be `success`, `warning`, `error`, or `cancelled`. `error` is included on the post-backup webhook when Zerobyte has warning, failure, or cancellation details to report.
+`status` 仅发送给备份后 Webhook。它可以是 `success`、`warning`、`error` 或 `cancelled`。当 Zerobyte 需要报告警告、失败或取消详情时，`error` 会包含在备份后 Webhook 中。
 
-If you enter a custom body, Zerobyte sends that exact body instead of the default JSON context. Add a `Content-Type` header yourself if the receiver expects one.
+如果您输入自定义体，Zerobyte 将发送该确切体而不是默认的 JSON 上下文。如果接收方需要，请自行添加 `Content-Type` 标头。
 
-## Headers
+## 标头
 
-Headers are optional and are entered one per line:
+标头是可选的，每行输入一个：
 
 ```text
 X-Zerobyte-Hook-Secret: replace-with-a-long-random-secret
 Content-Type: application/json
 ```
 
-Header values are stored as plain text. Use a scoped webhook secret rather than a reusable account password or long-lived infrastructure token.
+标头值以明文形式存储。请使用作用域限定的 Webhook 密钥，而不是可重复使用的账户密码或长期基础设施令牌。
 
-## Configure a backup hook
+## 配置备份钩子
 
-1. Add the webhook origin to `WEBHOOK_ALLOWED_ORIGINS` in the Zerobyte environment.
-2. Restart Zerobyte so the environment change is loaded.
-3. Open **Backups** and select the backup job.
-4. Edit the job and expand **Advanced**.
-5. Fill **Pre-backup webhook** or **Post-backup webhook**.
-6. Add any required headers.
-7. Leave the body empty unless the receiving service requires a custom payload.
-8. Save the backup job and run **Backup now** to test the lifecycle.
+1. 将 Webhook 来源添加到 Zerobyte 环境变量 `WEBHOOK_ALLOWED_ORIGINS` 中。
+2. 重启 Zerobyte 以加载环境变量更改。
+3. 打开**备份**并选择备份作业。
+4. 编辑作业并展开**高级**。
+5. 填写**备份前 Webhook** 或**备份后 Webhook**。
+6. 添加任何必需的标头。
+7. 除非接收服务需要自定义负载，否则将体字段留空。
+8. 保存备份作业并运行**立即备份**以测试生命周期。
 
-For Docker Compose on Linux, `host.docker.internal` usually needs an explicit host gateway entry:
+对于 Linux 上的 Docker Compose，`host.docker.internal` 通常需要显式的主机网关条目：
 
 ```yaml docker-compose.yml
 services:
@@ -90,38 +90,38 @@ services:
       - WEBHOOK_ALLOWED_ORIGINS=http://host.docker.internal:9000
 ```
 
-## How-to: stop and start a Postgres container with adnanh/webhook
+## 实践：使用 adnanh/webhook 启停 Postgres 容器
 
-This example runs [`adnanh/webhook`](https://github.com/adnanh/webhook) on the Docker host. Zerobyte calls it before and after the backup:
+此示例在 Docker 主机上运行 [`adnanh/webhook`](https://github.com/adnanh/webhook)。Zerobyte 在备份前后调用它：
 
-- Pre-backup hook stops the `postgres` container.
-- Restic backs up the mounted data.
-- Post-backup hook starts the `postgres` container again.
+- 备份前钩子停止 `postgres` 容器。
+- Restic 备份已挂载的数据。
+- 备份后钩子重新启动 `postgres` 容器。
 
 <Callout type="warn">
-  Stopping a database container is a blunt consistency strategy. Use it only when a short outage is acceptable. For larger databases, prefer native database dumps, replication snapshots, or storage-level snapshots.
+  停止数据库容器是一种粗暴的一致性策略。仅在可接受短暂停机时使用。对于大型数据库，建议使用原生数据库转储、复制快照或存储级快照。
 </Callout>
 
-### 1. Install webhook on the Docker host
+### 1. 在 Docker 主机上安装 webhook
 
-On Debian or Ubuntu:
+在 Debian 或 Ubuntu 上：
 
 ```bash
 sudo apt-get update
 sudo apt-get install webhook
 ```
 
-`webhook` serves configured hooks at `/hooks/<hook-id>`. The default port is `9000`, and the `-hooks` flag points to the JSON or YAML hook file.
+`webhook` 在 `/hooks/<hook-id>` 提供已配置的钩子。默认端口为 `9000`，`-hooks` 标志指向 JSON 或 YAML 钩子文件。
 
-### 2. Create hook scripts
+### 2. 创建钩子脚本
 
-Create a directory for the scripts:
+为脚本创建目录：
 
 ```bash
 sudo mkdir -p /opt/zerobyte-hooks
 ```
 
-Create `/opt/zerobyte-hooks/stop-postgres.sh`:
+创建 `/opt/zerobyte-hooks/stop-postgres.sh`：
 
 ```sh
 #!/bin/sh
@@ -136,7 +136,7 @@ if [ "$STATE" = "true" ]; then
 fi
 ```
 
-Create `/opt/zerobyte-hooks/start-postgres.sh`:
+创建 `/opt/zerobyte-hooks/start-postgres.sh`：
 
 ```sh
 #!/bin/sh
@@ -151,17 +151,17 @@ if [ "$STATE" != "true" ]; then
 fi
 ```
 
-Make both scripts executable:
+使两个脚本可执行：
 
 ```bash
 sudo chmod +x /opt/zerobyte-hooks/stop-postgres.sh /opt/zerobyte-hooks/start-postgres.sh
 ```
 
-If your container has a different name, change `CONTAINER=postgres` in both scripts.
+如果您的容器名称不同，请更改两个脚本中的 `CONTAINER=postgres`。
 
-### 3. Create the webhook config
+### 3. 创建 Webhook 配置
 
-Create `/opt/zerobyte-hooks/hooks.json`:
+创建 `/opt/zerobyte-hooks/hooks.json`：
 
 ```json
 [
@@ -202,17 +202,17 @@ Create `/opt/zerobyte-hooks/hooks.json`:
 ]
 ```
 
-Use the same secret in both hook definitions. `include-command-output-in-response` makes `webhook` wait for the script and return an error response if the command fails, which lets Zerobyte stop the backup when the pre-backup hook cannot stop Postgres.
+在两个钩子定义中使用相同的密钥。`include-command-output-in-response` 使 `webhook` 等待脚本执行完成，并在命令失败时返回错误响应，这允许 Zerobyte 在备份前钩子无法停止 Postgres 时停止备份。
 
-### 4. Start webhook
+### 4. 启动 Webhook
 
-Run it in the foreground first:
+首先在前台运行：
 
 ```bash
 sudo webhook -hooks /opt/zerobyte-hooks/hooks.json -port 9000 -verbose -http-methods POST
 ```
 
-In another shell, test both hooks:
+在另一个 shell 中测试两个钩子：
 
 ```bash
 curl -X POST \
@@ -224,11 +224,11 @@ curl -X POST \
   http://localhost:9000/hooks/start-postgres
 ```
 
-Once the test works, run `webhook` under your normal process manager.
+测试通过后，使用常规进程管理器运行 `webhook`。
 
-### 5. Allow Zerobyte to call the webhook server
+### 5. 允许 Zerobyte 调用 Webhook 服务器
 
-Add the webhook server origin to Zerobyte:
+将 Webhook 服务器来源添加到 Zerobyte：
 
 ```yaml docker-compose.yml
 services:
@@ -239,37 +239,37 @@ services:
       - WEBHOOK_ALLOWED_ORIGINS=http://host.docker.internal:9000
 ```
 
-Restart Zerobyte:
+重启 Zerobyte：
 
 ```bash
 docker compose up -d
 ```
 
-### 6. Add the hooks to the backup job
+### 6. 将钩子添加到备份作业
 
-Open the backup job in Zerobyte, edit it, and expand **Advanced**.
+在 Zerobyte 中打开备份作业，编辑它，并展开**高级**。
 
-Use these values:
+使用以下值：
 
 ```text
-Pre-backup webhook: http://host.docker.internal:9000/hooks/stop-postgres
-Pre-backup webhook headers:
+备份前 Webhook: http://host.docker.internal:9000/hooks/stop-postgres
+备份前 Webhook 标头:
 X-Zerobyte-Hook-Secret: replace-with-a-long-random-secret
 
-Post-backup webhook: http://host.docker.internal:9000/hooks/start-postgres
-Post-backup webhook headers:
+备份后 Webhook: http://host.docker.internal:9000/hooks/start-postgres
+备份后 Webhook 标头:
 X-Zerobyte-Hook-Secret: replace-with-a-long-random-secret
 ```
 
-Leave both body fields empty. Zerobyte will send the default JSON context body.
+将两个体字段留空。Zerobyte 将发送默认的 JSON 上下文体。
 
-Run **Backup now**. If the stop hook fails or returns a non-`2xx` response, Zerobyte fails the backup before Restic starts. If the start hook fails after Restic finishes, Zerobyte records the problem in the run details so you can restart the container manually.
+运行**立即备份**。如果停止钩子失败或返回非 `2xx` 响应，Zerobyte 会在 Restic 启动前使备份失败。如果启动钩子在 Restic 完成后失败，Zerobyte 会将问题记录在运行详情中，以便您可以手动重启容器。
 
-### 7. Run webhook as a service
+### 7. 将 Webhook 作为服务运行
 
-After the foreground test works, create a small systemd unit so `webhook` starts on boot.
+前台测试通过后，创建一个小的 systemd 单元，使 `webhook` 在启动时自动运行。
 
-Create `/etc/systemd/system/zerobyte-webhook.service`:
+创建 `/etc/systemd/system/zerobyte-webhook.service`：
 
 ```ini
 [Unit]
@@ -288,7 +288,7 @@ RestartSec=5s
 WantedBy=multi-user.target
 ```
 
-Enable and start it:
+启用并启动它：
 
 ```bash
 sudo systemctl daemon-reload
@@ -296,7 +296,7 @@ sudo systemctl enable --now zerobyte-webhook.service
 sudo systemctl status zerobyte-webhook.service
 ```
 
-Check logs with:
+查看日志：
 
 ```bash
 sudo journalctl -u zerobyte-webhook.service -f

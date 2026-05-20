@@ -1,33 +1,33 @@
 ---
-title: Tailscale Sidecar
-description: Run Zerobyte behind a Tailscale VPN for secure remote access
+title: Tailscale 边车
+description: 通过 Tailscale VPN 安全远程访问 Zerobyte
 ---
 
-Run Zerobyte behind a Tailscale sidecar container so the web UI is accessible over your private tailnet without exposing ports to the public internet.
+通过 Tailscale 边车容器运行 Zerobyte，使 Web UI 可通过您的私有 tailnet 访问，无需向公共互联网暴露端口。
 
-## What is Tailscale?
+## 什么是 Tailscale？
 
-[Tailscale](https://tailscale.com/) is a mesh VPN built on WireGuard. It connects devices and containers into a private network ("tailnet") without opening inbound ports on your router.
+[Tailscale](https://tailscale.com/) 是一个基于 WireGuard 的 mesh VPN。它将设备和容器连接到一个私有网络（"tailnet"），无需在路由器上打开入站端口。
 
-In this setup, Tailscale acts as a secure access layer in front of Zerobyte:
+在此设置中，Tailscale 充当 Zerobyte 前面的安全访问层：
 
-- You reach Zerobyte using the node's tailnet IP or MagicDNS name
-- Access can be restricted using Tailscale ACLs and tags
-- No port forwarding or public exposure required
+- 您通过节点的 tailnet IP 或 MagicDNS 名称访问 Zerobyte
+- 可以使用 Tailscale ACL 和标签限制访问
+- 无需端口转发或公网暴露
 
-## Prerequisites
+## 前提条件
 
-- Docker and Docker Compose
-- A [Tailscale account](https://tailscale.com/) and an [auth key](https://login.tailscale.com/admin/settings/keys)
+- Docker 和 Docker Compose
+- 一个 [Tailscale 账户](https://tailscale.com/) 和一个[认证密钥](https://login.tailscale.com/admin/settings/keys)
 
-## Setup
+## 设置步骤
 
-This example uses a sidecar networking pattern where Zerobyte shares the Tailscale container's network namespace.
+此示例使用边车网络模式，Zerobyte 共享 Tailscale 容器的网络命名空间。
 
 <Steps>
 <Step>
 
-### Create docker-compose.yml
+### 创建 docker-compose.yml
 
 ```yaml docker-compose.yml
 services:
@@ -47,7 +47,7 @@ services:
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
     volumes:
       - /var/lib/tailscale:/var/lib/tailscale
-    # Remove this section to make Zerobyte only accessible via Tailscale
+    # 移除本节以使 Zerobyte 仅可通过 Tailscale 访问
     ports:
       - "4096:4096"
 
@@ -55,7 +55,7 @@ services:
     image: ghcr.io/nicotsx/zerobyte:latest
     container_name: zerobyte
     restart: unless-stopped
-    # Uncomment if you need remote mounts (NFS/SMB/WebDAV):
+    # 如果需要远程挂载（NFS/SMB/WebDAV），取消注释：
     # cap_add:
     #   - SYS_ADMIN
     # devices:
@@ -75,14 +75,14 @@ services:
 </Step>
 <Step>
 
-### Create .env file
+### 创建 .env 文件
 
 ```bash .env
 TS_AUTHKEY=tskey-auth-xxxxx
 TS_HOSTNAME=zerobyte
-APP_SECRET=your-secret-here  # Generate with: openssl rand -hex 32
+APP_SECRET=your-secret-here  # 使用以下命令生成：openssl rand -hex 32
 TZ=UTC
-# Optional:
+# 可选：
 # TS_EXTRA_ARGS=--advertise-tags=tag:backup
 # TS_USERSPACE=false
 ```
@@ -90,7 +90,7 @@ TZ=UTC
 </Step>
 <Step>
 
-### Start the stack
+### 启动服务栈
 
 ```bash
 docker compose up -d
@@ -99,44 +99,44 @@ docker compose up -d
 </Step>
 <Step>
 
-### Verify in Tailscale
+### 在 Tailscale 中验证
 
-Confirm the node appears in your [Tailscale admin console](https://login.tailscale.com/admin/machines). Approve it if your policy requires approval.
+确认节点出现在您的 [Tailscale 管理控制台](https://login.tailscale.com/admin/machines)中。如果您的策略需要批准，请批准该节点。
 
 </Step>
 </Steps>
 
-## Accessing Zerobyte
+## 访问 Zerobyte
 
-Once running, access Zerobyte over your tailnet:
+运行后，通过您的 tailnet 访问 Zerobyte：
 
-- **By IP**: `http://<tailscale-ip>:4096`
-- **By MagicDNS**: `http://zerobyte:4096` (if MagicDNS is enabled)
+- **通过 IP**：`http://<tailscale-ip>:4096`
+- **通过 MagicDNS**：`http://zerobyte:4096`（如果启用了 MagicDNS）
 
-To make Zerobyte accessible **only** via Tailscale, remove the `ports:` section from the `tailscale` service.
+要使 Zerobyte **仅**通过 Tailscale 可访问，请移除 `tailscale` 服务中的 `ports:` 部分。
 
-## Kernel Mode vs Userspace Mode
+## 内核模式与用户空间模式
 
-| Mode | Requirements | Best For |
-|------|-------------|----------|
-| **Kernel** (default) | `/dev/net/tun`, `NET_ADMIN` | Linux servers, best performance |
-| **Userspace** | No special devices | Docker Desktop, restricted hosts |
+| 模式 | 要求 | 适用场景 |
+|------|------|----------|
+| **内核**（默认） | `/dev/net/tun`、`NET_ADMIN` | Linux 服务器，最佳性能 |
+| **用户空间** | 无需特殊设备 | Docker Desktop，受限主机 |
 
-To use userspace mode:
-1. Set `TS_USERSPACE=true` in your `.env`
-2. Remove the `devices: /dev/net/tun` section from the tailscale service
+使用用户空间模式：
+1. 在 `.env` 中设置 `TS_USERSPACE=true`
+2. 移除 tailscale 服务中的 `devices: /dev/net/tun` 部分
 
-## Tailscale-Only Access
+## 仅限 Tailscale 访问
 
-If you want Zerobyte to be reachable **only** via Tailscale (not from the local network), remove the `ports:` section from the `tailscale` service. Zerobyte will still be able to access the internet and your LAN for backup operations, but the UI will only be accessible over Tailscale.
+如果您希望 Zerobyte **仅**通过 Tailscale 可访问（而非本地网络），请移除 `tailscale` 服务中的 `ports:` 部分。Zerobyte 仍然可以访问互联网和您的 LAN 以进行备份操作，但 UI 只能通过 Tailscale 访问。
 
-## Troubleshooting
+## 故障排除
 
-- **TUN device error**: Ensure `/dev/net/tun` exists on the host. Switch to userspace mode if it doesn't.
-- **Node not appearing**: Check the auth key is valid and not expired.
-- **ACL issues**: Set `TS_EXTRA_ARGS=--advertise-tags=tag:backup` and configure ACLs in Tailscale admin.
+- **TUN 设备错误**：确保主机上存在 `/dev/net/tun`。如果不存在，请切换到用户空间模式。
+- **节点未显示**：检查认证密钥是否有效且未过期。
+- **ACL 问题**：设置 `TS_EXTRA_ARGS=--advertise-tags=tag:backup` 并在 Tailscale 管理控制台中配置 ACL。
 
-Verify the tailnet address:
+验证 tailnet 地址：
 
 ```bash
 docker exec zerobyte-tailscale tailscale status

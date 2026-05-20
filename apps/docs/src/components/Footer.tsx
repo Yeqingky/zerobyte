@@ -21,7 +21,7 @@ export default function Footer() {
 							params={{ _splat: "" }}
 							className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 						>
-							Docs
+							文档
 						</Link>
 						<a
 							href={repoUrl}
@@ -36,7 +36,7 @@ export default function Footer() {
 				</div>
 
 				<div className="mt-8 border-t border-border pt-8">
-					<p className="text-center text-sm text-muted-foreground">Open source backup automation for Restic.</p>
+					<p className="text-center text-sm text-muted-foreground">基于 Restic 的开源备份自动化工具。</p>
 				</div>
 			</div>
 		</footer>

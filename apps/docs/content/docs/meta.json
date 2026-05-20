@@ -1,14 +1,14 @@
 {
-	"title": "Documentation",
+	"title": "文档",
 	"pages": [
 		"introduction",
 		"installation",
 		"quickstart",
-		"---Concepts---",
+		"---概念---",
 		"...concepts",
-		"---Guides---",
+		"---指南---",
 		"...guides",
-		"---Reference---",
+		"---参考---",
 		"configuration",
 		"cli",
 		"troubleshooting"

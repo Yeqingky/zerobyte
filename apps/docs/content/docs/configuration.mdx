@@ -1,52 +1,52 @@
 ---
-title: Configuration
-description: Environment variables, Docker settings, and configuration reference
+title: 配置
+description: 环境变量、Docker 设置和配置参考
 ---
 
-Zerobyte is configured through environment variables and Docker Compose settings. This page covers all available options.
+Zerobyte 通过环境变量和 Docker Compose 设置进行配置。本页涵盖所有可用选项。
 
-## Environment Variables
+## 环境变量
 
-### Required
+### 必需
 
-| Variable | Description | Example |
+| 变量 | 描述 | 示例 |
 |----------|-------------|---------|
-| `BASE_URL` | The URL where Zerobyte will be accessed. Controls cookie security and CORS behavior. | `http://localhost:4096` or `https://zerobyte.example.com` |
-| `APP_SECRET` | Random secret key (32+ characters) used to encrypt sensitive data in the database. Generate with `openssl rand -hex 32`. Set this or `APP_SECRET_FILE`, but not both. | `94bad46e...c66e25d5c2b` |
-| `APP_SECRET_FILE` | Alternative to `APP_SECRET`. Path to a file containing the app secret, useful with Docker or Kubernetes secrets. Set this or `APP_SECRET`, but not both. | `/run/secrets/app_secret` |
+| `BASE_URL` | 访问 Zerobyte 的 URL。控制 Cookie 安全和 CORS 行为。 | `http://localhost:4096` 或 `https://zerobyte.example.com` |
+| `APP_SECRET` | 用于加密数据库中敏感数据的随机密钥（32+ 字符）。使用 `openssl rand -hex 32` 生成。设置此项或 `APP_SECRET_FILE`，但不能同时设置两者。 | `94bad46e...c66e25d5c2b` |
+| `APP_SECRET_FILE` | `APP_SECRET` 的替代项。包含应用密钥的文件的路径，适用于 Docker 或 Kubernetes Secrets。设置此项或 `APP_SECRET`，但不能同时设置两者。 | `/run/secrets/app_secret` |
 
 <Callout type="warn">
-  Never share or commit your `APP_SECRET`. If you lose it, encrypted data (credentials stored for volumes and repositories) cannot be recovered.
+  切勿分享或提交你的 `APP_SECRET`。如果丢失，加密数据（为卷和仓库存储的凭据）将无法恢复。
 </Callout>
 
 <Callout type="info">
-  Zerobyte reads the contents of `APP_SECRET_FILE`, trims surrounding whitespace and newlines, and applies the same 32-256 character requirement as `APP_SECRET`.
+  Zerobyte 会读取 `APP_SECRET_FILE` 的内容，去除周围空白和换行，并应用与 `APP_SECRET` 相同的 32-256 字符要求。
 </Callout>
 
-### Recommended
+### 推荐
 
-| Variable | Description | Default |
+| 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
-| `TZ` | Timezone for the container. **Important for accurate backup scheduling.** | `UTC` |
+| `TZ` | 容器的时区。**对于准确的备份调度很重要。** | `UTC` |
 
-### Optional
+### 可选
 
-| Variable | Description | Default |
+| 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
-| `PORT` | Port the web interface and API listen on inside the container. | `4096` |
-| `RESTIC_HOSTNAME` | Hostname used by Restic when creating snapshots. Automatically detected if a custom hostname is set in Docker. | `zerobyte` |
-| `TRUST_PROXY` | Set to `true` to trust `X-Forwarded-For` headers from a reverse proxy. | `false` |
-| `TRUSTED_ORIGINS` | Comma-separated list of additional trusted origins for CORS. | (none) |
-| `WEBHOOK_ALLOWED_ORIGINS` | Comma-separated list of HTTP origins allowed for backup webhooks and outbound HTTP notification destinations. | (none) |
-| `WEBHOOK_TIMEOUT` | Timeout for backup webhook requests in seconds. | `60` |
-| `LOG_LEVEL` | Logging verbosity: `debug`, `info`, `warn`, `error`. | `info` |
-| `SERVER_IDLE_TIMEOUT` | Server idle timeout in seconds. | `60` |
-| `RCLONE_CONFIG_DIR` | Path to the rclone config directory inside the container. | `/root/.config/rclone` |
-| `PROVISIONING_PATH` | Path to a JSON file with operator-managed repositories and volumes to sync at startup. | (none) |
+| `PORT` | 容器内 Web 界面和 API 监听的端口。 | `4096` |
+| `RESTIC_HOSTNAME` | Restic 创建快照时使用的主机名。如果在 Docker 中设置了自定义主机名，则会自动检测。 | `zerobyte` |
+| `TRUST_PROXY` | 设置为 `true` 以信任来自反向代理的 `X-Forwarded-For` 头。 | `false` |
+| `TRUSTED_ORIGINS` | 额外受信任 CORS 来源的逗号分隔列表。 | (无) |
+| `WEBHOOK_ALLOWED_ORIGINS` | 允许用于备份 Webhook 和出站 HTTP 通知目标地址的 HTTP 来源的逗号分隔列表。 | (无) |
+| `WEBHOOK_TIMEOUT` | 备份 Webhook 请求的超时时间（秒）。 | `60` |
+| `LOG_LEVEL` | 日志详细级别：`debug`、`info`、`warn`、`error`。 | `info` |
+| `SERVER_IDLE_TIMEOUT` | 服务器空闲超时时间（秒）。 | `60` |
+| `RCLONE_CONFIG_DIR` | 容器内 rclone 配置目录的路径。 | `/root/.config/rclone` |
+| `PROVISIONING_PATH` | 包含运维管理的仓库和卷的 JSON 文件路径，用于在启动时同步。 | (无) |
 
-## Using APP_SECRET_FILE
+## 使用 APP_SECRET_FILE
 
-If you prefer not to place the app secret directly in `environment:`, mount it as a file and point `APP_SECRET_FILE` at that path.
+如果不希望直接将应用密钥放在 `environment:` 中，可以将其作为文件挂载，并将 `APP_SECRET_FILE` 指向该路径。
 
 ```yaml docker-compose.yml
 services:
@@ -62,36 +62,36 @@ secrets:
     file: ./secrets/app_secret.txt
 ```
 
-Generate the secret file with:
+使用以下命令生成密钥文件：
 
 ```bash
 mkdir -p ./secrets
 openssl rand -hex 32 > ./secrets/app_secret.txt
 ```
 
-Do not set `APP_SECRET` at the same time. Zerobyte will fail to start if both are configured.
+不要同时设置 `APP_SECRET`。如果两者都配置，Zerobyte 将无法启动。
 
-## Docker Compose Settings
+## Docker Compose 设置
 
-### Volume Mounts
+### 卷挂载
 
-Essential volume mounts for Zerobyte:
+Zerobyte 必需的卷挂载：
 
 ```yaml
 volumes:
-  # Sync container time with host (recommended)
+  # 将容器时间与主机同步（推荐）
   - /etc/localtime:/etc/localtime:ro
 
-  # Zerobyte data directory (database, encryption keys, local repositories)
+  # Zerobyte 数据目录（数据库、加密密钥、本地仓库）
   - /var/lib/zerobyte:/var/lib/zerobyte
 ```
 
 <Callout type="warn">
-  **Do not** point `/var/lib/zerobyte` to a network share. This causes permission issues and severe performance degradation. Always use local storage.
+  **请勿**将 `/var/lib/zerobyte` 指向网络共享。这会导致权限问题和严重的性能下降。请始终使用本地存储。
 </Callout>
 
 <Callout type="info">
-  **TrueNAS users**: The `/var/lib` path is ephemeral and resets during system upgrades. Create a dedicated ZFS dataset instead:
+  **TrueNAS 用户**：`/var/lib` 路径是临时的，在系统升级时会重置。请改为创建专用的 ZFS 数据集：
 
   ```yaml
   volumes:
@@ -99,22 +99,22 @@ volumes:
   ```
 </Callout>
 
-#### Additional Volume Mounts
+#### 额外的卷挂载
 
-| Mount | Purpose |
+| 挂载 | 用途 |
 |-------|---------|
-| `/path/to/data:/data:ro` | Mount host directories for local directory backups (use `:ro` for read-only) |
-| `~/.config/rclone:/root/.config/rclone:ro` | Mount rclone configuration for rclone-based repositories and volumes |
-| `~/.ssh:/root/.ssh:ro` | Mount SSH keys for rclone SFTP remotes that use `key_file` |
-| `./provisioning.json:/config/provisioning.json:ro` | Mount a provisioning file for operator-managed resources |
+| `/path/to/data:/data:ro` | 挂载主机目录以进行本地目录备份（使用 `:ro` 表示只读） |
+| `~/.config/rclone:/root/.config/rclone:ro` | 挂载 rclone 配置以用于基于 rclone 的仓库和卷 |
+| `~/.ssh:/root/.ssh:ro` | 挂载用于使用 `key_file` 的 rclone SFTP 远程端点的 SSH 密钥 |
+| `./provisioning.json:/config/provisioning.json:ro` | 挂载用于运维管理资源的自动配置文件 |
 
-### Container Capabilities
+### 容器权限
 
-Zerobyte supports two deployment modes depending on your needs:
+Zerobyte 根据需求支持两种部署模式：
 
-#### Full Installation (with remote mounts)
+#### 完整安装（带远程挂载）
 
-Required for mounting NFS, SMB, WebDAV, and SFTP volumes directly from Zerobyte:
+直接在 Zerobyte 中挂载 NFS、SMB、WebDAV 和 SFTP 卷所需：
 
 ```yaml
 cap_add:
@@ -123,66 +123,66 @@ devices:
   - /dev/fuse:/dev/fuse
 ```
 
-#### Simplified Installation (local directories only)
+#### 简化安装（仅本地目录）
 
-If you only need local directory backups, no special capabilities are required:
+如果只需要本地目录备份，则无需特殊权限：
 
 ```yaml
-# No cap_add or devices needed
+# 不需要 cap_add 或 devices
 ports:
   - "4096:4096"
 ```
 
-### Port Configuration
+### 端口配置
 
-By default, Zerobyte listens on port 4096:
+默认情况下，Zerobyte 监听 4096 端口：
 
 ```yaml
 ports:
   - "4096:4096"
 ```
 
-To bind to localhost only (recommended when using a reverse proxy):
+仅绑定到 localhost（使用反向代理时推荐）：
 
 ```yaml
 ports:
   - "127.0.0.1:4096:4096"
 ```
 
-## Cookie Security
+## Cookie 安全
 
-The `BASE_URL` determines how authentication cookies behave:
+`BASE_URL` 决定身份验证 Cookie 的行为方式：
 
-| BASE_URL | Cookie Behavior |
+| BASE_URL | Cookie 行为 |
 |----------|----------------|
-| `http://192.168.1.50:4096` | Secure cookies **disabled**, allows login over HTTP |
-| `http://localhost:4096` | Secure cookies **disabled**, allows local development |
-| `https://zerobyte.example.com` | Secure cookies **enabled**, requires HTTPS |
+| `http://192.168.1.50:4096` | 安全 Cookie **已禁用**，允许通过 HTTP 登录 |
+| `http://localhost:4096` | 安全 Cookie **已禁用**，允许本地开发 |
+| `https://zerobyte.example.com` | 安全 Cookie **已启用**，需要 HTTPS |
 
 <Callout type="info">
-  If `BASE_URL` starts with `https://`, browsers will only send auth cookies over HTTPS connections. Plain HTTP access may show the login page but authentication will fail.
+  如果 `BASE_URL` 以 `https://` 开头，浏览器将仅通过 HTTPS 连接发送身份验证 Cookie。纯 HTTP 访问可能显示登录页面，但身份验证将失败。
 </Callout>
 
 <Callout type="warn">
-  `TRUSTED_ORIGINS` only allows additional origins for CORS. It does **not** disable secure cookies or make HTTP access work when `BASE_URL` is HTTPS.
+  `TRUSTED_ORIGINS` 仅允许 CORS 的额外来源。当 `BASE_URL` 为 HTTPS 时，它**不会**禁用安全 Cookie 或使 HTTP 访问生效。
 </Callout>
 
-## Secret References
+## 密钥引用
 
-When provisioning volumes or repositories, sensitive fields support secret references:
+自动配置卷或仓库时，敏感字段支持密钥引用：
 
-| Reference | Resolves From | Example |
+| 引用 | 解析来源 | 示例 |
 |-----------|--------------|---------|
-| `env://VARIABLE_NAME` | Container environment variable | `env://S3_SECRET_KEY` |
-| `file://secret_name` | Docker secret at `/run/secrets/secret_name` | `file://smb_password` |
+| `env://VARIABLE_NAME` | 容器环境变量 | `env://S3_SECRET_KEY` |
+| `file://secret_name` | 位于 `/run/secrets/secret_name` 的 Docker Secret | `file://smb_password` |
 
-This allows you to keep credentials in your deployment configuration rather than writing them directly into the provisioning file.
+这使你可以将凭据保留在部署配置中，而不是直接写入自动配置文件中。
 
 <Callout type="info">
-  The standard volume and repository forms in the UI currently store the value you enter, encrypted at rest. `env://` and `file://` references are only resolved during provisioning.
+  UI 中的标准卷和仓库表单当前会存储你输入的值（静态加密）。`env://` 和 `file://` 引用仅在自动配置期间解析。
 </Callout>
 
-### Example with Docker Secrets
+### Docker Secrets 示例
 
 ```yaml docker-compose.yml
 services:
@@ -199,13 +199,13 @@ secrets:
     file: ./secrets/s3_secret_key.txt
 ```
 
-In the provisioning file, reference these as:
-- Access Key: `env://S3_ACCESS_KEY`
-- Secret Key: `file://s3_secret_key`
+在自动配置文件中，按如下方式引用：
+- 访问密钥：`env://S3_ACCESS_KEY`
+- 密钥：`file://s3_secret_key`
 
-## Updating Zerobyte
+## 更新 Zerobyte
 
-To update to a new version:
+更新到新版本：
 
 ```bash
 docker compose pull
@@ -214,7 +214,7 @@ docker compose logs -f zerobyte
 ```
 
 <Callout type="warn">
-  Always check the [release notes](https://github.com/nicotsx/zerobyte/releases) before updating, especially for v0.x.x versions which may include breaking changes.
+  更新前请务必查看[发布说明](https://github.com/nicotsx/zerobyte/releases)，特别是 v0.x.x 版本可能包含破坏性变更。
 </Callout>
 
 import { Step, Steps } from "fumadocs-ui/components/steps";

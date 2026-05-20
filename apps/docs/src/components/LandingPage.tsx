@@ -38,158 +38,158 @@ const primaryButtonClass = `${buttonBaseClass} h-10 bg-strong-accent px-6 text-w
 const outlineButtonClass = `${buttonBaseClass} h-10 border border-border bg-background px-6 shadow-xs hover:bg-accent hover:text-accent-foreground`;
 
 const trustItems: Array<{ icon: LucideIcon; label: string }> = [
-	{ icon: Shield, label: "Open source" },
-	{ icon: Database, label: "Built on Restic" },
-	{ icon: Lock, label: "End-to-end encrypted" },
-	{ icon: Layers, label: "Incremental & deduplicated" },
-	{ icon: Cloud, label: "Multi-backend support" },
+	{ icon: Shield, label: "开源" },
+	{ icon: Database, label: "基于 Restic" },
+	{ icon: Lock, label: "端到端加密" },
+	{ icon: Layers, label: "增量与去重" },
+	{ icon: Cloud, label: "多后端支持" },
 ];
 
 const problems: Array<{ icon: LucideIcon; text: string }> = [
-	{ icon: AlertTriangle, text: "Jobs fail quietly until you need a restore." },
-	{ icon: Settings, text: "Different storage backends lead to one-off scripts and fragile setup." },
-	{ icon: Clock, text: "Retention policies get buried in config nobody wants to touch." },
-	{ icon: Wrench, text: "Repository locks and health issues only show up when something is already broken." },
-	{ icon: FileQuestion, text: "Restore workflows stay untested until the pressure is high." },
+	{ icon: AlertTriangle, text: "备份任务悄悄失败，直到需要恢复时才发现。" },
+	{ icon: Settings, text: "不同的存储后端导致一堆一次性脚本和脆弱的配置。" },
+	{ icon: Clock, text: "保留策略被埋没在没人想碰的配置文件里。" },
+	{ icon: Wrench, text: "仓库锁和健康问题只在出问题时才显现。" },
+	{ icon: FileQuestion, text: "恢复流程从未被测试，直到压力来临时。" },
 ];
 
 const solutions: Array<{ icon: LucideIcon; title: string; description: string }> = [
 	{
 		icon: CalendarClock,
-		title: "Schedule with confidence",
+		title: "自信地安排计划",
 		description:
-			"Create backup jobs with cron-based schedules, retention policies, include and exclude rules, and manual runs when you need an extra snapshot before a risky change.",
+			"创建基于 cron 的备份计划、保留策略、包含和排除规则，并支持在变更前手动运行额外快照。",
 	},
 	{
 		icon: HardDrive,
-		title: "Protect data wherever it lives",
+		title: "保护任何位置的数据",
 		description:
-			"Back up local directories plus NFS, SMB/CIFS, WebDAV, SFTP, and rclone-backed sources from the same interface.",
+			"从同一界面备份本地目录以及 NFS、SMB/CIFS、WebDAV、SFTP 和 rclone 支持的数据源。",
 	},
 	{
 		icon: Database,
-		title: "Keep storage flexible",
+		title: "灵活选择存储",
 		description:
-			"Write encrypted snapshots to local repositories, S3-compatible storage, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, REST servers, SFTP targets, and 40+ providers through rclone.",
+			"将加密快照写入本地仓库、S3 兼容存储、Cloudflare R2、Google Cloud Storage、Azure Blob Storage、REST 服务器、SFTP 目标以及通过 rclone 连接的 40+ 提供商。",
 	},
 	{
 		icon: RotateCcw,
-		title: "Restore what you need",
+		title: "按需恢复",
 		description:
-			"Browse snapshots in the UI and restore individual files, directories, or larger paths without dropping back to the CLI.",
+			"在 UI 中浏览快照，恢复单个文件、目录或更大路径，无需回到命令行。",
 	},
 	{
 		icon: Bell,
-		title: "Catch problems before they become incidents",
+		title: "在问题变成事故前发现它们",
 		description:
-			"Track run status, next backup time, snapshot history, repository health, and send alerts to Slack, Discord, email, ntfy, Telegram, webhooks, and more.",
+			"跟踪运行状态、下次备份时间、快照历史、仓库健康度，并通过 Slack、Discord、邮件、ntfy、Telegram、webhook 等发送告警。",
 	},
 	{
 		icon: ShieldCheck,
-		title: "Operate securely",
+		title: "安全运维",
 		description:
-			"Zerobyte is organization-scoped, supports roles and invitations, offers OIDC-based SSO, and encrypts sensitive credentials before storage.",
+			"Zerobyte 基于组织范围管理，支持角色和邀请，提供基于 OIDC 的 SSO，并在存储前加密敏感凭据。",
 	},
 ];
 
 const features: Array<{ icon: LucideIcon; title: string; description: string }> = [
 	{
 		icon: Lock,
-		title: "Encrypted by design",
-		description: "Data gets encrypted before it leaves the source, so your storage backend never sees plaintext.",
+		title: "天生加密",
+		description: "数据在离开源端前即被加密，存储后端永远看不到明文。",
 	},
 	{
 		icon: Zap,
-		title: "Incremental and deduplicated",
-		description: "After the first run, only changed data is transferred and stored.",
+		title: "增量与去重",
+		description: "首次运行后，仅传输和存储变更的数据。",
 	},
 	{
 		icon: Settings,
-		title: "Compression controls",
-		description: "Choose auto, off, or max compression to balance CPU time and storage cost.",
+		title: "压缩控制",
+		description: "选择自动、关闭或最大压缩，平衡 CPU 时间和存储成本。",
 	},
 	{
 		icon: Copy,
-		title: "Mirror repositories",
-		description: "Copy snapshots to additional repositories for geographic redundancy or provider diversification.",
+		title: "仓库镜像",
+		description: "将快照复制到额外仓库，实现地理冗余或提供商多样化。",
 	},
 	{
 		icon: Wrench,
-		title: "Repository maintenance",
-		description: "Run Doctor, unlock stale repositories, and refresh repository statistics from the UI.",
+		title: "仓库维护",
+		description: "从 UI 运行 Doctor、解锁过期仓库、刷新仓库统计信息。",
 	},
 	{
 		icon: Container,
-		title: "Operator-friendly deployment",
-		description: "Self-host with Docker Compose and manage backups from a web interface your team can actually use.",
+		title: "运维友好部署",
+		description: "使用 Docker Compose 自行托管，通过你的团队真正能用的 Web 界面管理备份。",
 	},
 ];
 
 const steps = [
 	{
 		number: "1",
-		title: "Connect a volume",
-		description: "Add a local directory, NAS share, remote filesystem, or rclone-backed source.",
+		title: "连接存储卷",
+		description: "添加本地目录、NAS 共享、远程文件系统或 rclone 支持的数据源。",
 	},
 	{
 		number: "2",
-		title: "Create a repository",
+		title: "创建仓库",
 		description:
-			"Choose where encrypted snapshots should live and configure compression, bandwidth limits, or imported repository settings.",
+			"选择加密快照的存储位置，配置压缩、带宽限制或导入已有仓库设置。",
 	},
 	{
 		number: "3",
-		title: "Set your schedule",
-		description: "Define when backups run, how long snapshots stay, and which paths to include or exclude.",
+		title: "设置计划",
+		description: "定义备份运行时间、快照保留时长，以及包含或排除的路径。",
 	},
 	{
 		number: "4",
-		title: "Monitor and restore",
+		title: "监控与恢复",
 		description:
-			"Watch backup progress, review snapshot history, receive notifications, and restore exactly what you need.",
+			"查看备份进度、回顾快照历史、接收通知，并精确恢复你需要的数据。",
 	},
 ];
 
 const benefits = [
-	"You keep Restic's encryption, deduplication, and incremental snapshots.",
-	"You gain scheduling, monitoring, restore workflows, repository maintenance, and team access controls.",
-	"You keep your choice of storage backend instead of being tied to a single vendor.",
+	"保留 Restic 的加密、去重和增量快照能力。",
+	"获得计划调度、监控、恢复流程、仓库维护和团队访问控制。",
+	"自由选择存储后端，不受单一供应商限制。",
 ];
 
 const faqs = [
 	{
-		question: "Is Zerobyte a backup engine or a UI for Restic?",
+		question: "Zerobyte 是备份引擎还是 Restic 的 UI？",
 		answer:
-			"Zerobyte is a Restic-based backup automation tool. It gives you a web control plane for scheduling, managing, monitoring, restoring, and maintaining Restic backups.",
+			"Zerobyte 是一个基于 Restic 的备份自动化工具。它为您提供一个 Web 控制平面，用于调度、管理、监控、恢复和维护 Restic 备份。",
 	},
 	{
-		question: "What can I back up with Zerobyte?",
+		question: "Zerobyte 可以备份什么？",
 		answer:
-			"You can back up local directories, NFS shares, SMB/CIFS shares, WebDAV endpoints, SFTP locations, and rclone-backed sources.",
+			"您可以备份本地目录、NFS 共享、SMB/CIFS 共享、WebDAV 端点、SFTP 位置以及 rclone 支持的数据源。",
 	},
 	{
-		question: "Where can I store backups?",
+		question: "备份数据可以存储在哪里？",
 		answer:
-			"Zerobyte supports local repositories, S3-compatible storage, Cloudflare R2, Google Cloud Storage, Azure Blob Storage, REST servers, SFTP targets, and many additional providers through rclone.",
+			"Zerobyte 支持本地仓库、S3 兼容存储、Cloudflare R2、Google Cloud Storage、Azure Blob Storage、REST 服务器、SFTP 目标，以及通过 rclone 连接的众多其他提供商。",
 	},
 	{
-		question: "Is my data encrypted?",
+		question: "我的数据是加密的吗？",
 		answer:
-			"Yes. Zerobyte relies on Restic's end-to-end encryption for repository data, and sensitive credentials stored by the app are encrypted before they are written to the database.",
+			"是的。Zerobyte 依赖 Restic 对仓库数据进行端到端加密，应用程序存储的敏感凭据在写入数据库前也会被加密。",
 	},
 	{
-		question: "Can I restore individual files?",
+		question: "可以恢复单个文件吗？",
 		answer:
-			"Yes. You can browse snapshots from the web interface and restore individual files, directories, or larger paths to the original or an alternate location.",
+			"可以。您可以通过 Web 界面浏览快照，将单个文件、目录或更大路径恢复到原始位置或其他位置。",
 	},
 	{
-		question: "Can teams use Zerobyte?",
+		question: "团队可以使用 Zerobyte 吗？",
 		answer:
-			"Yes. Zerobyte is organization-scoped and supports roles, invitations, and OIDC-based SSO for managed access.",
+			"可以。Zerobyte 基于组织范围管理，支持角色、邀请和基于 OIDC 的 SSO 进行访问控制。",
 	},
 	{
-		question: "How do I deploy it?",
-		answer: "Zerobyte is designed to be self-hosted and can be deployed with Docker Compose.",
+		question: "如何部署？",
+		answer: "Zerobyte 设计为自托管，可以使用 Docker Compose 部署。",
 	},
 ];
 
@@ -213,7 +213,7 @@ function BrowserMockup() {
 					src={screenshot1440Url}
 					srcSet={`${screenshot768Url} 768w, ${screenshot1440Url} 1440w`}
 					sizes="(min-width: 1100px) 55vw, 100vw"
-					alt="Zerobyte backups dashboard"
+					alt="Zerobyte 备份仪表盘"
 					width={1440}
 					height={810}
 					fetchPriority="high"
@@ -236,27 +236,27 @@ export default function LandingPage() {
 						<div className="grid items-center gap-12 min-[1100px]:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] min-[1100px]:gap-8 lg:gap-12">
 							<div className="text-left">
 								<p className="mb-4 text-sm font-medium uppercase tracking-wider text-strong-accent">
-									Open Source Backup Control Plane
+									开源备份控制平面
 								</p>
 								<h1 className="text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-									Backups you can finally forget about
+									让你终于可以忘记的备份
 								</h1>
 								<p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-									Zerobyte gives you a clean web interface to schedule, monitor, restore, and maintain encrypted backups
-									across local disks, NAS shares, remote servers, and cloud storage.
+									Zerobyte 提供简洁的 Web 界面，让你跨本地磁盘、NAS 共享、远程服务器和云存储，
+									轻松调度、监控、恢复和维护加密备份。
 								</p>
 								<div className="mt-10 flex flex-wrap gap-3">
 									<Link to="/docs/$" params={{ _splat: "" }} className={primaryButtonClass}>
-										Documentation
+										文档
 										<ArrowRight className="h-4 w-4" />
 									</Link>
 									<a href={repoUrl} target="_blank" rel="noopener noreferrer" className={outlineButtonClass}>
 										<GithubLogoIcon className="h-4 w-4" />
-										View on GitHub
+										在 GitHub 上查看
 									</a>
 								</div>
 								<p className="mt-6 max-w-xl text-sm text-muted-foreground">
-									Self-hosted. Restic-powered. Built for operators who want fewer scripts and more visibility.
+									自托管 · 基于 Restic · 为想要更少脚本和更多可见性的运维人员打造
 								</p>
 							</div>
 							<div className="min-[1100px]:-mr-8 xl:-mr-12">
@@ -283,10 +283,10 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Backups are easy to start and hard to trust
+								备份容易开始，难以信赖
 							</h2>
 							<p className="mt-4 text-lg text-muted-foreground">
-								A few commands and a cron job can get backups running. Keeping them reliable is the hard part.
+								几条命令和一个 cron 任务就能让备份跑起来。但让它们保持可靠才是真正的难点。
 							</p>
 							<ul className="mt-10 space-y-5">
 								{problems.map((problem) => (
@@ -306,11 +306,10 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl text-center">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Zerobyte puts a real control plane on top of Restic
+								Zerobyte 在 Restic 之上构建了真正的控制平面
 							</h2>
 							<p className="mt-4 text-lg text-muted-foreground">
-								Instead of stitching together CLI commands, cron, and ad hoc monitoring, you manage the full backup
-								lifecycle from one place.
+								无需拼凑 CLI 命令、cron 和临时监控，从一个地方管理完整的备份生命周期。
 							</p>
 						</div>
 						<div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -331,7 +330,7 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl text-center">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Everything you need to run serious backups
+								运行严肃备份所需的一切
 							</h2>
 						</div>
 						<div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -354,7 +353,7 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl text-center">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								From source to snapshot in four steps
+								从数据源到快照，只需四步
 							</h2>
 						</div>
 						<div className="relative mt-16">
@@ -379,7 +378,7 @@ export default function LandingPage() {
 						</div>
 						<div className="mt-16 text-center">
 							<Link to="/docs/$" params={{ _splat: "" }} className={outlineButtonClass}>
-								Read the Docs
+								阅读文档
 								<ArrowRight className="h-4 w-4" />
 							</Link>
 						</div>
@@ -390,11 +389,10 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Built for the gap between raw CLI power and real-world operations
+								为 CLI 强大功能与实际运维之间的鸿沟而生
 							</h2>
 							<p className="mt-4 text-lg text-muted-foreground">
-								Restic is excellent at creating secure, efficient backups. Zerobyte makes that power practical day to
-								day.
+								Restic 擅长创建安全高效的备份。Zerobyte 让这种能力在日常中变得实用。
 							</p>
 							<ul className="mt-10 space-y-4">
 								{benefits.map((benefit) => (
@@ -414,7 +412,7 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl">
 							<h2 className="text-balance text-center text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Frequently asked questions
+								常见问题
 							</h2>
 							<div className="mt-12">
 								<Accordion defaultValue={[faqs[0].question]}>
@@ -436,24 +434,23 @@ export default function LandingPage() {
 					<div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
 						<div className="mx-auto max-w-3xl text-center">
 							<h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-								Stop babysitting backup scripts
+								别再" babysitting "备份脚本了
 							</h2>
 							<p className="mt-4 text-lg text-muted-foreground">
-								Give your setup a control plane that operators can actually use.
+								给你的基础设施一个运维人员真正能用的控制平面。
 							</p>
 							<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
 								<Link to="/docs/$" params={{ _splat: "" }} className={primaryButtonClass}>
-									Documentation
+									文档
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 								<a href={repoUrl} target="_blank" rel="noopener noreferrer" className={outlineButtonClass}>
 									<GithubLogoIcon className="h-4 w-4" />
-									View on GitHub
+									在 GitHub 上查看
 								</a>
 							</div>
 							<p className="mt-8 text-sm text-muted-foreground">
-								Self-host Zerobyte and bring scheduling, visibility, restores, and repository maintenance into one
-								place.
+								自托管 Zerobyte，将计划调度、可见性、恢复和仓库维护整合到一个地方。
 							</p>
 						</div>
 					</div>

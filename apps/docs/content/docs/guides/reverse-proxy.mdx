@@ -1,47 +1,47 @@
 ---
-title: Reverse Proxy
-description: Run Zerobyte behind Nginx, Caddy, or Traefik with HTTPS
+title: 反向代理
+description: 在 Nginx、Caddy 或 Traefik 后面通过 HTTPS 运行 Zerobyte
 ---
 
-When running Zerobyte behind a reverse proxy, you need to configure the `BASE_URL` environment variable with your HTTPS domain and ensure your proxy passes the correct headers.
+在反向代理后面运行 Zerobyte 时，您需要配置 `BASE_URL` 环境变量指向您的 HTTPS 域名，并确保代理传递正确的请求头。
 
-## Prerequisites
+## 前提条件
 
-Set the following environment variables in your `docker-compose.yml`:
+在您的 `docker-compose.yml` 中设置以下环境变量：
 
 ```yaml docker-compose.yml
 environment:
   - BASE_URL=https://zerobyte.example.com
-  - TRUST_PROXY=true  # Optional: trust X-Forwarded-For headers from your proxy
+  - TRUST_PROXY=true  # 可选：信任来自代理的 X-Forwarded-For 请求头
 ```
 
-Restart the container after making changes:
+修改后重启容器：
 
 ```bash
 docker compose down && docker compose up -d
 ```
 
-## How BASE_URL affects cookie security
+## BASE_URL 对 Cookie 安全性的影响
 
-Zerobyte uses `BASE_URL` to determine whether authentication cookies should be marked as `Secure`. This directly affects how login sessions work:
+Zerobyte 使用 `BASE_URL` 来确定认证 Cookie 是否应标记为 `Secure`。这直接影响登录会话的工作方式：
 
-| BASE_URL value | Cookie behavior |
+| BASE_URL 值 | Cookie 行为 |
 |---|---|
-| `http://` or IP address (e.g., `http://192.168.1.100:4096`) | Secure cookies **disabled**, cookies sent over HTTP. Suitable for local network access. |
-| `https://` with domain (e.g., `https://zerobyte.example.com`) | Secure cookies **enabled**, cookies only sent over HTTPS. Required for production. |
+| `http://` 或 IP 地址（例如 `http://192.168.1.100:4096`） | Secure Cookie **禁用**，Cookie 通过 HTTP 发送。适用于本地网络访问。 |
+| `https://` 域名（例如 `https://zerobyte.example.com`） | Secure Cookie **启用**，Cookie 仅通过 HTTPS 发送。生产环境必须使用此设置。 |
 
 <Callout type="warn">
-If `BASE_URL` is set to an `https://` address, browsers will **only** send authentication cookies over HTTPS connections. Accessing Zerobyte over plain HTTP will fail with login loops or session errors. Make sure your reverse proxy terminates TLS before forwarding to Zerobyte.
+如果 `BASE_URL` 设置为 `https://` 地址，浏览器将**仅**通过 HTTPS 连接发送认证 Cookie。通过普通 HTTP 访问 Zerobyte 将导致登录循环或会话错误。请确保您的反向代理在将请求转发到 Zerobyte 之前已终止 TLS。
 </Callout>
 
-## Proxy configurations
+## 代理配置
 
 <Tabs items={["Nginx", "Caddy", "Traefik"]}>
 <Tab value="Nginx">
 
 ### Nginx
 
-Create a server block for Zerobyte. This configuration handles TLS termination and forwards requests to the container:
+为 Zerobyte 创建一个 server 块。此配置负责 TLS 终止并将请求转发到容器：
 
 ```nginx nginx.conf
 server {
@@ -61,7 +61,7 @@ server {
 }
 ```
 
-Reload Nginx after saving:
+保存后重新加载 Nginx：
 
 ```bash
 sudo nginx -t && sudo systemctl reload nginx
@@ -73,7 +73,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ### Caddy
 
-Caddy automatically provisions and renews TLS certificates from Let's Encrypt. Add this to your `Caddyfile`:
+Caddy 会自动从 Let's Encrypt 申请和续期 TLS 证书。将此内容添加到您的 `Caddyfile` 中：
 
 ```text Caddyfile
 zerobyte.example.com {
@@ -81,13 +81,13 @@ zerobyte.example.com {
 }
 ```
 
-Reload Caddy after saving:
+保存后重新加载 Caddy：
 
 ```bash
 sudo systemctl reload caddy
 ```
 
-Caddy automatically handles `X-Forwarded-For`, `X-Forwarded-Proto`, and TLS, with no extra configuration needed.
+Caddy 会自动处理 `X-Forwarded-For`、`X-Forwarded-Proto` 和 TLS，无需额外配置。
 
 </Tab>
 
@@ -95,7 +95,7 @@ Caddy automatically handles `X-Forwarded-For`, `X-Forwarded-Proto`, and TLS, wit
 
 ### Traefik
 
-If you run Traefik as your reverse proxy, add labels to the Zerobyte service in your `docker-compose.yml`:
+如果您使用 Traefik 作为反向代理，请在 `docker-compose.yml` 中为 Zerobyte 服务添加标签：
 
 ```yaml docker-compose.yml
 services:
@@ -117,62 +117,62 @@ services:
       - /var/lib/zerobyte:/var/lib/zerobyte
 ```
 
-Make sure your Traefik instance is configured with a `websecure` entrypoint and a `letsencrypt` certificate resolver.
+确保您的 Traefik 实例配置了 `websecure` 入口点和 `letsencrypt` 证书解析器。
 
 </Tab>
 </Tabs>
 
-## Binding to localhost
+## 绑定到 localhost
 
-If you are using a reverse proxy on the same machine, bind the Zerobyte port to `127.0.0.1` so it is not directly accessible from the network:
+如果您在同一台机器上使用反向代理，请将 Zerobyte 端口绑定到 `127.0.0.1`，使其无法从网络直接访问：
 
 ```yaml docker-compose.yml
 ports:
   - "127.0.0.1:4096:4096"
 ```
 
-This ensures all traffic goes through your reverse proxy, which handles TLS and authentication headers.
+这样可以确保所有流量都经过您的反向代理，由反向代理处理 TLS 和认证请求头。
 
-## Security considerations
+## 安全注意事项
 
 <Callout type="warn">
-**Exposing Zerobyte to the internet requires care.** Even behind a reverse proxy with HTTPS, make sure you:
+**将 Zerobyte 暴露到互联网需要谨慎。** 即使使用了带有 HTTPS 的反向代理，请确保您：
 
-- Bind the container port to localhost only (`127.0.0.1:4096:4096`) so it cannot be accessed directly.
-- Use a strong `APP_SECRET` (generated with `openssl rand -hex 32`).
-- Keep Zerobyte updated to the latest version.
-- Consider placing Zerobyte behind a secure tunnel (Cloudflare Tunnel, Tailscale, WireGuard) for an additional layer of protection.
+- 仅将容器端口绑定到 localhost（`127.0.0.1:4096:4096`），使其无法被直接访问。
+- 使用强 `APP_SECRET`（使用 `openssl rand -hex 32` 生成）。
+- 保持 Zerobyte 更新到最新版本。
+- 考虑将 Zerobyte 放在安全隧道（Cloudflare Tunnel、Tailscale、WireGuard）后面，以获得额外的保护层。
 </Callout>
 
-### A note on TRUSTED_ORIGINS
+### 关于 TRUSTED_ORIGINS 的说明
 
-The `TRUSTED_ORIGINS` environment variable allows you to add additional CORS origins for cross-origin requests. It does **not** make HTTP work when `BASE_URL` is set to HTTPS. If your `BASE_URL` uses `https://`, all access must go through HTTPS regardless of what is listed in `TRUSTED_ORIGINS`.
+`TRUSTED_ORIGINS` 环境变量允许您为跨域请求添加额外的 CORS 来源。它**不能**使 HTTP 在 `BASE_URL` 设置为 HTTPS 的情况下正常工作。如果您的 `BASE_URL` 使用 `https://`，无论 `TRUSTED_ORIGINS` 中列出了什么，所有访问都必须通过 HTTPS。
 
 ```yaml
-# TRUSTED_ORIGINS only adds allowed CORS origins, it does NOT downgrade HTTPS to HTTP
+# TRUSTED_ORIGINS 仅添加允许的 CORS 来源，不会将 HTTPS 降级为 HTTP
 environment:
   - BASE_URL=https://zerobyte.example.com
   - TRUSTED_ORIGINS=https://other-app.example.com
 ```
 
-## Verifying your setup
+## 验证您的设置
 
-After configuring your reverse proxy:
+配置反向代理后：
 
 <Steps>
 <Step>
 
-### Test HTTPS access
+### 测试 HTTPS 访问
 
-Open `https://zerobyte.example.com` in your browser. You should see the Zerobyte login page with a valid TLS certificate.
+在浏览器中打开 `https://zerobyte.example.com`。您应该能看到 Zerobyte 的登录页面，并附带有效的 TLS 证书。
 
 </Step>
 
 <Step>
 
-### Check headers
+### 检查请求头
 
-Verify that your proxy is forwarding the correct headers. In the Zerobyte container logs, you should see requests coming from your proxy:
+验证您的代理是否正确转发了请求头。在 Zerobyte 容器日志中，您应该能看到来自代理的请求：
 
 ```bash
 docker compose logs -f zerobyte
@@ -182,9 +182,9 @@ docker compose logs -f zerobyte
 
 <Step>
 
-### Confirm login works
+### 确认登录正常
 
-Log in with your admin credentials. If login fails or loops, double-check that `BASE_URL` matches the URL you are accessing and that cookies are being set correctly over HTTPS.
+使用您的管理员凭据登录。如果登录失败或出现循环，请仔细检查 `BASE_URL` 是否与您访问的 URL 一致，以及 Cookie 是否正确通过 HTTPS 设置。
 
 </Step>
 </Steps>

@@ -1,110 +1,110 @@
 ---
-title: SSO
-description: Register OIDC providers, control access with invitations, and understand account-linking behavior
+title: 单点登录 (SSO)
+description: 注册 OIDC 提供商、通过邀请控制访问，并了解账户关联行为
 ---
 
-Zerobyte's current SSO implementation is organization-scoped and OIDC-based. You register providers under **Settings > Organization > Single Sign-On**, or directly at `/settings/sso/new`.
+Zerobyte 当前的 SSO 实现是基于组织范围和 OIDC 协议的。您可以在 **设置 > 组织 > 单点登录** 下注册提供商，或直接访问 `/settings/sso/new`。
 
 <Callout type="warn">
-  Zerobyte SSO is invite-oriented. Enabling auto-linking does **not** mean "anyone with that email can join".
+  Zerobyte SSO 是基于邀请制的。启用自动关联**并不**意味着"任何拥有该邮箱的人都可以加入"。
 </Callout>
 
-## What Zerobyte supports
+## Zerobyte 支持的功能
 
-- Each SSO provider belongs to exactly one organization.
-- The login page exposes registered providers as `Log in with {providerId}` buttons.
-- Organization owners can register new providers.
-- Organization owners and admins can manage invitations, toggle per-provider auto-linking, and delete existing providers.
-- Zerobyte currently registers OIDC providers with the `openid`, `email`, and `profile` scopes.
+- 每个 SSO 提供商属于且仅属于一个组织。
+- 登录页面会将已注册的提供商显示为 `使用 {providerId} 登录` 按钮。
+- 组织所有者可以注册新的提供商。
+- 组织所有者和管理员可以管理邀请、切换每个提供商的自动关联开关，以及删除现有提供商。
+- Zerobyte 当前注册 OIDC 提供商时使用 `openid`、`email` 和 `profile` 作用域。
 
-## Required values
+## 必填字段
 
-| Zerobyte field | What it means | Example |
+| Zerobyte 字段 | 说明 | 示例 |
 | --- | --- | --- |
-| `Provider ID` | Stable unique identifier for this provider. It is used in the callback URL and is what users see on the login button. | `acme-oidc` |
-| `Organization Domain` | Domain recorded with the provider and used for provider discovery metadata. | `example.com` |
-| `Issuer URL` | The OIDC issuer published by your identity provider. | `https://idp.example.com/realms/acme` |
-| `Discovery Endpoint` | The provider's `.well-known/openid-configuration` URL. | `https://idp.example.com/.well-known/openid-configuration` |
-| `Client ID` | OIDC client identifier from your IdP. | `zerobyte` |
-| `Client Secret` | OIDC client secret from your IdP. | `(secret)` |
-| `Link matching emails to existing accounts` | Per-provider trust switch for matching an existing Zerobyte account by email. | `Off` by default |
+| `Provider ID`（提供商 ID） | 此提供商的稳定唯一标识符。用于回调 URL，也是用户在登录按钮上看到的内容。 | `acme-oidc` |
+| `Organization Domain`（组织域名） | 在提供商处注册的域名，用于提供商发现元数据。 | `example.com` |
+| `Issuer URL`（签发者 URL） | 您的身份提供商发布的 OIDC 签发者地址。 | `https://idp.example.com/realms/acme` |
+| `Discovery Endpoint`（发现端点） | 提供商的 `.well-known/openid-configuration` URL。 | `https://idp.example.com/.well-known/openid-configuration` |
+| `Client ID`（客户端 ID） | 来自您的 IdP 的 OIDC 客户端标识符。 | `zerobyte` |
+| `Client Secret`（客户端密钥） | 来自您的 IdP 的 OIDC 客户端密钥。 | `(secret)` |
+| `Link matching emails to existing accounts`（将匹配的邮箱关联到现有账户） | 每个提供商的信任开关，用于按邮箱匹配现有的 Zerobyte 账户。 | 默认为 `Off`（关闭） |
 
-## Callback URL
+## 回调 URL
 
-Register this exact redirect URI in your identity provider:
+在您的身份提供商中注册以下精确的重定向 URI：
 
 ```text
 ${BASE_URL}/api/auth/sso/callback/${providerId}
 ```
 
-Example:
+示例：
 
 ```text
 https://backup.example.com/api/auth/sso/callback/acme-oidc
 ```
 
-## Setup checklist
+## 设置清单
 
-1. In your identity provider, create a confidential or web OIDC client for Zerobyte.
-2. Register the callback URL above as an allowed redirect URI.
-3. Make sure the provider returns `email` and an email-verification claim.
-4. In Zerobyte, open **Settings > Organization > Single Sign-On** and click **Register new**.
-5. Fill in the provider details and save.
-6. Decide whether `Link matching emails to existing accounts` should be enabled for this provider.
-7. Invite users before asking them to sign in, unless their existing local account already belongs to the organization.
+1. 在您的身份提供商中，为 Zerobyte 创建一个机密的或 Web 类型的 OIDC 客户端。
+2. 将上述回调 URL 注册为允许的重定向 URI。
+3. 确保提供商返回 `email` 和一个邮箱验证声明。
+4. 在 Zerobyte 中，打开 **设置 > 组织 > 单点登录**，然后点击 **注册新的**。
+5. 填写提供商详细信息并保存。
+6. 决定是否为此提供商启用 `Link matching emails to existing accounts`（将匹配的邮箱关联到现有账户）。
+7. 在要求用户登录之前先发送邀请，除非他们现有的本地账户已属于该组织。
 
-## How access is decided
+## 访问权限如何判定
 
-The important rule is that Zerobyte checks **organization membership** and **pending invitations** in addition to whatever your identity provider says.
+重要规则是：Zerobyte 会检查**组织成员身份**和**待处理的邀请**，而不仅仅依赖您的身份提供商的信息。
 
-| Situation | Result | Why |
+| 情况 | 结果 | 原因 |
 | --- | --- | --- |
-| Brand-new user, no membership, no invitation | Blocked | There is no valid organization membership or pending invitation. |
-| Brand-new user with a pending invitation | Allowed | Zerobyte creates the membership on first successful SSO login and marks the invitation as `accepted`. |
-| Existing local account already belongs to the organization, auto-linking is `off` | Blocked with an account-linking error | The provider is not trusted to auto-link by email yet. |
-| Existing local account already belongs to the organization, auto-linking is `on` | Allowed | The provider is trusted for matching-email account linking inside that organization. |
-| Existing local account has the same email, has a pending invitation, but is **not already a member** of the organization | Blocked with an account-linking error | Zerobyte refuses to merge an existing account that is outside the organization, even if the email matches and there is a pending invitation. |
-| User was invited before, signed in once, was later removed from the organization, then tries SSO again | Blocked | The old invitation remains `accepted`; it is not reopened automatically after removal. |
+| 全新用户，无成员身份，无邀请 | 被阻止 | 没有有效的组织成员身份或待处理的邀请。 |
+| 全新用户有待处理的邀请 | 允许 | Zerobyte 在首次成功 SSO 登录时创建成员身份，并将邀请标记为 `accepted`（已接受）。 |
+| 现有本地账户已属于该组织，自动关联为 `off` | 被阻止，显示账户关联错误 | 提供商尚未被信任为可通过邮箱自动关联。 |
+| 现有本地账户已属于该组织，自动关联为 `on` | 允许 | 提供商标记为此组织内的邮箱匹配账户关联为可信。 |
+| 现有本地账户邮箱相同，有待处理的邀请，但**不是该组织的成员** | 被阻止，显示账户关联错误 | Zerobyte 拒绝合并组织外部的现有账户，即使邮箱匹配且有待处理的邀请。 |
+| 用户之前被邀请过，登录过一次，后来被从组织中移除，再次尝试 SSO | 被阻止 | 旧的邀请保持 `accepted` 状态；移除后不会自动重新打开。 |
 
-In practice, an **eligible local account** means an account that already belongs to the organization you are signing into. A matching email plus a pending invitation is **not** enough to merge an unrelated existing account.
+实际上，**符合条件的本地账户**是指已经属于您要登录的组织的账户。匹配的邮箱加上待处理的邀请**不足以**合并一个不相关的现有账户。
 
-## Invitations and membership lifecycle
+## 邀请和成员身份生命周期
 
-- Invitations are email-based, organization-specific, and role-bearing.
-- A successful first SSO login for an invited user creates the membership and marks the invitation as `accepted`.
-- Pending invitations must still be unexpired to work.
-- Expired, cancelled, or already accepted invitations do not grant first-time access.
-- If a user is removed later, create a **new** invitation before they try SSO again.
+- 邀请基于邮箱、特定于组织且带有角色。
+- 受邀用户在首次成功 SSO 登录时会创建成员身份，并将邀请标记为 `accepted`。
+- 待处理的邀请必须仍未过期才能生效。
+- 已过期、已取消或已被接受的邀请不会授予首次访问权限。
+- 如果用户之后被移除，请在他们再次尝试 SSO 之前创建**新的**邀请。
 
-The invitation UI lets you assign `member`, `admin`, or `owner` at invite time. The accepted membership is created with that invited role.
+邀请界面允许您在邀请时分配 `member`（成员）、`admin`（管理员）或 `owner`（所有者）角色。被接受的成员身份将使用该邀请角色创建。
 
-## Auto-linking semantics
+## 自动关联语义
 
-- Auto-linking is stored **per provider**, not globally.
-- Turning it on for one provider does not affect other providers.
-- It only applies when the IdP email matches an existing Zerobyte account.
-- It does **not** grant organization membership by email alone.
-- It does **not** override invite-only access for brand-new users.
-- It does **not** merge a matching account that is outside the organization.
-- Leaving it off is the safest default for new rollouts.
+- 自动关联是按**每个提供商**存储的，而非全局设置。
+- 为某个提供商开启此功能不会影响其他提供商。
+- 它仅在 IdP 邮箱与现有的 Zerobyte 账户匹配时适用。
+- 它**不会**仅凭邮箱授予组织成员身份。
+- 它**不会**覆盖全新用户的仅限邀请访问策略。
+- 它**不会**合并组织外部的匹配账户。
+- 在推出新功能时，保持关闭是最安全的默认设置。
 
 <Callout type="info">
-  The safest mental model is: auto-linking can help an already eligible account add SSO, but it is not an open-enrollment feature.
+  最安全的理解方式是：自动关联可以帮助已有资格的用户添加 SSO 登录方式，但它不是一个开放注册功能。
 </Callout>
 
-## Common failure cases
+## 常见失败情况
 
-| What the user sees | Typical cause | What to do |
+| 用户看到的内容 | 典型原因 | 解决方式 |
 | --- | --- | --- |
-| `Access is invite-only. Ask an organization admin to send you an invitation before signing in with SSO.` | No pending invitation, invitation expired, invitation was cancelled, or the user was removed after an earlier accepted invite | Create a new pending invitation or restore membership before retrying. |
-| `SSO sign-in was blocked because this email already belongs to another user in this instance.` | Zerobyte found an existing account with the same email, but that account is not eligible for auto-linking with this provider | Confirm whether the account already belongs to the organization and whether auto-linking should be enabled on this trusted provider. |
-| `Your identity provider did not mark your email as verified.` | The IdP did not send a verified email claim | Fix email verification in the IdP before retrying. |
-| `You have been banned from this application.` | The user is banned at the application level | Remove the ban or use a different account. |
-| `SSO authentication failed. Please try again.` | Generic provider or callback failure | Check IdP redirect URI, client credentials, issuer, and discovery endpoint. |
+| `访问仅限邀请。请让组织管理员在您使用 SSO 登录之前向您发送邀请。` | 没有待处理的邀请、邀请已过期、邀请已被取消，或用户在之前接受邀请后被移除了 | 在重试之前创建新的待处理邀请或恢复成员身份。 |
+| `SSO 登录被阻止，因为此邮箱已属于此实例中的另一个用户。` | Zerobyte 找到了一个具有相同邮箱的现有账户，但该账户不符合此提供商的自动关联条件 | 确认该账户是否已属于该组织，以及是否应在此可信提供商上启用自动关联。 |
+| `您的身份提供商未将您的邮箱标记为已验证。` | IdP 未发送已验证邮箱的声明 | 在重试之前修复 IdP 中的邮箱验证。 |
+| `您已被禁止使用此应用程序。` | 用户在应用层面被禁止 | 解除禁令或使用其他账户。 |
+| `SSO 认证失败。请重试。` | 通用提供商或回调失败 | 检查 IdP 重定向 URI、客户端凭据、签发者和发现端点。 |
 
-## Related docs
+## 相关文档
 
-- [Organizations, members, and roles](/docs/concepts/organizations)
-- [Recovery keys and repository passwords](/docs/guides/recovery-key-and-repository-passwords)
+- [组织、成员和角色](/docs/concepts/organizations)
+- [恢复密钥和仓库密码](/docs/guides/recovery-key-and-repository-passwords)
 
 import { Callout } from "fumadocs-ui/components/callout";

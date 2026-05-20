@@ -1,134 +1,134 @@
 ---
-title: Introduction
-description: Learn about Zerobyte, a powerful backup automation platform built on Restic
+title: 简介
+description: 了解 Zerobyte，一个基于 Restic 的强大备份自动化平台
 ---
 
-Zerobyte is a backup automation tool that helps you protect your data across multiple storage backends. Built on top of [Restic](https://restic.net/), it provides a modern web interface to schedule, manage, and monitor encrypted backups.
+Zerobyte 是一款备份自动化工具，帮助你跨多个存储后端保护数据。它基于 [Restic](https://restic.net/) 构建，提供了一个现代化的 Web 界面来调度、管理和监控加密备份。
 
 <Callout type="warn">
-  Zerobyte is still in version 0.x.x and is subject to major changes between versions. Core features are under active development
+  Zerobyte 仍处于 0.x.x 版本，各版本之间可能会有重大变化。核心功能正在积极开发中
 </Callout>
 
-## Key Features
+## 主要功能
 
 <Cards>
-  <Card title="Automated Backups" icon={<Clock />}>
-    Schedule encrypted, compressed backups with fine-grained retention policies powered by Restic
+  <Card title="自动化备份" icon={<Clock />}>
+    通过 Restic 的强大能力，调度加密、压缩的备份，并设置精细的保留策略
   </Card>
 
-  <Card title="Flexible Scheduling" icon={<Calendar />}>
-    Configure automated backup jobs with cron expressions and sophisticated retention rules
+  <Card title="灵活调度" icon={<Calendar />}>
+    使用 cron 表达式和复杂的保留规则配置自动化备份任务
   </Card>
 
-  <Card title="End-to-End Encryption" icon={<Lock />}>
-    Your data is always protected with strong encryption at rest, ensuring security for every snapshot
+  <Card title="端到端加密" icon={<Lock />}>
+    您的数据始终受到强加密保护，确保每个快照的安全性
   </Card>
 
-  <Card title="Multi-Protocol Support" icon={<Network />}>
-    Back up from NFS, SMB, WebDAV, SFTP, or local directories with ease
+  <Card title="多协议支持" icon={<Network />}>
+    轻松备份来自 NFS、SMB、WebDAV、SFTP 或本地目录的数据
   </Card>
 </Cards>
 
-## Supported Storage
+## 支持的存储
 
-### Volume Sources (What to Back Up)
+### 卷来源（要备份的内容）
 
-Volumes represent the data you want to protect:
+卷代表您想要保护的数据：
 
-- **Local directories**, directories mounted into the container
-- **NFS**, Network File System shares (v3, v4, v4.1)
-- **SMB/CIFS**, Windows and Samba shares
-- **WebDAV**, WebDAV-compatible storage (Nextcloud, ownCloud, etc.)
-- **SFTP**, SSH File Transfer Protocol servers
-- **Rclone**, 40+ cloud storage providers via rclone (Google Drive, Dropbox, OneDrive, etc.)
+- **本地目录**，挂载到容器中的目录
+- **NFS**，网络文件系统共享（v3、v4、v4.1）
+- **SMB/CIFS**，Windows 和 Samba 共享
+- **WebDAV**，兼容 WebDAV 的存储（Nextcloud、ownCloud 等）
+- **SFTP**，SSH 文件传输协议服务器
+- **Rclone**，通过 rclone 支持 40 多种云存储提供商（Google Drive、Dropbox、OneDrive 等）
 
-### Repository Destinations (Where to Store Backups)
+### 仓库目标（备份存储位置）
 
-Repositories are encrypted storage locations for your backup snapshots:
+仓库是存储备份快照的加密位置：
 
-- **Local directories**, store backups on local disk
-- **S3-compatible storage**, Amazon S3, MinIO, Wasabi, Backblaze B2, DigitalOcean Spaces, and more
-- **Cloudflare R2**, S3-compatible with zero egress fees
-- **Google Cloud Storage**, Google's cloud storage service
-- **Azure Blob Storage**, Microsoft Azure storage
-- **SFTP**, remote servers accessible via SSH
-- **REST server**, Restic REST server protocol
-- **Rclone remotes**, 40+ cloud storage providers via rclone
+- **本地目录**，将备份存储在本地磁盘
+- **兼容 S3 的存储**，Amazon S3、MinIO、Wasabi、Backblaze B2、DigitalOcean Spaces 等
+- **Cloudflare R2**，兼容 S3，零出站费用
+- **Google Cloud Storage**，谷歌云存储服务
+- **Azure Blob Storage**，微软 Azure 存储
+- **SFTP**，可通过 SSH 访问的远程服务器
+- **REST 服务器**，Restic REST 服务器协议
+- **Rclone 远程存储**，通过 rclone 支持 40 多种云存储提供商
 
-## How It Works
+## 工作原理
 
-Zerobyte operates on three core concepts:
+Zerobyte 基于三个核心概念运行：
 
 <Steps>
   <Step>
 
-### Volumes
+### 卷
 
-Define **volumes** as the source data you want to back up. These can be local directories, network shares, or cloud storage mounted via various protocols. Zerobyte handles mounting, health monitoring, and auto-recovery automatically.
-
-  </Step>
-
-  <Step>
-
-### Repositories
-
-Create **repositories** as encrypted storage destinations. Repositories use Restic's deduplication and encryption to store your backups efficiently and securely. Choose from local disks, cloud object storage, or any of 40+ rclone backends.
+定义**卷**作为要备份的源数据。这些可以是本地目录、网络共享或通过各种协议挂载的云存储。Zerobyte 会自动处理挂载、健康监控和自动恢复。
 
   </Step>
 
   <Step>
 
-### Backup Jobs
+### 仓库
 
-Configure **backup jobs** that connect volumes to repositories with scheduling rules and retention policies. Jobs run automatically according to your schedule, with real-time progress monitoring in the web interface.
+创建**仓库**作为加密的存储目标。仓库使用 Restic 的去重和加密技术高效安全地存储您的备份。可以选择本地磁盘、云对象存储或 40 多种 rclone 后端。
+
+  </Step>
+
+  <Step>
+
+### 备份任务
+
+配置**备份任务**，将卷与仓库连接起来，并设置调度规则和保留策略。任务将根据您的计划自动运行，并在 Web 界面中实时监控进度。
 
   </Step>
 </Steps>
 
 <Callout type="info">
-  All backups are encrypted using Restic's encryption. Your encryption password is securely stored and never leaves your server.
+  所有备份均使用 Restic 的加密技术进行加密。您的加密密码将被安全存储，绝不会离开您的服务器。
 </Callout>
 
-## Use Cases
+## 使用场景
 
 <Accordions>
-  <Accordion title="Home Server Backups">
-    Back up your home server data (photos, documents, media) to cloud storage or an external drive with automatic scheduling and retention.
+  <Accordion title="家庭服务器备份">
+    将家庭服务器数据（照片、文档、媒体）自动备份到云存储或外部硬盘，并设置调度和保留策略。
   </Accordion>
 
-  <Accordion title="NAS Data Protection">
-    Protect your NAS data by backing up critical shares to offsite cloud storage with encryption and versioning.
+  <Accordion title="NAS 数据保护">
+    通过将关键共享数据备份到异地云存储（带加密和版本控制）来保护您的 NAS 数据。
   </Accordion>
 
-  <Accordion title="Development Server Backups">
-    Automatically back up development servers, databases, and configuration files to ensure quick recovery.
+  <Accordion title="开发服务器备份">
+    自动备份开发服务器、数据库和配置文件，确保快速恢复。
   </Accordion>
 
-  <Accordion title="Multi-Site Backups">
-    Centralize backup management for multiple locations, backing up various sources to different repository types.
+  <Accordion title="多站点备份">
+    集中管理多个位置的备份，将不同来源的数据备份到不同类型的仓库。
   </Accordion>
 </Accordions>
 
-## Why Restic?
+## 为什么选择 Restic？
 
-Zerobyte is built on [Restic](https://restic.net/) because it offers:
+Zerobyte 基于 [Restic](https://restic.net/) 构建，因为它提供了：
 
-- **Fast and efficient**, incremental backups with content-defined chunking
-- **Secure by design**, strong encryption and authenticated snapshots
-- **Deduplication**, only unique data is stored, saving space
-- **Verification**, built-in integrity checking for peace of mind
-- **Cross-platform**, works across different operating systems
-- **Well-maintained**, an active open-source project with regular updates
+- **快速高效**，基于内容定义分块的增量备份
+- **设计安全**，强加密和经过认证的快照
+- **去重**，仅存储唯一数据，节省空间
+- **校验**，内置完整性检查，让您安心
+- **跨平台**，支持不同操作系统
+- **维护良好**，活跃的开源项目，定期更新
 
-## Next Steps
+## 下一步
 
 <Cards>
-  <Card title="Installation" icon={<Download />} href="/docs/installation">
-    Deploy Zerobyte with Docker and Docker Compose
+  <Card title="安装" icon={<Download />} href="/docs/installation">
+    使用 Docker 和 Docker Compose 部署 Zerobyte
   </Card>
 
-  <Card title="Quick Start" icon={<Rocket />} href="/docs/quickstart">
-    Set up your first backup in minutes
+  <Card title="快速入门" icon={<Rocket />} href="/docs/quickstart">
+    数分钟内设置你的第一个备份
   </Card>
 </Cards>
 

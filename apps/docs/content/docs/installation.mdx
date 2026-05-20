@@ -1,37 +1,37 @@
 ---
-title: Installation
-description: Deploy Zerobyte with Docker and Docker Compose
+title: 安装
+description: 使用 Docker 和 Docker Compose 部署 Zerobyte
 ---
 
 import { Check, LifeBuoy, Rocket, Settings, X } from "lucide-react";
 import { Step, Steps } from "fumadocs-ui/components/steps";
 
-Zerobyte runs as a Docker container and requires Docker and Docker Compose to be installed on your server.
+Zerobyte 以 Docker 容器方式运行，需要在服务器上安装 Docker 和 Docker Compose。
 
-## Prerequisites
+## 前提条件
 
 <Steps>
 <Step>
 
-### Install Docker
+### 安装 Docker
 
-Ensure Docker is installed on your server. Visit [docs.docker.com](https://docs.docker.com/get-docker/) for installation instructions for your platform.
-
-</Step>
-
-<Step>
-
-### Install Docker Compose
-
-Docker Compose is required for orchestration. It's included with Docker Desktop or can be installed separately on Linux servers.
+确保服务器上已安装 Docker。请访问 [docs.docker.com](https://docs.docker.com/get-docker/) 获取适用于你平台的安装说明。
 
 </Step>
 
 <Step>
 
-### Check Installation
+### 安装 Docker Compose
 
-Verify your installation by running:
+Docker Compose 是编排所必需的。它已包含在 Docker Desktop 中，也可以在 Linux 服务器上单独安装。
+
+</Step>
+
+<Step>
+
+### 检查安装
+
+通过运行以下命令验证安装：
 
 ```bash
 docker --version
@@ -41,13 +41,13 @@ docker compose version
 </Step>
 </Steps>
 
-## Basic Installation
+## 基本安装
 
-The standard installation includes remote mount support (NFS, SMB, WebDAV, SFTP) and requires elevated container capabilities.
+标准安装包含远程挂载支持（NFS、SMB、WebDAV、SFTP），需要容器拥有提升的权限。
 
-### 1. Create docker-compose.yml
+### 1. 创建 docker-compose.yml
 
-Create a `docker-compose.yml` file with the following configuration:
+使用以下配置创建 `docker-compose.yml` 文件：
 
 ```yaml docker-compose.yml
 services:
@@ -62,69 +62,69 @@ services:
     devices:
       - /dev/fuse:/dev/fuse
     environment:
-      - TZ=Europe/Zurich # Set your timezone here
-      - BASE_URL=http://localhost:4096 # URL you will use to access Zerobyte
-      - APP_SECRET=94bad46...c66e25d5c2b # Generate your own secret with `openssl rand -hex 32`
+      - TZ=Europe/Zurich # 在此处设置你的时区
+      - BASE_URL=http://localhost:4096 # 访问 Zerobyte 的 URL
+      - APP_SECRET=94bad46...c66e25d5c2b # 使用 `openssl rand -hex 32` 生成你自己的密钥
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/zerobyte:/var/lib/zerobyte
 ```
 
 <Callout type="warn">
-**Security Note**: The `SYS_ADMIN` capability and `/dev/fuse` device are required for mounting remote filesystems (NFS, SMB, WebDAV, SFTP). If you only need local directory backups, see the [Simplified Installation](#simplified-installation-no-remote-mounts) section below.
+**安全说明**：`SYS_ADMIN` 权限和 `/dev/fuse` 设备是挂载远程文件系统（NFS、SMB、WebDAV、SFTP）所必需的。如果只需要本地目录备份，请参见下面的[简化安装](#simplified-installation-no-remote-mounts)部分。
 
-Remote mounts are convenient, but they can expose translated ownership, permissions, and ACL metadata instead of the source system's original view. Read [Mounted Shares and Permissions](/docs/guides/mounted-shares-and-acls) before using mounted volumes for metadata-sensitive backups.
+远程挂载虽然方便，但可能会暴露经过转换的所有权、权限和 ACL 元数据，而非源系统的原始视图。在对元数据敏感的备份中使用挂载卷之前，请阅读[挂载共享与权限](/docs/guides/mounted-shares-and-acls)。
 </Callout>
 
-### 2. Configure Environment Variables
+### 2. 配置环境变量
 
-Update the environment variables in your `docker-compose.yml`:
+更新 `docker-compose.yml` 中的环境变量：
 
-**Generate APP_SECRET:**
+**生成 APP_SECRET：**
 
 ```bash
 openssl rand -hex 32
 ```
 
-**Example Configuration:**
+**配置示例：**
 
 ```yaml
 environment:
   - TZ=America/New_York
   - BASE_URL=http://192.168.1.100:4096
-  - APP_SECRET=a1b2c3d4e5f6...  # Output from openssl command
+  - APP_SECRET=a1b2c3d4e5f6...  # openssl 命令的输出
 ```
 
-#### Required Environment Variables
+#### 必需的环境变量
 
-| Variable | Description | Example |
+| 变量 | 描述 | 示例 |
 |----------|-------------|---------|
-| `BASE_URL` | **Required.** The base URL where Zerobyte will be accessed. Used for cookie security and CORS. | `http://localhost:4096` or `https://zerobyte.example.com` |
-| `APP_SECRET` | **Required.** A 32+ character random secret for encrypting sensitive data in the database. Generate with `openssl rand -hex 32`. | `94bad46...c66e25d5c2b` |
-| `TZ` | **Recommended.** Timezone for accurate backup scheduling. | `Europe/Zurich`, `America/New_York`, `UTC` |
+| `BASE_URL` | **必需。**访问 Zerobyte 的基础 URL。用于 Cookie 安全和 CORS。 | `http://localhost:4096` 或 `https://zerobyte.example.com` |
+| `APP_SECRET` | **必需。**用于加密数据库中敏感数据的 32+ 位随机密钥。使用 `openssl rand -hex 32` 生成。 | `94bad46...c66e25d5c2b` |
+| `TZ` | **推荐。**用于准确备份调度的时区。 | `Europe/Zurich`、`America/New_York`、`UTC` |
 
 <Callout type="info">
-The `BASE_URL` determines cookie security behavior:
+`BASE_URL` 决定 Cookie 安全行为：
 
-* **HTTP or IP addresses**: Secure cookies disabled (allows local access)
-* **HTTPS with domain**: Secure cookies enabled (required for production)
+* **HTTP 或 IP 地址**：安全 Cookie 已禁用（允许本地访问）
+* **HTTPS 加域名**：安全 Cookie 已启用（生产环境必需）
 </Callout>
 
-#### Optional Environment Variables
+#### 可选的环境变量
 
-| Variable | Description | Default |
+| 变量 | 描述 | 默认值 |
 |----------|-------------|---------|
-| `PORT` | Port the web interface listens on inside the container | `4096` |
-| `RESTIC_HOSTNAME` | Hostname used by Restic in snapshots | `zerobyte` |
-| `TRUSTED_ORIGINS` | Comma-separated list of additional trusted CORS origins | (none) |
-| `WEBHOOK_TIMEOUT` | Timeout for backup webhook requests in seconds | `60` |
-| `LOG_LEVEL` | Logging verbosity: `debug`, `info`, `warn`, `error` | `info` |
-| `SERVER_IDLE_TIMEOUT` | Server idle timeout in seconds | `60` |
-| `RCLONE_CONFIG_DIR` | Path to rclone config directory inside container | `/root/.config/rclone` |
+| `PORT` | 容器内 Web 界面监听的端口 | `4096` |
+| `RESTIC_HOSTNAME` | Restic 在快照中使用的主机名 | `zerobyte` |
+| `TRUSTED_ORIGINS` | 额外受信任 CORS 来源的逗号分隔列表 | (无) |
+| `WEBHOOK_TIMEOUT` | 备份 Webhook 请求的超时时间（秒） | `60` |
+| `LOG_LEVEL` | 日志详细级别：`debug`、`info`、`warn`、`error` | `info` |
+| `SERVER_IDLE_TIMEOUT` | 服务器空闲超时时间（秒） | `60` |
+| `RCLONE_CONFIG_DIR` | 容器内 rclone 配置目录的路径 | `/root/.config/rclone` |
 
-### 3. Configure Volume Mounts
+### 3. 配置卷挂载
 
-The essential volume mount stores Zerobyte's data:
+必需卷挂载用于存储 Zerobyte 的数据：
 
 ```yaml
 volumes:
@@ -133,11 +133,11 @@ volumes:
 ```
 
 <Callout type="warn">
-**Important**: Do not point `/var/lib/zerobyte` to a network share. This will cause permission issues and severe performance degradation. Always use local storage.
+**重要**：请勿将 `/var/lib/zerobyte` 指向网络共享。这会导致权限问题和严重的性能下降。请始终使用本地存储。
 </Callout>
 
 <Callout type="info">
-**TrueNAS Users**: The `/var/lib` path is ephemeral on TrueNAS and resets during system upgrades. Instead, create a dedicated ZFS dataset:
+**TrueNAS 用户**：`/var/lib` 路径在 TrueNAS 上是临时的，系统升级时会重置。请改为创建专用的 ZFS 数据集：
 
 ```yaml
 volumes:
@@ -145,39 +145,39 @@ volumes:
   - /mnt/tank/docker/zerobyte:/var/lib/zerobyte
 ```
 
-This ensures your configuration, encryption keys, and database persist across upgrades.
+这样可以确保你的配置、加密密钥和数据库在升级后持续存在。
 </Callout>
 
-### 4. Start Zerobyte
+### 4. 启动 Zerobyte
 
-Start the container using Docker Compose:
+使用 Docker Compose 启动容器：
 
 ```bash
 docker compose up -d
 ```
 
-Verify the container is running:
+验证容器是否正在运行：
 
 ```bash
 docker compose ps
 docker compose logs -f zerobyte
 ```
 
-### 5. Access the Web Interface
+### 5. 访问 Web 界面
 
-Once the container is running, access Zerobyte at the URL you specified in `BASE_URL`:
+容器运行后，通过 `BASE_URL` 中指定的 URL 访问 Zerobyte：
 
 ```
 http://<your-server-ip>:4096
 ```
 
 <Callout type="info">
-On first access, you'll be prompted to create an admin account. This account will have full access to all backup management features.
+首次访问时，系统会提示你创建管理员账户。该账户将拥有所有备份管理功能的完全访问权限。
 </Callout>
 
-## Simplified Installation (No Remote Mounts)
+## 简化安装（无远程挂载）
 
-If you only need to back up locally mounted directories and don't require remote share mounting (NFS, SMB, WebDAV, SFTP), you can use a reduced-privilege deployment:
+如果只需要备份本地挂载的目录，不需要远程共享挂载（NFS、SMB、WebDAV、SFTP），可以使用低权限部署方案：
 
 ```yaml docker-compose.yml
 services:
@@ -197,36 +197,36 @@ services:
       - /path/to/your/directory:/mydata
 ```
 
-**Trade-offs:**
+**权衡：**
 
 <ul className="my-4 list-none space-y-2 pl-0">
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Improved security by removing `SYS_ADMIN` capability</span>
+    <span>通过移除 `SYS_ADMIN` 权限提高安全性</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>Support for local directories mounted into the container</span>
+    <span>支持挂载到容器中的本地目录</span>
   </li>
   <li className="flex items-start gap-2">
     <Check className="mt-1.5 h-4 w-4 shrink-0 text-green-600" />
-    <span>All repository types still supported (local, S3, GCS, Azure, rclone)</span>
+    <span>仍支持所有仓库类型（local、S3、GCS、Azure、rclone）</span>
   </li>
   <li className="flex items-start gap-2">
     <X className="mt-1.5 h-4 w-4 shrink-0 text-red-600" />
-    <span>Cannot mount remote shares (NFS, SMB, WebDAV, SFTP) from within Zerobyte</span>
+    <span>无法从 Zerobyte 内部挂载远程共享（NFS、SMB、WebDAV、SFTP）</span>
   </li>
 </ul>
 
 <Callout type="info">
-If you need remote mount capabilities later, you can update your `docker-compose.yml` to add back the `cap_add: SYS_ADMIN` and `devices: /dev/fuse:/dev/fuse` directives.
+如果后续需要远程挂载功能，可以更新 `docker-compose.yml` 重新添加 `cap_add: SYS_ADMIN` 和 `devices: /dev/fuse:/dev/fuse` 指令。
 
-If your goal is the closest thing to true replication, prefer local bind-mounted directories whenever possible. See [Mounted Shares and Permissions](/docs/guides/mounted-shares-and-acls) for the practical tradeoffs.
+如果你的目标是尽可能接近真正的复制，请尽可能优先使用本地绑定挂载目录。有关实际权衡，请参阅[挂载共享与权限](/docs/guides/mounted-shares-and-acls)。
 </Callout>
 
-## Mounting Local Directories
+## 挂载本地目录
 
-To back up directories from your host system, mount them into the container:
+要备份主机系统的目录，请将其挂载到容器中：
 
 ```yaml
 volumes:
@@ -238,23 +238,23 @@ volumes:
 ```
 
 <Callout type="info">
-Use read-only mounts (`:ro`) if you want to prevent Zerobyte from modifying the source data. But you won't be able to restore files back to the original location if you use read-only mounts.
+如果希望防止 Zerobyte 修改源数据，请使用只读挂载（`:ro`）。但使用只读挂载后，你将无法将文件恢复到原始位置。
 </Callout>
 
-After adding volume mounts, restart the container:
+添加卷挂载后，重启容器：
 
 ```bash
 docker compose down
 docker compose up -d
 ```
 
-The mounted directories will be available inside the container at the specified paths (e.g., `/photos`, `/documents`, `/media`).
+挂载的目录将在容器内的指定路径（如 `/photos`、`/documents`、`/media`）可用。
 
-## Advanced Configuration
+## 高级配置
 
-### Using Docker Secrets for Sensitive Data
+### 使用 Docker Secrets 管理敏感数据
 
-If you use provisioning, Zerobyte can resolve secrets from environment variables or Docker secret files before storing the resolved value encrypted in the database:
+如果使用自动配置，Zerobyte 可以在将解析后的值加密存储到数据库之前，从环境变量或 Docker Secret 文件中解析密钥：
 
 ```yaml docker-compose.yml
 services:
@@ -285,25 +285,25 @@ secrets:
     file: ./secrets/smb_password.txt
 ```
 
-When authoring a provisioning file, you can reference these secrets:
+编写自动配置文件时，可以引用这些密钥：
 
-* `env://S3_SECRET_KEY` - Resolves from environment variable `S3_SECRET_KEY`
-* `file://smb_password` - Resolves from `/run/secrets/smb_password`
+* `env://S3_SECRET_KEY` - 从环境变量 `S3_SECRET_KEY` 解析
+* `file://smb_password` - 从 `/run/secrets/smb_password` 解析
 
 <Callout type="info">
-  These references are currently resolved only during provisioning. The normal volume and repository forms in the UI expect the actual secret value. See the [Provisioning guide](/docs/guides/provisioning) for the full workflow.
+  这些引用目前仅在自动配置期间解析。UI 中的常规卷和仓库表单需要实际的密钥值。有关完整工作流程，请参阅[自动配置指南](/docs/guides/provisioning)。
 </Callout>
 
-### Mounting rclone Configuration
+### 挂载 rclone 配置
 
-To use rclone-based repositories (Google Drive, Dropbox, OneDrive, etc.), mount your rclone configuration:
+要使用基于 rclone 的仓库（Google Drive、Dropbox、OneDrive 等），请挂载你的 rclone 配置：
 
 <Steps>
 <Step>
 
-### Configure rclone on Host
+### 在主机上配置 rclone
 
-Install and configure rclone on your host system:
+在主机系统上安装并配置 rclone：
 
 ```bash
 curl https://rclone.org/install.sh | sudo bash
@@ -314,9 +314,9 @@ rclone config
 
 <Step>
 
-### Mount Config into Container
+### 将配置挂载到容器中
 
-Update your `docker-compose.yml`:
+更新你的 `docker-compose.yml`：
 
 ```yaml
 volumes:
@@ -329,7 +329,7 @@ volumes:
 
 <Step>
 
-### Restart Container
+### 重启容器
 
 ```bash
 docker compose down && docker compose up -d
@@ -338,26 +338,26 @@ docker compose down && docker compose up -d
 </Step>
 </Steps>
 
-Your rclone remotes will now be available when creating repositories in Zerobyte.
+现在，在 Zerobyte 中创建仓库时，你的 rclone 远程端点将可用。
 
-### Reverse Proxy Setup
+### 反向代理设置
 
-If you're running Zerobyte behind a reverse proxy (Nginx, Caddy, Traefik), see the [Reverse Proxy guide](/docs/guides/reverse-proxy) for full configuration examples.
+如果你在反向代理（Nginx、Caddy、Traefik）后面运行 Zerobyte，请参阅[反向代理指南](/docs/guides/reverse-proxy)获取完整配置示例。
 
-## Next Steps
+## 后续步骤
 
-Now that Zerobyte is installed, proceed to the Quick Start guide to configure your first backup:
+Zerobyte 已安装完成，接下来请参阅快速入门指南配置你的第一个备份：
 
 <Cards>
-<Card title="Quick Start Guide" icon={<Rocket />} href="/docs/quickstart">
-  Set up your first volume, repository, and backup job
+<Card title="快速入门指南" icon={<Rocket />} href="/docs/quickstart">
+  设置你的第一个卷、仓库和备份任务
 </Card>
 
-<Card title="Configuration Reference" icon={<Settings />} href="/docs/configuration">
-  All environment variables and Docker settings
+<Card title="配置参考" icon={<Settings />} href="/docs/configuration">
+  所有环境变量和 Docker 设置
 </Card>
 
-<Card title="Troubleshooting" icon={<LifeBuoy />} href="/docs/troubleshooting">
-  Solve common issues with permissions, mounts, and more
+<Card title="故障排除" icon={<LifeBuoy />} href="/docs/troubleshooting">
+  解决权限、挂载等常见问题
 </Card>
 </Cards>

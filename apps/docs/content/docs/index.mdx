@@ -1,67 +1,67 @@
 ---
-title: Zerobyte Documentation
-description: Backup automation platform built on Restic
+title: Zerobyte 文档
+description: 基于 Restic 的备份自动化平台
 ---
 
-Welcome to Zerobyte, a powerful backup automation platform built on [Restic](https://restic.net/).
+欢迎使用 Zerobyte，一个基于 [Restic](https://restic.net/) 构建的强大备份自动化平台。
 
-## Getting Started
+## 开始使用
 
 <Cards>
-  <Card title="Introduction" icon={<BookOpen />} href="/docs/introduction">
-    Learn about Zerobyte's features and capabilities
+  <Card title="简介" icon={<BookOpen />} href="/docs/introduction">
+    了解 Zerobyte 的功能与能力
   </Card>
 
-  <Card title="Installation" icon={<Download />} href="/docs/installation">
-    Deploy Zerobyte with Docker and Docker Compose
+  <Card title="安装" icon={<Download />} href="/docs/installation">
+    使用 Docker 和 Docker Compose 部署 Zerobyte
   </Card>
 
-  <Card title="Quick Start" icon={<Rocket />} href="/docs/quickstart">
-    Set up your first backup in minutes
+  <Card title="快速入门" icon={<Rocket />} href="/docs/quickstart">
+    数分钟内设置你的第一个备份
   </Card>
 
-  <Card title="3-2-1 Strategy" icon={<ShieldCheck />} href="/docs/guides/3-2-1-backup-strategy">
-    Learn why 3-2-1 backups matter and how to set them up in Zerobyte
+  <Card title="3-2-1 策略" icon={<ShieldCheck />} href="/docs/guides/3-2-1-backup-strategy">
+    了解为什么 3-2-1 备份很重要，以及如何在 Zerobyte 中配置
   </Card>
 </Cards>
 
-## What is Zerobyte?
+## Zerobyte 是什么？
 
-Zerobyte simplifies backup management by providing an intuitive web interface on top of Restic's powerful backup engine. Whether you're backing up local directories, NFS shares, or cloud storage, Zerobyte handles encryption, compression, scheduling, and retention policies automatically.
+Zerobyte 通过在 Restic 强大的备份引擎之上提供直观的 Web 界面，简化了备份管理。无论你是备份本地目录、NFS 共享还是云存储，Zerobyte 都会自动处理加密、压缩、调度和保留策略。
 
-### Key Capabilities
+### 关键能力
 
-- **Automated backups** with encryption, compression, and retention policies
-- **Flexible scheduling** with cron-like expressions
-- **Multi-protocol support** for NFS, SMB, WebDAV, SFTP, and local directories
-- **Cloud storage** via S3, Google Cloud Storage, Azure Blob, and 40+ rclone backends
-- **Snapshot browsing and restore** directly from the web interface
+- **自动化备份**，支持加密、压缩和保留策略
+- **灵活的调度**，支持类 cron 表达式
+- **多协议支持**，支持 NFS、SMB、WebDAV、SFTP 和本地目录
+- **云存储**，支持 S3、Google Cloud Storage、Azure Blob 及 40 多种 rclone 后端
+- **快照浏览与恢复**，直接在 Web 界面中操作
 
 <Callout type="warn">
-  Zerobyte is still in version 0.x.x and is subject to major changes between versions. Core features are under active development
+  Zerobyte 仍处于 0.x.x 版本，各版本之间可能会有重大变化。核心功能正在积极开发中
 </Callout>
 
-## Explore the Docs
+## 探索文档
 
 <Cards>
-  <Card title="Concepts" icon={<Layers />} href="/docs/concepts/volumes">
-    Understand volumes, repositories, and backup jobs
+  <Card title="概念" icon={<Layers />} href="/docs/concepts/volumes">
+    理解卷、仓库和备份任务
   </Card>
 
-  <Card title="Guides" icon={<BookMarked />} href="/docs/guides/rclone">
-    Step-by-step guides for rclone, reverse proxies, Tailscale, and more
+  <Card title="指南" icon={<BookMarked />} href="/docs/guides/rclone">
+    关于 rclone、反向代理、Tailscale 等的分步指南
   </Card>
 
-  <Card title="Configuration" icon={<Settings />} href="/docs/configuration">
-    Environment variables and Docker configuration reference
+  <Card title="配置" icon={<Settings />} href="/docs/configuration">
+    环境变量和 Docker 配置参考
   </Card>
 
-  <Card title="CLI Reference" icon={<Terminal />} href="/docs/cli">
-    Admin commands for account recovery and maintenance
+  <Card title="CLI 参考" icon={<Terminal />} href="/docs/cli">
+    用于账户恢复和维护的管理命令
   </Card>
 
-  <Card title="Troubleshooting" icon={<LifeBuoy />} href="/docs/troubleshooting">
-    Solve common issues with permissions, mounts, and rclone
+  <Card title="故障排除" icon={<LifeBuoy />} href="/docs/troubleshooting">
+    解决权限、挂载和 rclone 的常见问题
   </Card>
 </Cards>
 

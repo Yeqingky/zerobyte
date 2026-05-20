@@ -3,7 +3,7 @@ import { GithubLogoIcon, DiscordLogoIcon } from "@phosphor-icons/react";
 
 const discordUrl = "https://discord.gg/MzBXz5v5XB";
 const repoUrl = "https://github.com/nicotsx/zerobyte";
-const homeSectionLinks = [{ href: "/", label: "Home" }];
+const homeSectionLinks = [{ href: "/", label: "首页" }];
 const buttonBaseClass =
 	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
@@ -34,7 +34,7 @@ export default function Header() {
 							params={{ _splat: "" }}
 							className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 						>
-							Docs
+							文档
 						</Link>
 					</nav>
 				</div>
@@ -47,7 +47,7 @@ export default function Header() {
 						className={`${buttonBaseClass} size-9 text-muted-foreground hover:bg-accent hover:text-foreground`}
 					>
 						<DiscordLogoIcon className="h-5 w-5" />
-						<span className="sr-only">Join Discord</span>
+						<span className="sr-only">加入 Discord</span>
 					</a>
 					<a
 						href={repoUrl}
@@ -56,7 +56,7 @@ export default function Header() {
 						className={`${buttonBaseClass} size-9 text-muted-foreground hover:bg-accent hover:text-foreground`}
 					>
 						<GithubLogoIcon className="h-5 w-5" />
-						<span className="sr-only">View on GitHub</span>
+						<span className="sr-only">在 GitHub 上查看</span>
 					</a>
 				</div>
 			</div>
